@@ -1,0 +1,206 @@
+/* --- NEWS DASHBOARD STYLES --- */
+
+/* Main content area */
+.news-dashboard-content {
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* --- STATS CARDS --- */
+.news-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.news-stat-card {
+    background: white;
+    padding: 25px 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+}
+
+.news-stat-icon {
+    font-size: 2.5rem;
+    color: #333;
+    flex-shrink: 0;
+}
+
+.news-stat-info h3 {
+    font-size: 0.85rem;
+    color: #333;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 5px;
+    letter-spacing: 0.5px;
+}
+
+.news-stat-info h2 {
+    font-size: 2.5rem;
+    color: #333;
+    font-weight: 800;
+    line-height: 1;
+}
+
+/* --- ADD NEWS BUTTON --- */
+.add-news-bar {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.add-news-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: background-color 0.3s;
+}
+
+.add-news-btn:hover {
+    background-color: #555;
+}
+
+.add-news-btn i {
+    font-size: 1rem;
+}
+
+/* --- NEWS TABLE --- */
+.news-table-container {
+    background: white;
+    border-radius: 12px;
+    border: 2px solid #2196F3;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.news-table-container .table-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #333;
+    padding: 20px 25px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.news-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.news-table thead {
+    background-color: #f8f9fa;
+}
+
+.news-table th {
+    text-align: left;
+    padding: 14px 25px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-top: 1px solid #eee;
+    border-bottom: 2px solid #eee;
+}
+
+.news-table td {
+    padding: 16px 25px;
+    font-size: 0.9rem;
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+.news-table tbody tr:hover {
+    background-color: #f8f9fb;
+}
+
+/* --- ACTION BUTTONS --- */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.action-btn {
+    display: inline-block;
+    padding: 5px 16px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 1px solid transparent;
+}
+
+.edit-btn {
+    background-color: #2196F3;
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: #1976D2;
+}
+
+.view-btn {
+    background-color: #f0f0f0;
+    color: #333;
+    border-color: #ddd;
+}
+
+.view-btn:hover {
+    background-color: #0056b3;
+    color: white;
+    border-color: #0056b3;
+}
+
+.delete-btn {
+    background-color: white;
+    color: #f44336;
+    border-color: #f44336;
+}
+
+.delete-btn:hover {
+    background-color: #f44336;
+    color: white;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 1200px) {
+    .news-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .news-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .news-table-container {
+        overflow-x: auto;
+    }
+
+    .news-dashboard-content {
+        padding: 15px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 5px;
+    }
+}

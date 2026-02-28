@@ -1,0 +1,1346 @@
+/* --- RESET & GLOBAL VARIABLES --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f0f0f0;
+    color: #333;
+    line-height: 1.6;
+}
+
+:root {
+    --primary-blue: #0056b3;  /* Navigation Blue */
+    --dark-blue: #003366;     /* Footer/Gov Blue */
+    --light-gray: #e9ecef;    /* Section Backgrounds */
+    --text-dark: #333;
+}
+
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
+img { display: block; max-width: 100%; height: auto; }
+
+/* --- UTILITIES --- */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+/* --- HEADER --- */
+header {
+    background: white;
+    padding: 15px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.header-content, .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5%;
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header-logo {
+    height: 80px;
+    width: auto;
+}
+
+.header-title {
+    color: #007bff; /* Primary Blue */
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+
+/* --- NAVIGATION --- */
+nav {
+    background-color: #006eb3; /* A slightly different blue from one of the files */
+    color: white;
+}
+
+.nav-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.nav-links li {
+    border-right: 1px solid rgba(255,255,255,0.3);
+    position: relative;
+}
+
+.nav-links li:last-child { border: none; }
+
+.nav-links a {
+    display: block;
+    padding: 15px 25px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background 0.3s;
+}
+
+.nav-links a:hover {
+    background-color: #004a80;
+}
+
+/* --- HERO SECTIONS --- */
+.hero-section img, .hero-full img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    max-height: 500px; /* Adjust based on preference */
+}
+
+/* --- WELCOME MESSAGE --- */
+.welcome-section {
+    text-align: center;
+    padding: 50px 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.welcome-title {
+    color: #0056b3;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+.welcome-text {
+    max-width: 800px;
+    margin: 0 auto;
+    font-size: 1rem;
+    color: #444;
+    margin-bottom: 15px;
+}
+
+
+/* --- EVENTS SECTION --- */
+.events-section {
+    background-color: var(--light-gray);
+    padding: 40px 5%;
+}
+
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.event-card img, .events-grid img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.event-card img:hover, .events-grid img:hover {
+    transform: scale(1.02);
+}
+
+/* --- NEWS & UPDATES --- */
+.news-section {
+    padding: 40px 5%;
+    background: #f8f9fa;
+}
+
+.news-carousel, .news-container {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.news-image {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    display: block;
+}
+
+.carousel-controls, .news-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.btn-control, .news-nav-btn {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 5px 15px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* --- ABOUT US: HISTORY --- */
+.history-container {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 60px;
+}
+
+.history-text {
+    flex: 2;
+    text-align: justify;
+}
+
+.history-seal {
+    flex: 1;
+    text-align: center;
+}
+.history-seal img {
+    max-width: 250px;
+    margin: 0 auto;
+}
+
+/* --- ABOUT US: MISSION/VISION --- */
+.mission-vision-container {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    background-color: white;
+}
+
+.mv-image {
+    flex: 1;
+}
+
+.mv-text {
+    flex: 1;
+}
+
+.mv-text h3 {
+    color: var(--primary-blue);
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+/* --- ABOUT US: ORG CHART --- */
+.org-chart-section {
+    background-color: #f0f4f8;
+    text-align: center;
+}
+
+.org-chart-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    padding-top: 30px;
+}
+
+.org-level {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    width: 100%;
+}
+
+.org-box {
+    width: 100px;
+    height: 100px;
+    background-color: #8ab6d6;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+}
+
+
+/* --- FOOTER --- */
+.main-footer {
+    background-color: #e6e6e6;
+    padding: 40px 5%;
+    font-size: 0.9rem;
+    border-top: 1px solid #ccc;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-col h4 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+.contact-list li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.official-seals {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.seal-icon {
+    width: 40px;
+    height: 40px;
+    background: #ccc; /* Placeholder for logo */
+    border-radius: 50%;
+}
+
+.map-placeholder, .map-box {
+    width: 100%;
+    height: 150px;
+    background-color: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    border: 1px solid #ccc;
+}
+
+/* --- GOV FOOTER (Standard PH Footer) --- */
+.gov-footer {
+    background-color: #003366; /* Standard PH Gov Blue */
+    color: white;
+    padding: 20px;
+    text-align: center;
+    border-top: 4px solid #cc0000; /* Standard PH Gov Red accent */
+}
+
+.gov-footer p {
+    font-size: 0.8rem;
+}
+
+.gov-seal-container {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+
+/* --- RESPONSIVE MEDIA QUERIES --- */
+@media (max-width: 768px) {
+    .header-content, .header-container { flex-direction: column; text-align: center; gap: 10px; }
+    .header-title { font-size: 1.8rem; margin: 10px 0; }
+    .nav-links { flex-direction: column; text-align: center;}
+    .nav-links li { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .events-grid { grid-template-columns: 1fr 1fr; }
+    .footer-grid { grid-template-columns: 1fr; }
+    .history-container, .mission-vision-container { flex-direction: column; }
+    .org-level { flex-wrap: wrap; gap: 10px; }
+}
+/* --- SHARED LAYOUT & UTILITIES (From AboutUs) --- */
+.white-container {
+    background-color: white;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 30px; /* Adjusted padding */
+}
+
+.content-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 40px;
+}
+
+.text-col {
+    flex: 2;
+    line-height: 1.8;
+}
+
+.text-col p {
+    text-align: justify;
+}
+
+.image-col {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-col img, .history-seal {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.centered {
+    justify-content: center;
+}
+
+.padding-left {
+    padding-left: 20px;
+}
+
+/* --- MISSION & VISION --- */
+.mv-block {
+    margin-bottom: 30px;
+}
+
+.mv-title {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.mv-list {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.mv-list li {
+    margin-bottom: 10px;
+}
+
+/* --- ORGANIZATIONAL CHART --- */
+.org-section {
+    background-color: #eef5ff; /* Light blue background */
+    padding: 40px 0;
+}
+
+.org-chart-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    padding-top: 30px;
+}
+
+.org-level {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    width: 100%;
+}
+
+.org-card {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.org-card .fas {
+    font-size: 3em;
+    color: #0056b3; /* Matched to var(--primary-blue) */
+}
+
+.connector-line {
+    width: 2px;
+    height: 40px;
+    background-color: #ccc;
+    margin: 0 auto 30px;
+}
+
+/* --- SHARED LAYOUT & UTILITIES (From AboutUs) --- */
+.white-container {
+    background-color: white;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    padding: 30px; /* Adjusted padding */
+}
+
+.content-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 40px;
+}
+
+.text-col {
+    flex: 2;
+    line-height: 1.8;
+}
+
+.text-col p {
+    text-align: justify;
+}
+
+.image-col {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-col img, .history-seal {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.centered {
+    justify-content: center;
+}
+
+.padding-left {
+    padding-left: 20px;
+}
+
+/* --- MISSION & VISION --- */
+.mv-block {
+    margin-bottom: 30px;
+}
+
+.mv-title {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.mv-list {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.mv-list li {
+    margin-bottom: 10px;
+}
+
+/* --- ORGANIZATIONAL CHART --- */
+.org-section {
+    background-color: #eef5ff; /* Light blue background */
+    padding: 40px 0;
+}
+
+.org-chart-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    padding-top: 30px;
+}
+
+.org-level {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    width: 100%;
+}
+
+.org-card {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.org-card .fas {
+    font-size: 3em;
+    color: #0056b3; /* Matched to var(--primary-blue) */
+}
+
+.connector-line {
+    width: 2px;
+    height: 40px;
+    background-color: #ccc;
+    margin: 0 auto 30px;
+}
+
+/* --- SERVICES PAGE STYLES --- */
+
+/* Hero Section with Text Overlay */
+.hero-services {
+    /* Replace with your actual image path */
+    background-image: url('https://placehold.co/1200x400?text=Community+Park+Image'); 
+    background-size: cover;
+    background-position: center;
+    height: 350px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    width: 100%;
+    padding-left: 5%;
+    padding-right: 5%;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.hero-overlay {
+    background-color: rgba(0, 51, 102, 0.6); /* Semi-transparent dark blue */
+    padding: 20px 40px;
+    border-radius: 5px;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.hero-services h1 {
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    margin: 0;
+}
+
+/* Services Grid Layout */
+.services-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 30px;
+    margin-top: 40px;
+}
+
+/* Individual Service Card */
+.service-card {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    width: calc(50% - 30px); /* Two cards per row with gap */
+    transition: transform 0.3s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-5px); /* Slight lift on hover */
+}
+
+/* Card Icon */
+.card-icon {
+    font-size: 3.5rem;
+    color: #006eb3; /* Primary Blue */
+    min-width: 70px; /* Ensure space for icon */
+    text-align: center;
+}
+
+/* Card Content */
+.card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.card-content h4 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+/* "LEARN MORE" Button */
+.learn-more-btn {
+    display: inline-block;
+    background-color: #006eb3;
+    color: white;
+    padding: 10px 25px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-align: center;
+    align-self: flex-start; /* Aligns button to the left */
+    transition: background-color 0.3s;
+}
+
+.learn-more-btn:hover {
+    background-color: #004a80; /* Darker blue on hover */
+}
+
+/* Responsive Adjustments for Services Page */
+@media (max-width: 900px) {
+    .hero-services h1 {
+        font-size: 1.8rem;
+    }
+    
+    .service-card {
+        width: 100%; /* Full width on smaller screens */
+        flex-direction: column;
+        text-align: center;
+        padding: 25px;
+    }
+
+    .card-content {
+        align-items: center; /* Center align content on mobile */
+    }
+
+    .learn-more-btn {
+        align-self: center; /* Center button on mobile */
+    }
+}
+
+/* --- NEWS & UPDATES PAGE STYLES --- */
+
+/* Hero Section (Specific for News) */
+.hero-news {
+    /* Use your specific News banner image here */
+    background-image: url('https://placehold.co/1200x400?text=News+Billboard+Park'); 
+    background-size: cover;
+    background-position: center;
+    height: 350px;
+    display: flex;
+    align-items: center;
+    /* Centers the text box */
+    justify-content: center; 
+    position: relative;
+}
+
+.hero-overlay-news {
+    background-color: rgba(0, 51, 102, 0.7); /* Darker blue opacity */
+    padding: 15px 30px;
+    border-radius: 4px;
+}
+
+.hero-overlay-news h1 {
+    color: white;
+    font-size: 2.2rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* Advisory Bar */
+.advisory-bar {
+    background-color: #0056b3; /* Primary Blue */
+    color: white;
+    width: 100%;
+    padding: 10px 0;
+    margin-bottom: 20px;
+}
+
+.advisory-content {
+    padding: 0; /* Override container padding */
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.advisory-label {
+    background-color: #5dace0; /* Lighter blue box */
+    padding: 2px 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.advisory-text {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Featured Post */
+.featured-card {
+    background-color: #cfd8dc; /* Grayish blue background */
+    display: flex;
+    padding: 0;
+    margin-bottom: 50px;
+}
+
+.featured-img-container {
+    flex: 1;
+}
+
+.featured-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.featured-text-container {
+    flex: 1.5;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.featured-text-container h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.featured-snippet {
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+}
+
+.read-more-btn {
+    background-color: #004a80;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+    width: fit-content;
+    border-radius: 4px;
+}
+
+/* Post Listing Grid */
+.post-listing-section {
+    padding-top: 0;
+}
+
+.news-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 Columns */
+    gap: 20px;
+}
+
+.news-card-small {
+    background-color: #cfd8dc; /* Light gray background */
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    gap: 20px;
+}
+
+.news-card-small img {
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+}
+
+.news-small-content h4 {
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.news-small-content p {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    color: #444;
+}
+
+.news-small-content a {
+    color: #0056b3;
+    font-weight: bold;
+    font-size: 0.9rem;
+    text-decoration: underline;
+}
+
+/* Responsive News */
+@media (max-width: 768px) {
+    .featured-card { flex-direction: column; }
+    .news-grid { grid-template-columns: 1fr; }
+    .advisory-content { flex-direction: column; text-align: center; }
+}
+
+/* --- CITIZEN'S CHARTER PAGE STYLES --- */
+
+/* Hero Section */
+.hero-charter {
+    background-image: url('https://placehold.co/1200x500?text=Citizens+Charter+Graphic');
+    background-size: cover;
+    background-position: center;
+    height: 500px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    position: relative;
+    padding-bottom: 50px;
+}
+
+.hero-content-charter {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Blue Title Bar */
+.charter-title-bar {
+    background-color: rgba(0, 86, 179, 0.85);
+    width: 100%;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.charter-title-bar h1 {
+    color: white;
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Buttons Group */
+.charter-buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.btn-charter {
+    background-color: #2073bd;
+    color: white;
+    padding: 12px 30px;
+    border-radius: 5px;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.btn-charter:hover {
+    background-color: #0056b3;
+}
+
+/* Main Content Text */
+.charter-text-section {
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+.charter-block {
+    margin-bottom: 40px;
+}
+
+.charter-block h3 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #000;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
+.charter-list {
+    list-style-type: disc;
+    margin-left: 25px;
+}
+
+.charter-list li {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+/* Responsive Charter */
+@media (max-width: 768px) {
+    .charter-title-bar h1 { font-size: 2rem; }
+    .charter-buttons { flex-direction: column; }
+    .btn-charter { text-align: center; }
+}
+
+/* --- SUBMIT COMPLAINT PAGE STYLES --- */
+
+/* Background Section */
+.complaint-section {
+    background-color: #f0f2f5;
+    padding: 60px 20px;
+    display: flex;
+    justify-content: center;
+}
+
+/* White Form Card */
+.complaint-card {
+    background-color: white;
+    width: 100%;
+    max-width: 600px;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.form-title {
+    color: #006eb3;
+    text-align: center;
+    font-weight: 800;
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+}
+
+/* Form Inputs */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="tel"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 20px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.form-group textarea {
+    border-radius: 15px;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #006eb3;
+}
+
+/* Custom Select Dropdown Styling */
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper select {
+    appearance: none;
+    background: white;
+    cursor: pointer;
+}
+
+.select-icon {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #333;
+    pointer-events: none;
+}
+
+/* Photo Upload Box */
+.photo-upload-box {
+    display: block;
+    background-color: #cfd8dc;
+    border: 2px dashed #90a4ae;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.photo-upload-box:hover {
+    background-color: #b0bec5;
+}
+
+.upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #555;
+}
+
+.upload-content i {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #455a64;
+}
+
+.upload-content span {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.optional-text {
+    font-weight: normal !important;
+    font-size: 0.8rem !important;
+    margin-top: 5px;
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    background-color: #1565c0;
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+    background-color: #0d47a1;
+}
+
+/* Responsive Form */
+@media (max-width: 500px) {
+    .complaint-card {
+        padding: 20px;
+    }
+    .form-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* --- TRACK COMPLAINT PAGE STYLES --- */
+
+.track-section {
+    padding: 80px 20px;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    min-height: 60vh;
+}
+
+.track-wrapper {
+    width: 100%;
+    max-width: 700px;
+}
+
+/* Header: Icon + Text */
+.track-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.track-header i {
+    font-size: 2.5rem;
+    color: #0056b3;
+}
+
+.track-header h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #0056b3;
+    margin: 0;
+}
+
+/* White Card styling */
+.track-card {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    padding: 40px;
+    border: 1px solid #eee;
+}
+
+.track-card .form-group input {
+    padding: 15px 25px;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+/* Button Container for Center Alignment */
+.btn-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+/* Track Button */
+.track-btn {
+    background-color: #5d9ccb;
+    color: white;
+    padding: 12px 40px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.track-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .track-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .track-card {
+        padding: 25px;
+    }
+}
+
+/* --- ADMIN LOGIN PAGE STYLES --- */
+
+/* Full-page login body with background image */
+.login-body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-image: url('../images/Admin Login.png');
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #e8f0fa;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    position: relative;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Layout: card on the left */
+.login-layout {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 40px 80px;
+}
+
+/* Card wrapper */
+.login-card-wrapper {
+    z-index: 2;
+}
+
+.login-card {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.12);
+    padding: 45px 40px;
+    width: 350px;
+}
+
+.login-card h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 30px 0;
+}
+
+/* Input fields */
+.login-field {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.login-field i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #b0b0b0;
+    font-size: 0.85rem;
+}
+
+.login-field input {
+    width: 100%;
+    padding: 12px 18px 12px 42px;
+    border: 1.5px solid #dcdcdc;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    color: #333;
+    background: #fff;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.login-field input::placeholder {
+    color: #aaa;
+    font-weight: 400;
+}
+
+.login-field input:focus {
+    border-color: #5b9bd5;
+}
+
+/* Login button */
+.login-submit {
+    display: inline-block;
+    padding: 10px 38px;
+    background-color: #3478d0;
+    color: #fff;
+    border: none;
+    border-radius: 22px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.25s;
+    letter-spacing: 0.3px;
+}
+
+.login-submit:hover {
+    background-color: #2a63b0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .login-layout {
+        justify-content: center;
+        padding: 30px 20px;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 360px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-card {
+        padding: 30px 24px;
+    }
+}
+
+/* --- Admin Login Footer Link --- */
+.admin-login-link {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    margin-top: 6px;
+    transition: color 0.3s;
+}
+
+.admin-login-link:hover {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+

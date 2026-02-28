@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Complaint - Barangay Pinyahan</title>
+    
+    <link rel="stylesheet" href="../../css/homepage/homepage.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <img src="https://placehold.co/100x100?text=Logo+Left" alt="Left Logo" class="header-logo">
+            <h1 class="header-title">Barangay Pinyahan</h1>
+            <img src="https://placehold.co/100x100?text=Logo+Right" alt="Right Logo" class="header-logo">
+        </div>
+    </header>
+
+    <nav>
+        <ul class="nav-links">
+            <li><a href="../../index.html">HOME</a></li>
+            <li><a href="about.html">ABOUT US</a></li>
+            <li><a href="services.html">SERVICES</a></li>
+            <li><a href="news&upd.html">NEWS & UPDATES</a></li>
+            <li><a href="cc.html">CITIZENS CHARTER</a></li>
+            <li><a href="submit_complaint.html" class="active">SUBMIT COMPLAINT</a></li>
+            <li><a href="track_complaint.html">TRACK COMPLAINT</a></li>
+        </ul>
+    </nav>
+
+    <section class="complaint-section">
+        <div class="complaint-card">
+            <h2 class="form-title">SUBMIT A COMPLAINT</h2>
+            
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <input type="text" placeholder="Full Name" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" placeholder="Address" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="tel" placeholder="Contact Number" required>
+                </div>
+
+                <div class="form-group">
+                    <div class="select-wrapper">
+                        <select required>
+                            <option value="" disabled selected>Type of Complaint</option>
+                            <option value="noise">Noise Complaint</option>
+                            <option value="trash">Garbage/Trash Issue</option>
+                            <option value="security">Security Concern</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <i class="fas fa-caret-down select-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <textarea placeholder="Message" rows="5" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="photo-upload-box">
+                        <input type="file" accept="image/*" hidden>
+                        <div class="upload-content">
+                            <i class="fas fa-plus"></i>
+                            <span>ADD PHOTO</span>
+                            <span class="optional-text">(Optional)</span>
+                        </div>
+                    </label>
+                </div>
+
+                <button type="submit" class="submit-btn">SUBMIT COMPLAINT</button>
+            </form>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>CONTACT INFORMATION</h4>
+                <ul class="contact-list">
+                    <li><i class="fab fa-facebook-f"></i> Facebook Page: Barangay Pinyahan</li>
+                    <li><i class="fas fa-envelope"></i> Email: brgypinyahan@gmail.com</li>
+                    <li><i class="fas fa-phone"></i> Telephone: (02) 1234-5678</li>
+                </ul>
+                <div class="official-seals-footer">
+                    <span>OFFICIAL SEALS:</span>
+                    <div class="seals-row">
+                        <div class="seal-circle"></div>
+                        <div class="seal-circle"></div>
+                        <div class="seal-circle"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>MAP LOCATION</h4>
+                <p>ADDRESS: Malakas St, Diliman, Quezon City</p>
+                <div class="map-box">[ Google Map ]</div>
+            </div>
+            <div class="footer-col">
+                <h4>EMERGENCY HOTLINE</h4>
+                <ul class="emergency-list">
+                    <li>National Emergency Hotline: 911</li>
+                    <li>Philippine National Police Hotline: 117</li>
+                    <li>Bureau of Fire Protection: (02) 8426-0219</li>
+                    <li>DSWD: 8931-81-08</li>
+                    <li>Coast Guard: 8527-3877</li>
+                    <li><a href="login.html" class="admin-login-link">Admin Login</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <div class="gov-footer">
+        <div class="gov-seal-img"></div>
+        <h4>REPUBLIC OF THE PHILIPPINES</h4>
+        <p>All content is in the public domain unless otherwise stated.</p>
+    </div>
+
+</body>
+</html>

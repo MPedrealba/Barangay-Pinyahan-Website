@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events Dashboard - Barangay Pinyahan</title>
+    <link rel="stylesheet" href="../../css/admin/admin-dashboard.css">
+    <link rel="stylesheet" href="../../css/admin/events-dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="../../images/Brgy._Pinyahan_Seal.png" alt="Seal" class="brand-logo">
+                <h2>Barangay<br>Pinyahan</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="admin-dashboard.html"><i class="fas fa-home"></i> HOME</a></li>
+                <li><a href="complaint-dashboard.html"><i class="fas fa-exclamation-circle"></i> COMPLAINTS</a></li>
+                <li><a href="news-dashboard.html"><i class="fas fa-newspaper"></i> NEWS</a></li>
+                <li class="active"><a href="events-dashboard.html"><i class="fas fa-calendar-alt"></i> EVENTS</a></li>                <li><a href="services-dashboard.html"><i class="fas fa-hands-helping"></i> SERVICES</a></li>
+                <li><a href="notifications.html"><i class="fas fa-bell"></i> NOTIFICATIONS</a></li>
+                <li><a href="accounts-setting.html"><i class="fas fa-users-cog"></i> ACCOUNTS SETTING</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-admin-profile">
+                    <div class="profile-circle"><i class="fas fa-user"></i></div>
+                    <div class="admin-info">
+                        <span class="admin-name">John Doe</span>
+                        <span class="admin-role">Administrator</span>
+                    </div>
+                    <a href="../homepage/admin_login.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i></a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="events-dashboard-content">
+
+                <!-- Stats Cards -->
+                <div class="events-stats-grid">
+                    <div class="events-stat-card">
+                        <div class="events-stat-icon"><i class="fas fa-exclamation-circle"></i></div>
+                        <div class="events-stat-info">
+                            <h3>COMPLAINTS</h3>
+                            <h2>3</h2>
+                        </div>
+                    </div>
+                    <div class="events-stat-card">
+                        <div class="events-stat-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div class="events-stat-info">
+                            <h3>EVENTS</h3>
+                            <h2>1</h2>
+                        </div>
+                    </div>
+                    <div class="events-stat-card">
+                        <div class="events-stat-icon"><i class="fas fa-newspaper"></i></div>
+                        <div class="events-stat-info">
+                            <h3>NEWS</h3>
+                            <h2>1</h2>
+                        </div>
+                    </div>
+                    <div class="events-stat-card">
+                        <div class="events-stat-icon"><i class="fas fa-bullhorn"></i></div>
+                        <div class="events-stat-info">
+                            <h3>ANNOUNCEMENTS</h3>
+                            <h2>0</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Event Button -->
+                <div class="add-event-bar">
+                    <a href="events-add.html" class="add-event-btn"><i class="fas fa-plus-square"></i> ADD EVENT</a>
+                </div>
+
+                <!-- Events Table -->
+                <div class="events-table-container">
+                    <h3 class="table-title">EVENTS</h3>
+                    <table class="events-table">
+                        <thead>
+                            <tr>
+                                <th>EVENT ID</th>
+                                <th>TITLE</th>
+                                <th>DATE PUBLISHED</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>01</td>
+                                <td>Barangay Clean-Up Drive 2026</td>
+                                <td>Feb 15, 2026</td>
+                                <td class="action-buttons">
+                                    <a href="events-edit.html" class="action-btn edit-btn">Edit</a>
+                                    <a href="events-view.html" class="action-btn view-btn">View</a>
+                                    <a href="#" class="action-btn delete-btn">Delete</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>

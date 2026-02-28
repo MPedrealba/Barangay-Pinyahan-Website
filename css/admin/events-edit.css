@@ -1,0 +1,240 @@
+/* --- EVENT EDIT PAGE STYLES --- */
+
+.event-edit-content {
+    padding: 30px 40px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.event-edit-card {
+    background: white;
+    border: 2px solid #2196F3;
+    border-radius: 12px;
+    padding: 35px 40px;
+    width: 100%;
+    max-width: 850px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* --- BACK ARROW --- */
+.event-edit-card .back-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    color: #333;
+    text-decoration: none;
+    width: fit-content;
+    transition: color 0.3s;
+}
+
+.event-edit-card .back-arrow:hover {
+    color: #0056b3;
+}
+
+/* --- FORM GROUPS --- */
+.event-edit-card .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.event-edit-card .form-label {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #222;
+}
+
+.event-edit-card .form-input {
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.event-edit-card .form-input:focus {
+    border-color: #2196F3;
+}
+
+/* --- PHOTO UPLOAD --- */
+.event-edit-card .photo-group {
+    align-items: flex-start;
+}
+
+.event-edit-card .photo-upload-area {
+    width: 300px;
+    height: 220px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    border: 2px dashed #ccc;
+    transition: border-color 0.3s;
+}
+
+.event-edit-card .photo-upload-area:hover {
+    border-color: #2196F3;
+}
+
+.event-edit-card .photo-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.event-edit-card .photo-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.event-edit-card .photo-upload-area:hover .photo-overlay {
+    opacity: 1;
+}
+
+.event-edit-card .photo-overlay i {
+    font-size: 2rem;
+    color: white;
+}
+
+.event-edit-card .photo-overlay span {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 1px;
+}
+
+.event-edit-card .photo-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* --- EMPTY PHOTO UPLOAD (ADD PAGE) --- */
+.event-edit-card .photo-upload-empty {
+    background-color: #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-style: solid;
+    border-color: #ccc;
+}
+
+.event-edit-card .photo-upload-empty:hover {
+    background-color: #d0d0d0;
+}
+
+.event-edit-card .photo-upload-empty i {
+    font-size: 2.5rem;
+    color: #555;
+}
+
+.event-edit-card .photo-upload-empty span {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #555;
+    letter-spacing: 1px;
+}
+
+/* --- TEXTAREA --- */
+.event-edit-card .form-textarea {
+    width: 100%;
+    height: 140px;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    resize: vertical;
+    color: #333;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.event-edit-card .form-textarea:focus {
+    border-color: #2196F3;
+}
+
+/* --- ACTION BUTTONS --- */
+.event-edit-card .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.event-edit-card .btn-save {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 5px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.event-edit-card .btn-save:hover {
+    background-color: #43a047;
+}
+
+.event-edit-card .btn-cancel {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 5px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: background-color 0.3s;
+}
+
+.event-edit-card .btn-cancel:hover {
+    background-color: #e53935;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+    .event-edit-content {
+        padding: 15px;
+    }
+
+    .event-edit-card {
+        padding: 25px 20px;
+    }
+
+    .event-edit-card .photo-upload-area {
+        width: 100%;
+        max-width: 300px;
+    }
+}

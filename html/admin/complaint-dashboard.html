@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Dashboard - Barangay Pinyahan</title>
+    <link rel="stylesheet" href="../../css/admin/admin-dashboard.css">
+    <link rel="stylesheet" href="../../css/admin/complaint-dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="../../images/Brgy._Pinyahan_Seal.png" alt="Seal" class="brand-logo">
+                <h2>Barangay<br>Pinyahan</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="admin-dashboard.html"><i class="fas fa-home"></i> HOME</a></li>
+                <li class="active"><a href="complaint-dashboard.html"><i class="fas fa-exclamation-circle"></i> COMPLAINTS</a></li>
+                <li><a href="news-dashboard.html"><i class="fas fa-newspaper"></i> NEWS</a></li>
+                <li><a href="events-dashboard.html"><i class="fas fa-calendar-alt"></i> EVENTS</a></li>                <li><a href="services-dashboard.html"><i class="fas fa-hands-helping"></i> SERVICES</a></li>
+                <li><a href="notifications.html"><i class="fas fa-bell"></i> NOTIFICATIONS</a></li>
+                <li><a href="accounts-setting.html"><i class="fas fa-users-cog"></i> ACCOUNTS SETTING</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-admin-profile">
+                    <div class="profile-circle"><i class="fas fa-user"></i></div>
+                    <div class="admin-info">
+                        <span class="admin-name">John Doe</span>
+                        <span class="admin-role">Administrator</span>
+                    </div>
+                    <a href="../homepage/admin_login.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i></a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="complaint-dashboard-content">
+
+                <!-- Stats Cards -->
+                <div class="complaint-stats-grid">
+                    <div class="complaint-stat-card">
+                        <div class="complaint-stat-icon"><i class="fas fa-exclamation-circle"></i></div>
+                        <div class="complaint-stat-info">
+                            <h3>COMPLAINTS</h3>
+                            <h2>3</h2>
+                        </div>
+                    </div>
+                    <div class="complaint-stat-card">
+                        <div class="complaint-stat-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div class="complaint-stat-info">
+                            <h3>EVENTS</h3>
+                            <h2>1</h2>
+                        </div>
+                    </div>
+                    <div class="complaint-stat-card">
+                        <div class="complaint-stat-icon"><i class="fas fa-newspaper"></i></div>
+                        <div class="complaint-stat-info">
+                            <h3>NEWS</h3>
+                            <h2>1</h2>
+                        </div>
+                    </div>
+                    <div class="complaint-stat-card">
+                        <div class="complaint-stat-icon"><i class="fas fa-bullhorn"></i></div>
+                        <div class="complaint-stat-info">
+                            <h3>ANNOUNCEMENTS</h3>
+                            <h2>0</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Complaints Table -->
+                <div class="complaints-table-container">
+                    <h3 class="table-title">RECENT COMPLAINTS</h3>
+                    <table class="complaints-table">
+                        <thead>
+                            <tr>
+                                <th>REF NO.</th>
+                                <th>NAME</th>
+                                <th>CATEGORY</th>
+                                <th>DATE</th>
+                                <th>TIME</th>
+                                <th>STATUS</th>
+                                <th>URGENCY LEVEL</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>01</td>
+                                <td>Juan Dela Cruz</td>
+                                <td>Peace & Order</td>
+                                <td>Jan 7, 2026</td>
+                                <td>4:00 PM</td>
+                                <td>On-Going</td>
+                                <td><span class="urgency-badge high">HIGH</span></td>
+                                <td><a href="complaint-view.html" class="view-btn">View</a></td>
+                            </tr>
+                            <tr>
+                                <td>02</td>
+                                <td>Jane Reyes</td>
+                                <td>Sanitation</td>
+                                <td>Jan 7, 2026</td>
+                                <td>4:30 PM</td>
+                                <td>Pending</td>
+                                <td><span class="urgency-badge medium">Medium</span></td>
+                                <td><a href="complaint-view.html" class="view-btn">View</a></td>
+                            </tr>
+                            <tr>
+                                <td>03</td>
+                                <td>John Lopez</td>
+                                <td>Others</td>
+                                <td>Jan 7, 2026</td>
+                                <td>5:00 PM</td>
+                                <td>Pending</td>
+                                <td><span class="urgency-badge low">Low</span></td>
+                                <td><button class="view-btn">View</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>
