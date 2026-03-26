@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Barangay Pinyahan</title>
+    <link rel="stylesheet" href="../../css/homepage/admin-login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="login-page">
+
+        <!-- Login Card -->
+        <div class="login-card">
+            <h1>Admin Login</h1>
+            <p id="errorMsg" style="color: red; display: none; margin-bottom: 10px; text-align: center;"></p>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="login-field">
+                    <i class="fas fa-user"></i>
+                    <input type="text" name="username" id="username" placeholder="Username" required>
+                </div>
+
+                <div class="login-field">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="password" id="password" placeholder="Password" required>
+                </div>
+
+                <div class="login-actions">
+                    <button type="submit" class="login-submit" id="loginBtn">Login</button>
+                </div>
+            </form>
+            <a href="../../index.html" class="back-to-home">Back to Homepage</a>
+        </div>
+
+    </div>
+
+    <script src="../../js/api.js"></script>
+    <script>
+        // If already logged in, redirect to dashboard
+        if (getToken()) {
+            window.location.href = '../admin/admin-dashboard.html';
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.style.display = 'none';
+            btn.textContent = 'Logging in...';
+            btn.disabled = true;
+
+            try {
+                const data = await apiPost('/api/auth/login', {
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value
+                });
+
+                if (data) {
+                    saveAuth(data.token, data.admin);
+                    window.location.href = '../admin/admin-dashboard.html';
+                }
+            } catch (err) {
+                errorMsg.textContent = err.message || 'Invalid username or password.';
+                errorMsg.style.display = 'block';
+                btn.textContent = 'Login';
+                btn.disabled = false;
+            }
+        }
+    </script>
+
+</body>
+</html>

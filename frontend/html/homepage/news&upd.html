@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News & Events - Barangay Pinyahan</title>
+    
+    <link rel="stylesheet" href="../../css/homepage/homepage.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <img src="../../images/Quezon_City_logo.svg" alt="Quezon City Logo" class="header-logo">
+            <h1 class="header-title">Barangay Pinyahan</h1>
+            <img src="../../images/Brgy._Pinyahan_Seal.png" alt="Barangay Pinyahan Seal" class="header-logo">
+        </div>
+    </header>
+
+    <nav>
+        <ul class="nav-links">
+            <li><a href="../../index.html">HOME</a></li>
+            <li><a href="about.html">ABOUT US</a></li>
+            <li><a href="services.html">SERVICES</a></li>
+            <li><a href="news&upd.html" class="active">NEWS & EVENTS</a></li>
+            <li><a href="cc.html">CITIZENS CHARTER</a></li>
+            <li><a href="submit_complaint.html">SUBMIT COMPLAINT</a></li>
+            <li><a href="track_complaint.html">TRACK COMPLAINT</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero-news">
+        <div class="hero-overlay-news">
+            <h1>BARANGAY NEWS & EVENTS</h1>
+        </div>
+    </section>
+
+    <div class="advisory-bar">
+        <div class="container advisory-content">
+            <span class="advisory-label">ADVISORY</span>
+            <span class="advisory-text">ALL UPDATES ON THIS PAGE ARE OFFICIAL NOTICES FROM BARANGAY PINYAHAN</span>
+        </div>
+    </div>
+
+    <section class="container" id="featured-section">
+        <h3 class="section-title">FEATURED POST</h3>
+        <div class="featured-card" id="featured-card">
+            <!-- Dynamically populated -->
+        </div>
+    </section>
+
+    <section class="container post-listing-section">
+        <h3 class="section-title">POST LISTING</h3>
+        <div class="news-grid" id="news-grid">
+            <!-- Dynamically populated -->
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>CONTACT INFORMATION</h4>
+                <ul class="contact-list">
+                    <li><i class="fab fa-facebook-f"></i> Facebook Page: Barangay Pinyahan</li>
+                    <li><i class="fas fa-envelope"></i> Email: brgypinyahan@gmail.com</li>
+                    <li><i class="fas fa-phone"></i> Telephone: (02) 1234-5678</li>
+                </ul>
+                <div class="official-seals-footer">
+                    <span>OFFICIAL SEALS:</span>
+                    <div class="seals-row">
+                        <div class="seal-circle"></div>
+                        <div class="seal-circle"></div>
+                        <div class="seal-circle"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>MAP LOCATION</h4>
+                <p>ADDRESS: Malakas St, Diliman, Quezon City</p>
+                <div class="map-box">[ Google Map ]</div>
+            </div>
+            <div class="footer-col">
+                <h4>EMERGENCY HOTLINE</h4>
+                <ul class="emergency-list">
+                    <li>National Emergency Hotline: 911</li>
+                    <li>Philippine National Police Hotline: 117</li>
+                    <li>Bureau of Fire Protection: (02) 8426-0219</li>
+                    <li>DSWD: 8931-81-08</li>
+                    <li>Coast Guard: 8527-3877</li>
+                    <li><a href="login.html" class="admin-login-link">Admin Login</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <div class="gov-footer">
+        <div class="gov-seal-img"></div>
+        <h4>REPUBLIC OF THE PHILIPPINES</h4>
+        <p>All content is in the public domain unless otherwise stated.</p>
+    </div>
+
+    <script src="../../js/api.js"></script>
+    <script>
+        const API = 'http://localhost:3000';
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Load featured post
+            try {
+                const featData = await fetch(API + '/api/admin/news/featured');
+                const featJson = await featData.json();
+                const featuredCard = document.getElementById('featured-card');
+                const featuredSection = document.getElementById('featured-section');
+
+                if (featJson && featJson.news) {
+                    const n = featJson.news;
+                    const date = new Date(n.date_published).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                    const imgSrc = n.photo_url ? API + n.photo_url : 'https://placehold.co/600x400?text=No+Image';
+                    featuredCard.innerHTML = `
+                        <div class="featured-img-container">
+                            <img src="${imgSrc}" alt="${n.title}">
+                        </div>
+                        <div class="featured-text-container">
+                            <h2>${n.title} (${date})</h2>
+                            <p class="featured-snippet">${n.description ? n.description.substring(0, 200) + '...' : ''}</p>
+                            <a href="news-detail.html?id=${n.id}" class="read-more-btn">Read more</a>
+                        </div>
+                    `;
+                } else {
+                    featuredSection.style.display = 'none';
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('featured-section').style.display = 'none';
+            }
+
+            // Load post listing
+            try {
+                const listRes = await fetch(API + '/api/admin/news/public?limit=6');
+                const listData = await listRes.json();
+                const grid = document.getElementById('news-grid');
+
+                if (listData && listData.news && listData.news.length > 0) {
+                    grid.innerHTML = listData.news.map(n => {
+                        const imgSrc = n.photo_url ? API + n.photo_url : 'https://placehold.co/150x150?text=No+Image';
+                        return `
+                            <div class="news-card-small">
+                                <img src="${imgSrc}" alt="${n.title}">
+                                <div class="news-small-content">
+                                    <h4>${n.title}</h4>
+                                    <p>${n.description ? n.description.substring(0, 60) + '...' : ''}</p>
+                                    <a href="news-detail.html?id=${n.id}">Read more >></a>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    grid.innerHTML = '<p style="color:#888;text-align:center;grid-column:1/-1;">No news articles yet.</p>';
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('news-grid').innerHTML = '<p style="color:#888;text-align:center;grid-column:1/-1;">Unable to load news.</p>';
+            }
+        });
+    </script>
+
+</body>
+</html>

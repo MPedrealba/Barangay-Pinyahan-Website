@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit News - Barangay Pinyahan</title>
+    <link rel="stylesheet" href="../../css/admin/admin-dashboard.css">
+    <link rel="stylesheet" href="../../css/admin/news-edit.css">
+    <link rel="stylesheet" href="../../css/admin/success-popup.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="../../images/Brgy._Pinyahan_Seal.png" alt="Seal" class="brand-logo">
+                <h2>Barangay<br>Pinyahan</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="admin-dashboard.html"><i class="fas fa-home"></i> HOME</a></li>
+                <li><a href="complaint-dashboard.html"><i class="fas fa-exclamation-circle"></i> COMPLAINTS</a></li>
+                <li class="active"><a href="news-dashboard.html"><i class="fas fa-newspaper"></i> NEWS</a></li>
+                <li><a href="events-dashboard.html"><i class="fas fa-calendar-alt"></i> EVENTS</a></li>                <li><a href="services-dashboard.html"><i class="fas fa-hands-helping"></i> SERVICES</a></li>
+                <li><a href="notifications.html"><i class="fas fa-bell"></i> NOTIFICATIONS</a></li>
+                <li><a href="accounts-setting.html"><i class="fas fa-users-cog"></i> ACCOUNTS SETTING</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-admin-profile">
+                    <div class="profile-circle"><i class="fas fa-user"></i></div>
+                    <div class="admin-info">
+                        <span class="admin-name">John Doe</span>
+                        <span class="admin-role">Administrator</span>
+                    </div>
+                    <a href="../homepage/admin_login.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i></a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="news-edit-content">
+
+                <div class="news-edit-card">
+
+                    <div class="form-group">
+                        <label class="form-label">TITLE:</label>
+                        <input type="text" class="form-input" placeholder="Enter news title">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">DATE PUBLISHED:</label>
+                        <input type="date" class="form-input">
+                    </div>
+
+                    <div class="form-group photo-group">
+                        <div class="photo-upload-area">
+                            <i class="fas fa-plus"></i>
+                            <span>ADD PHOTO</span>
+                            <input type="file" accept="image/*" class="photo-input">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">DESCRIPTION:</label>
+                        <textarea class="form-textarea" placeholder="Enter news description"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn-save">Save Changes</button>
+                        <a href="news-dashboard.html" class="btn-cancel">Cancel</a>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Success Popup -->
+    <div class="success-popup-overlay" id="successPopup">
+        <div class="success-popup">
+            <div class="success-icon"><i class="fas fa-check"></i></div>
+            <h2>Saved Successfully!</h2>
+            <p>Your changes have been saved.</p>
+        </div>
+    </div>
+
+    <script src="../../js/api.js"></script>
+    <script src="../../js/admin-common.js"></script>
+    <script>
+        function showSuccessPopup(url) {
+            document.getElementById('successPopup').classList.add('active');
+            setTimeout(() => window.location.href = url, 1500);
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const newsId = params.get('id');
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (!newsId) { window.location.href = 'news-dashboard.html'; return; }
+            try {
+                const data = await apiGet(`/api/admin/news/${newsId}`);
+                if (data && data.news) {
+                    const inputs = document.querySelectorAll('.form-input');
+                    inputs[0].value = data.news.title;
+                    inputs[1].value = data.news.date_published ? data.news.date_published.split('T')[0] : '';
+                    document.querySelector('.form-textarea').value = data.news.description;
+                }
+            } catch (e) { console.error(e); }
+        });
+
+        document.querySelector('.btn-save').onclick = async function () {
+            const inputs = document.querySelectorAll('.form-input');
+            const formData = new FormData();
+            formData.append('title', inputs[0].value);
+            formData.append('date_published', inputs[1].value);
+            formData.append('description', document.querySelector('.form-textarea').value);
+            const photoFile = document.querySelector('.photo-input').files[0];
+            if (photoFile) formData.append('photo', photoFile);
+
+            try {
+                await apiPut(`/api/admin/news/${newsId}`, formData);
+                showSuccessPopup('news-dashboard.html');
+            } catch (e) { alert('Failed to save: ' + e.message); }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event View - Barangay Pinyahan</title>
+    <link rel="stylesheet" href="../../css/admin/admin-dashboard.css">
+    <link rel="stylesheet" href="../../css/admin/events-view.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="../../images/Brgy._Pinyahan_Seal.png" alt="Seal" class="brand-logo">
+                <h2>Barangay<br>Pinyahan</h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="admin-dashboard.html"><i class="fas fa-home"></i> HOME</a></li>
+                <li><a href="complaint-dashboard.html"><i class="fas fa-exclamation-circle"></i> COMPLAINTS</a></li>
+                <li><a href="news-dashboard.html"><i class="fas fa-newspaper"></i> NEWS</a></li>
+                <li class="active"><a href="events-dashboard.html"><i class="fas fa-calendar-alt"></i> EVENTS</a></li>                <li><a href="services-dashboard.html"><i class="fas fa-hands-helping"></i> SERVICES</a></li>
+                <li><a href="notifications.html"><i class="fas fa-bell"></i> NOTIFICATIONS</a></li>
+                <li><a href="accounts-setting.html"><i class="fas fa-users-cog"></i> ACCOUNTS SETTING</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-admin-profile">
+                    <div class="profile-circle"><i class="fas fa-user"></i></div>
+                    <div class="admin-info">
+                        <span class="admin-name">John Doe</span>
+                        <span class="admin-role">Administrator</span>
+                    </div>
+                    <a href="../homepage/admin_login.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i></a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="event-view-content">
+
+                <div class="event-article-card">
+
+                    <!-- Back Arrow -->
+                    <a href="events-dashboard.html" class="back-arrow"><i class="fas fa-arrow-left"></i></a>
+
+                    <!-- Event Details -->
+                    <div class="event-details">
+                        <p><strong>NAME OF EVENT:</strong> Distribution of Food Assistance</p>
+                        <p><strong>DATE:</strong> Jan 7, 2026</p>
+                        <p><strong>TIME:</strong> 4:00 PM</p>
+                        <p><strong>LOCATION:</strong> Brgy. Court</p>
+                    </div>
+
+                    <!-- Event Image -->
+                    <div class="event-image-container">
+                        <img src="../images/event-food-assistance.jpg" alt="Distribution of Food Assistance" class="event-image">
+                    </div>
+
+                    <!-- Description -->
+                    <div class="event-description">
+                        <h3>DESCRIPTION:</h3>
+                        <p>We're happy to have you here! This space was created to keep our community informed, connected, and involved. Whether you're looking for the latest announcements, ongoing projects, public services, or ways to participate in our programs, everything you need is just a few clicks away.</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script src="../../js/api.js"></script>
+    <script src="../../js/admin-common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (!id) { window.location.href = 'events-dashboard.html'; return; }
+
+            try {
+                const data = await apiGet(`/api/admin/events/${id}`);
+                if (data && data.event) {
+                    const ev = data.event;
+                    const details = document.querySelector('.event-details');
+                    const date = new Date(ev.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    details.innerHTML = `
+                        <p><strong>NAME OF EVENT:</strong> ${ev.name}</p>
+                        <p><strong>DATE:</strong> ${date}</p>
+                        <p><strong>TIME:</strong> ${ev.time}</p>
+                        <p><strong>LOCATION:</strong> ${ev.location}</p>
+                    `;
+                    document.querySelector('.event-description p').textContent = ev.description || '';
+                    if (ev.photo_url) {
+                        document.querySelector('.event-image').src = API_BASE + ev.photo_url;
+                    }
+                }
+            } catch (e) { console.error(e); }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barangay Pinyahan - Official Website</title>
+    <link rel="stylesheet" href="css/homepage/homepage.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <img src="images/Quezon_City_logo.svg" alt="Quezon City Logo" class="header-logo">
+            
+            <h1 class="header-title">Barangay Pinyahan</h1>
+            
+            <img src="images/Brgy._Pinyahan_Seal.png" alt="Barangay Pinyahan Seal" class="header-logo">
+        </div>
+    </header>
+
+    <nav>
+        <ul class="nav-links">
+            <li><a href="index.html">HOME</a></li>
+            <li><a href="html/homepage/about.html">ABOUT US</a></li>
+            <li><a href="html/homepage/services.html">SERVICES</a></li>
+            <li><a href="html/homepage/news&upd.html">NEWS & EVENTS</a></li>
+            <li><a href="html/homepage/cc.html">CITIZENS CHARTER</a></li>
+            <li><a href="html/homepage/submit_complaint.html">SUBMIT COMPLAINT</a></li>
+            <li><a href="html/homepage/track_complaint.html">TRACK COMPLAINT</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero-section">
+        <img src="images/newly_elected_officials.jpg" alt="Newly Elected Barangay Officials">
+    </section>
+
+    <section class="welcome-section">
+        <h2 class="welcome-title">Welcome to the Barangay Pinyahan Official Website!</h2>
+        <p class="welcome-text">
+            We're happy to have you here! This space was created to keep our community informed, connected, and involved. Whether you're looking for the latest announcements, ongoing projects, public services, or ways to participate in our programs, everything you need is just a few clicks away.
+        </p>
+        <p class="welcome-text">
+            Our barangay thrives because of the people who call it home—and we hope this website makes it easier for you to stay updated, raise concerns, and engage with us. Thank you for being an important part of our community. Together, let's continue building a safe, caring, and progressive barangay.
+        </p>
+    </section>
+
+    <section class="events-section" id="events-section">
+        <h3 class="section-title">EVENTS</h3>
+        <div class="events-grid" id="events-grid">
+            <!-- Dynamically populated from API -->
+        </div>
+    </section>
+
+    <section class="news-section" id="news-section">
+        <h3 class="section-title">NEWS & UPDATES</h3>
+        <div class="news-carousel" id="news-carousel">
+            <div class="carousel-track" id="carousel-track">
+                <!-- Dynamically populated from API -->
+            </div>
+            <button class="carousel-arrow carousel-arrow-left" id="carousel-prev">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-arrow carousel-arrow-right" id="carousel-next">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <div class="carousel-dots" id="carousel-dots"></div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="footer-grid">
+            
+            <div class="footer-col">
+                <h4>CONTACT INFORMATION</h4>
+                <ul class="contact-list">
+                    <li><i class="fab fa-facebook-square"></i> Facebook Page: Barangay Pinyahan</li>
+                    <li><i class="fas fa-envelope"></i> Email: brgypinyahan@gmail.com</li>
+                    <li><i class="fas fa-phone-alt"></i> Telephone: (02) 1234-5678</li>
+                </ul>
+                <div class="official-seals">
+                    <img src="https://placehold.co/50?text=Seal" class="seal-icon">
+                    <img src="https://placehold.co/50?text=Seal" class="seal-icon">
+                    <img src="https://placehold.co/50?text=Seal" class="seal-icon">
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4>MAP LOCATION</h4>
+                <p>ADDRESS: Malakas St, Diliman, Quezon City</p>
+                <br>
+                <div class="map-placeholder">
+                    [ Google Map Embed Goes Here ]
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4>EMERGENCY HOTLINE</h4>
+                <ul class="contact-list" style="font-size: 0.85rem;">
+                    <li>National Emergency Hotline: 911</li>
+                    <li>Philippine National Police Hotline: 117</li>
+                    <li>Philippine Red Cross: 143</li>
+                    <li>Bureau of Fire Protection: (02) 8426-0219</li>
+                    <li>DSWD: 8931-81-08</li>
+                    <li>Coast Guard: 8527-3877</li>
+                    <li><a href="html/homepage/admin_login.html" class="admin-login-link">Admin Login</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <div class="gov-footer">
+        <div class="gov-seal-container">
+            <img src="https://placehold.co/50?text=RP" alt="Republic Seal" style="border-radius:50%; width: 40px;">
+        </div>
+        <br>
+        <h4>REPUBLIC OF THE PHILIPPINES</h4>
+        <p>All content is in the public domain unless otherwise stated.</p>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        const API = 'http://localhost:3000';
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            await loadEvents();
+            await loadNewsCarousel();
+        });
+
+        // ========== EVENTS ==========
+        async function loadEvents() {
+            const grid = document.getElementById('events-grid');
+            try {
+                const res = await fetch(API + '/api/admin/events/public');
+                const data = await res.json();
+                if (data && data.events && data.events.length > 0) {
+                    grid.innerHTML = data.events.map(ev => {
+                        const imgSrc = ev.photo_url ? API + ev.photo_url : 'https://placehold.co/300x200?text=' + encodeURIComponent(ev.name);
+                        return `
+                            <a href="html/homepage/event-view.html?id=${ev.id}" class="event-card" title="${ev.name}">
+                                <img src="${imgSrc}" alt="${ev.name}">
+                                <div class="event-card-overlay">
+                                    <span class="event-card-name">${ev.name}</span>
+                                </div>
+                            </a>
+                        `;
+                    }).join('');
+                } else {
+                    grid.innerHTML = '<p class="empty-message">No events posted yet.</p>';
+                }
+            } catch (e) {
+                console.error('Failed to load events:', e);
+                grid.innerHTML = '<p class="empty-message">Unable to load events.</p>';
+            }
+        }
+
+        // ========== NEWS CAROUSEL ==========
+        let currentSlide = 0;
+        let totalSlides = 0;
+        let autoSlideInterval = null;
+
+        async function loadNewsCarousel() {
+            const track = document.getElementById('carousel-track');
+            const dotsContainer = document.getElementById('carousel-dots');
+            const carousel = document.getElementById('news-carousel');
+            try {
+                const res = await fetch(API + '/api/admin/news/public?limit=10');
+                const data = await res.json();
+                if (data && data.news && data.news.length > 0) {
+                    totalSlides = data.news.length;
+
+                    // Build slides
+                    track.innerHTML = data.news.map(n => {
+                        const imgSrc = n.photo_url ? API + n.photo_url : 'https://placehold.co/900x400?text=' + encodeURIComponent(n.title);
+                        const date = new Date(n.date_published).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                        return `
+                            <a href="html/homepage/news-detail.html?id=${n.id}" class="carousel-slide" title="${n.title}">
+                                <img src="${imgSrc}" alt="${n.title}">
+                                <div class="carousel-slide-overlay">
+                                    <h4>${n.title}</h4>
+                                    <p class="carousel-slide-date">${date}</p>
+                                    <p class="carousel-slide-desc">${n.description ? n.description.substring(0, 120) + '...' : ''}</p>
+                                </div>
+                            </a>
+                        `;
+                    }).join('');
+
+                    // Build dots
+                    dotsContainer.innerHTML = data.news.map((_, i) =>
+                        `<button class="carousel-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></button>`
+                    ).join('');
+
+                    // Dot click
+                    dotsContainer.querySelectorAll('.carousel-dot').forEach(dot => {
+                        dot.addEventListener('click', () => {
+                            goToSlide(parseInt(dot.dataset.index));
+                            resetAutoSlide();
+                        });
+                    });
+
+                    // Arrow clicks
+                    document.getElementById('carousel-prev').addEventListener('click', () => {
+                        goToSlide(currentSlide - 1);
+                        resetAutoSlide();
+                    });
+                    document.getElementById('carousel-next').addEventListener('click', () => {
+                        goToSlide(currentSlide + 1);
+                        resetAutoSlide();
+                    });
+
+                    // Auto-slide
+                    startAutoSlide();
+                    goToSlide(0);
+                } else {
+                    // No news — hide carousel, show message
+                    carousel.innerHTML = '<p class="empty-message">No news updates yet.</p>';
+                }
+            } catch (e) {
+                console.error('Failed to load news:', e);
+                carousel.innerHTML = '<p class="empty-message">Unable to load news.</p>';
+            }
+        }
+
+        function goToSlide(index) {
+            if (totalSlides === 0) return;
+            currentSlide = ((index % totalSlides) + totalSlides) % totalSlides;
+            const track = document.getElementById('carousel-track');
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            // Update dots
+            document.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+        }
+
+        function startAutoSlide() {
+            autoSlideInterval = setInterval(() => {
+                goToSlide(currentSlide + 1);
+            }, 5000);
+        }
+
+        function resetAutoSlide() {
+            clearInterval(autoSlideInterval);
+            startAutoSlide();
+        }
+    </script>
+
+</body>
+</html>

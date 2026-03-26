@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News - Barangay Pinyahan</title>
+    <link rel="stylesheet" href="../../css/homepage/homepage.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .news-detail-section {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #0056b3;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            padding: 6px 14px;
+            border: 1px solid #0056b3;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #0056b3;
+            color: white;
+        }
+
+        .news-detail-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #333;
+            text-decoration: underline;
+            margin-bottom: 5px;
+        }
+
+        .news-detail-date {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .news-detail-image {
+            width: 100%;
+            max-height: 350px;
+            object-fit: cover;
+            border-radius: 6px;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        .news-detail-description {
+            font-size: 0.95rem;
+            color: #444;
+            line-height: 1.7;
+            text-align: justify;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <img src="../../images/Quezon_City_logo.svg" alt="Quezon City Logo" class="header-logo">
+            <h1 class="header-title">Barangay Pinyahan</h1>
+            <img src="../../images/Brgy._Pinyahan_Seal.png" alt="Barangay Pinyahan Seal" class="header-logo">
+        </div>
+    </header>
+
+    <nav>
+        <ul class="nav-links">
+            <li><a href="../../index.html">HOME</a></li>
+            <li><a href="about.html">ABOUT US</a></li>
+            <li><a href="services.html">SERVICES</a></li>
+            <li><a href="news&upd.html" class="active">NEWS & EVENTS</a></li>
+            <li><a href="cc.html">CITIZENS CHARTER</a></li>
+            <li><a href="submit_complaint.html">SUBMIT COMPLAINT</a></li>
+            <li><a href="track_complaint.html">TRACK COMPLAINT</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Banner -->
+    <section class="hero-news">
+        <div class="hero-overlay-news">
+            <h1>BARANGAY NEWS AND UPDATES</h1>
+        </div>
+    </section>
+
+    <!-- Advisory Bar -->
+    <div class="advisory-bar">
+        <div class="container advisory-content">
+            <span class="advisory-label">ADVISORY</span>
+            <span class="advisory-text">ALL UPDATES ON THIS PAGE ARE OFFICIAL NOTICES FROM BARANGAY PINYAHAN</span>
+        </div>
+    </div>
+
+    <!-- News Detail -->
+    <section class="news-detail-section">
+        <a href="../../index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Homepage</a>
+
+        <h1 class="news-detail-title" id="news-title">Loading...</h1>
+        <p class="news-detail-date" id="news-date"></p>
+
+        <img id="news-image" class="news-detail-image" src="https://placehold.co/800x350?text=Loading..." alt="News Photo">
+
+        <p class="news-detail-description" id="news-description"></p>
+    </section>
+
+    <footer class="main-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>CONTACT INFORMATION</h4>
+                <ul class="contact-list">
+                    <li><i class="fab fa-facebook-square"></i> Facebook Page: Barangay Pinyahan</li>
+                    <li><i class="fas fa-envelope"></i> Email: brgypinyahan@gmail.com</li>
+                    <li><i class="fas fa-phone-alt"></i> Telephone: (02) 1234-5678</li>
+                </ul>
+                <div class="official-seals">
+                    <img src="https://placehold.co/50?text=Seal" class="seal-icon">
+                    <img src="https://placehold.co/50?text=Seal" class="seal-icon">
+                    <img src="https://placehold.co/50?text=Seal" class="seal-icon">
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>MAP LOCATION</h4>
+                <p>ADDRESS: Malakas St, Diliman, Quezon City</p>
+                <br>
+                <div class="map-placeholder">[ Google Map Embed Goes Here ]</div>
+            </div>
+            <div class="footer-col">
+                <h4>EMERGENCY HOTLINE</h4>
+                <ul class="contact-list" style="font-size: 0.85rem;">
+                    <li>National Emergency Hotline: 911</li>
+                    <li>Philippine National Police Hotline: 117</li>
+                    <li>Philippine Red Cross: 143</li>
+                    <li>Bureau of Fire Protection: (02) 8426-0219</li>
+                    <li>DSWD: 8931-81-08</li>
+                    <li>Coast Guard: 8527-3877</li>
+                    <li><a href="admin_login.html" class="admin-login-link">Admin Login</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <div class="gov-footer">
+        <div class="gov-seal-container">
+            <img src="https://placehold.co/50?text=RP" alt="Republic Seal" style="border-radius:50%; width: 40px;">
+        </div>
+        <br>
+        <h4>REPUBLIC OF THE PHILIPPINES</h4>
+        <p>All content is in the public domain unless otherwise stated.</p>
+    </div>
+
+    <script>
+        const API = 'http://localhost:3000';
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (!id) { window.location.href = 'news&upd.html'; return; }
+
+            // Dynamic Back Button based on where user came from
+            const backBtn = document.querySelector('.back-btn');
+            if (document.referrer && (document.referrer.includes('news&upd.html') || document.referrer.includes('news%26upd.html'))) {
+                backBtn.href = 'news&upd.html';
+                backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to News & Events';
+            } else {
+                backBtn.href = '../../index.html';
+                backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Homepage';
+            }
+
+            try {
+                const res = await fetch(API + '/api/admin/news/public?limit=50');
+                const data = await res.json();
+                if (data && data.news) {
+                    const article = data.news.find(n => n.id == id);
+                    if (article) {
+                        document.title = article.title + ' - Barangay Pinyahan';
+                        document.getElementById('news-title').textContent = article.title;
+                        const date = new Date(article.date_published).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                        document.getElementById('news-date').textContent = date;
+                        document.getElementById('news-description').textContent = article.description || 'No description available.';
+                        if (article.photo_url) {
+                            document.getElementById('news-image').src = API + article.photo_url;
+                            document.getElementById('news-image').alt = article.title;
+                        }
+                    } else {
+                        document.getElementById('news-title').textContent = 'News article not found.';
+                        document.getElementById('news-image').style.display = 'none';
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('news-title').textContent = 'Unable to load news.';
+            }
+        });
+    </script>
+
+</body>
+</html>
