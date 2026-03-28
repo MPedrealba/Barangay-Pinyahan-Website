@@ -23,6 +23,7 @@
                 <li class="active"><a href="complaint-dashboard.html"><i class="fas fa-exclamation-circle"></i> COMPLAINTS</a></li>
                 <li><a href="news-dashboard.html"><i class="fas fa-newspaper"></i> NEWS</a></li>
                 <li><a href="events-dashboard.html"><i class="fas fa-calendar-alt"></i> EVENTS</a></li>                <li><a href="services-dashboard.html"><i class="fas fa-hands-helping"></i> SERVICES</a></li>
+                <li><a href="reports-dashboard.html"><i class="fas fa-chart-line"></i> REPORTS</a></li>
                 <li><a href="notifications.html"><i class="fas fa-bell"></i> NOTIFICATIONS</a></li>
                 <li><a href="accounts-setting.html"><i class="fas fa-users-cog"></i> ACCOUNTS SETTING</a></li>
             </ul>
@@ -75,9 +76,14 @@
                     </div>
                 </div>
 
-                <!-- Recent Complaints Table -->
+                <!-- History Bar -->
+                <div class="history-bar">
+                    <a href="complaint-history.html" class="history-btn"><i class="fas fa-history"></i> COMPLAINT HISTORY</a>
+                </div>
+
+                <!-- Active Complaints Table -->
                 <div class="complaints-table-container">
-                    <h3 class="table-title">RECENT COMPLAINTS</h3>
+                    <h3 class="table-title">ACTIVE COMPLAINTS</h3>
                     <table class="complaints-table">
                         <thead>
                             <tr>
@@ -100,7 +106,7 @@
                                 <td>4:00 PM</td>
                                 <td>On-Going</td>
                                 <td><span class="urgency-badge high">HIGH</span></td>
-                                <td><a href="complaint-view.html" class="view-btn">View</a></td>
+                                <td><a href="complaint-view.html?id=1" class="view-btn">View</a></td>
                             </tr>
                             <tr>
                                 <td>02</td>
@@ -110,7 +116,7 @@
                                 <td>4:30 PM</td>
                                 <td>Pending</td>
                                 <td><span class="urgency-badge medium">Medium</span></td>
-                                <td><a href="complaint-view.html" class="view-btn">View</a></td>
+                                <td><a href="complaint-view.html?id=2" class="view-btn">View</a></td>
                             </tr>
                             <tr>
                                 <td>03</td>
@@ -120,7 +126,7 @@
                                 <td>5:00 PM</td>
                                 <td>Pending</td>
                                 <td><span class="urgency-badge low">Low</span></td>
-                                <td><button class="view-btn">View</button></td>
+                                <td><a href="complaint-view.html?id=3" class="view-btn">View</a></td>
                             </tr>
                         </tbody>
                     </table>

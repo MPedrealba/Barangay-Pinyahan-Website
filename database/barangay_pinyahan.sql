@@ -38,6 +38,7 @@ CREATE TABLE complaints (
     urgency_level ENUM('Low', 'Medium', 'High') DEFAULT 'Low',
     admin_notes TEXT DEFAULT NULL,
     submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    resolved_at DATETIME DEFAULT NULL,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
@@ -101,6 +102,18 @@ CREATE TABLE notifications (
 );
 
 -- ============================================
+-- 7. AUDIT LOGS TABLE
+-- ============================================
+CREATE TABLE audit_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    admin_id INT,
+    action_type VARCHAR(50) NOT NULL,
+    action_details VARCHAR(255) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE SET NULL
+);
+
+-- ============================================
 -- SEED DATA
 -- ============================================
 
@@ -154,3 +167,9 @@ INSERT INTO services (name, description, icon_class, icon_color, requirements, p
 INSERT INTO notifications (admin_id, title, message, icon_class, is_read) VALUES
 (NULL, 'New Complaint', 'A new complaint has been submitted.', 'fas fa-bell', FALSE),
 (NULL, 'System Update', 'Your system has an update available.', 'fas fa-cog', TRUE);
+
+-- Sample audit logs
+INSERT INTO audit_logs (admin_id, action_type, action_details) VALUES
+(1, 'Complaint', 'Resolved Complaint #BRGY-2026-001 (Juan Dela Cruz)'),
+(2, 'Service', 'Updated requirements for Barangay Clearance'),
+(1, 'Event', 'Created new event: Barangay Clean-Up Drive 2026');

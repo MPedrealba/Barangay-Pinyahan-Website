@@ -25,7 +25,7 @@
             <li><a href="about.html">ABOUT US</a></li>
             <li><a href="services.html">SERVICES</a></li>
             <li><a href="news&upd.html">NEWS & EVENTS</a></li>
-            <li><a href="cc.html">CITIZENS CHARTER</a></li>
+            <li><a href="#">CITIZENS CHARTER</a></li>
             <li><a href="submit_complaint.html">SUBMIT COMPLAINT</a></li>
             <li><a href="track_complaint.html" class="active">TRACK COMPLAINT</a></li>
         </ul>
@@ -47,11 +47,7 @@
                     </div>
 
                     <div class="form-group">
-                        <input type="tel" placeholder="Contact Number" required>
-                    </div>
-
-                    <div class="form-group">
-                        <input type="text" placeholder="Address" required>
+                        <input type="text" placeholder="Full Name" required>
                     </div>
 
                     <div class="btn-container">
@@ -95,7 +91,7 @@
                     <li>Bureau of Fire Protection: (02) 8426-0219</li>
                     <li>DSWD: 8931-81-08</li>
                     <li>Coast Guard: 8527-3877</li>
-                    <li><a href="login.html" class="admin-login-link">Admin Login</a></li>
+                    <li><a href="admin_login.html" class="admin-login-link">Admin Login</a></li>
                 </ul>
             </div>
         </div>
@@ -115,10 +111,9 @@
             e.preventDefault();
             const inputs = this.querySelectorAll('input');
             const ref_no = inputs[0].value;
-            const contact_number = inputs[1].value;
-            const address = inputs[2].value;
+            const full_name = inputs[1].value;
 
-            if (!ref_no || !contact_number || !address) {
+            if (!ref_no || !full_name) {
                 showPopup('Missing Fields', 'Please fill all fields.', 'error');
                 return;
             }
@@ -128,7 +123,7 @@
             btn.disabled = true;
 
             try {
-                const data = await apiPost('/api/complaints/track', { ref_no, contact_number, address });
+                const data = await apiPost('/api/complaints/track', { ref_no, full_name });
                 if (data && data.complaint) {
                     const c = data.complaint;
                     const date = new Date(c.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -139,7 +134,7 @@
                     );
                 }
             } catch (err) {
-                showPopup('Not Found', 'Complaint not found. Please check your reference number, contact number, and address.', 'error');
+                showPopup('Not Found', 'Complaint not found. Please check your reference number and full name.', 'error');
             }
             btn.textContent = 'Track Complaint';
             btn.disabled = false;

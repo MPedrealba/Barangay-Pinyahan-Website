@@ -70,7 +70,9 @@ Respond in this EXACT JSON format only, no other text:
         const text = data.choices?.[0]?.message?.content?.trim();
         
         if (text) {
-            const parsed = JSON.parse(text);
+            // Remove markdown code blocks and backticks (e.g., ```json ... ```)
+            const cleanText = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+            const parsed = JSON.parse(cleanText);
             const validCategories = ['Peace & Order', 'Sanitation', 'Infrastructure', 'Health', 'Environmental', 'Others'];
             const validUrgency = ['Low', 'Medium', 'High', 'Critical'];
             
@@ -141,15 +143,18 @@ router.post('/', upload.single('photo'), async (req, res) => {
 // POST /api/complaints/track — Track a complaint by ref number (public)
 router.post('/track', async (req, res) => {
     try {
-        const { ref_no, contact_number, address } = req.body;
+        const { ref_no, full_name } = req.body;
 
-        if (!ref_no || !contact_number || !address) {
+        if (!ref_no || !full_name) {
             return res.status(400).json({ error: 'All fields are required.' });
         }
 
+        const cleanRef = ref_no.trim().toLowerCase();
+        const cleanName = full_name.trim().toLowerCase();
+
         const [rows] = await req.db.query(
-            'SELECT ref_no, full_name, complaint_type, category, status, urgency_level, submitted_at FROM complaints WHERE ref_no = ? AND contact_number = ? AND address = ?',
-            [ref_no, contact_number, address]
+            'SELECT ref_no, full_name, complaint_type, category, status, urgency_level, submitted_at FROM complaints WHERE LOWER(TRIM(ref_no)) = ? AND LOWER(full_name) LIKE ?',
+            [cleanRef, `%${cleanName}%`]
         );
 
         if (rows.length === 0) {
@@ -167,11 +172,24 @@ router.post('/track', async (req, res) => {
 // ADMIN ROUTES (protected)
 // ------------------------------------------
 
-// GET /api/complaints/admin — List all complaints (admin)
+// GET /api/complaints/admin — List all active complaints (admin)
 router.get('/admin', verifyToken, async (req, res) => {
     try {
         const [rows] = await req.db.query(
-            'SELECT * FROM complaints ORDER BY submitted_at DESC'
+            'SELECT * FROM complaints WHERE status != "Resolved" ORDER BY submitted_at DESC'
+        );
+        res.json({ complaints: rows });
+    } catch (error) {
+        console.error('List complaints error:', error);
+        res.status(500).json({ error: 'Server error.' });
+    }
+});
+
+// GET /api/complaints/admin/history — List only resolved complaints
+router.get('/admin/history', verifyToken, async (req, res) => {
+    try {
+        const [rows] = await req.db.query(
+            'SELECT * FROM complaints WHERE status = "Resolved" ORDER BY resolved_at DESC, submitted_at DESC'
         );
         res.json({ complaints: rows });
     } catch (error) {
@@ -204,7 +222,13 @@ router.put('/admin/:id', verifyToken, async (req, res) => {
         const fields = [];
         const values = [];
 
-        if (status) { fields.push('status = ?'); values.push(status); }
+        if (status) { 
+            fields.push('status = ?'); 
+            values.push(status); 
+            if (status === 'Resolved') {
+                fields.push('resolved_at = CURRENT_TIMESTAMP');
+            }
+        }
         if (urgency_level) { fields.push('urgency_level = ?'); values.push(urgency_level); }
         if (admin_notes !== undefined) { fields.push('admin_notes = ?'); values.push(admin_notes); }
         if (category) { fields.push('category = ?'); values.push(category); }

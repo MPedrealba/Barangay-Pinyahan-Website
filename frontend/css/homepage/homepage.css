@@ -6,6 +6,10 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+html {
+    overflow-y: scroll;
+}
+
 body {
     background-color: #f0f0f0;
     color: #333;
@@ -96,6 +100,8 @@ nav {
     font-weight: bold;
     text-transform: uppercase;
     transition: background 0.3s;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .nav-links a:hover {

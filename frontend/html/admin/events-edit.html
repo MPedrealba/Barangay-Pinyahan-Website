@@ -24,6 +24,7 @@
                 <li><a href="complaint-dashboard.html"><i class="fas fa-exclamation-circle"></i> COMPLAINTS</a></li>
                 <li><a href="news-dashboard.html"><i class="fas fa-newspaper"></i> NEWS</a></li>
                 <li class="active"><a href="events-dashboard.html"><i class="fas fa-calendar-alt"></i> EVENTS</a></li>                <li><a href="services-dashboard.html"><i class="fas fa-hands-helping"></i> SERVICES</a></li>
+                <li><a href="reports-dashboard.html"><i class="fas fa-chart-line"></i> REPORTS</a></li>
                 <li><a href="notifications.html"><i class="fas fa-bell"></i> NOTIFICATIONS</a></li>
                 <li><a href="accounts-setting.html"><i class="fas fa-users-cog"></i> ACCOUNTS SETTING</a></li>
             </ul>
@@ -47,6 +48,7 @@
                 <div class="event-edit-card">
 
                     <a href="events-dashboard.html" class="back-arrow"><i class="fas fa-arrow-left"></i></a>
+                    <h2 style="color: #0056b3; margin-top: 5px; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px;"><i class="fas fa-edit"></i> Edit Event Details</h2>
 
                     <div class="form-group">
                         <label class="form-label">NAME OF EVENT:</label>
@@ -141,7 +143,15 @@
                         document.getElementById('photoPreview').src = API_BASE + data.event.photo_url;
                     }
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.warn('Backend not reachable. Loading template data...', e); 
+                const inputs = document.querySelectorAll('.form-input');
+                inputs[0].value = "Distribution of Food Assistance";
+                inputs[1].value = "2026-01-07";
+                inputs[2].value = "16:00";
+                inputs[3].value = "Brgy. Court";
+                document.querySelector('.form-textarea').value = "Distribution of food assistance to residents.";
+            }
         });
 
         document.querySelector('.btn-save').onclick = async function () {

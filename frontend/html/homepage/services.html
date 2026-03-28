@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Services - Barangay Pinyahan</title>
-    
     <link rel="stylesheet" href="../../css/homepage/homepage.css">
-    
+    <link rel="stylesheet" href="../../css/homepage/service-detail.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -25,116 +24,278 @@
             <li><a href="about.html">ABOUT US</a></li>
             <li><a href="services.html" class="active">SERVICES</a></li>
             <li><a href="news&upd.html">NEWS & EVENTS</a></li>
-            <li><a href="cc.html">CITIZENS CHARTER</a></li>
+            <li><a href="#">CITIZENS CHARTER</a></li>
             <li><a href="submit_complaint.html">SUBMIT COMPLAINT</a></li>
             <li><a href="track_complaint.html">TRACK COMPLAINT</a></li>
         </ul>
     </nav>
 
-    <section class="hero-services">
-        <div class="hero-overlay">
-            <h1>BARANGAY COMMUNITY SERVICES</h1>
+    <!-- ===== SERVICE LISTING VIEW (default) ===== -->
+    <div id="view-listing">
+        <section class="hero-services">
+            <div class="hero-overlay">
+                <h1>BARANGAY COMMUNITY SERVICES</h1>
+            </div>
+        </section>
+
+        <section class="container">
+            <h3 class="section-title center-text">SERVICE LISTING</h3>
+
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="card-icon"><i class="fas fa-file-invoice"></i></div>
+                    <div class="card-content">
+                        <h4>Barangay Clearance</h4>
+                        <button class="learn-more-btn" onclick="showDetail('clearance')">LEARN MORE</button>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="card-icon"><i class="fas fa-store"></i></div>
+                    <div class="card-content">
+                        <h4>Business Permit Application</h4>
+                        <button class="learn-more-btn" onclick="showDetail('business')">LEARN MORE</button>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="card-icon"><i class="fas fa-file-lines"></i></div>
+                    <div class="card-content">
+                        <h4>Certificate of Indigency</h4>
+                        <button class="learn-more-btn" onclick="showDetail('indigency')">LEARN MORE</button>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="card-icon"><i class="fas fa-heart"></i></div>
+                    <div class="card-content">
+                        <h4>Health Services</h4>
+                        <button class="learn-more-btn" onclick="showDetail('health')">LEARN MORE</button>
+                    </div>
+                </div>
+
+                <div class="service-card">
+                    <div class="card-icon"><i class="fas fa-bell"></i></div>
+                    <div class="card-content">
+                        <h4>Disaster Response</h4>
+                        <button class="learn-more-btn" onclick="showDetail('disaster')">LEARN MORE</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ===== SERVICE DETAIL VIEW (hidden by default) ===== -->
+    <div id="view-detail" style="display:none;">
+
+        <!-- Title Banner with Back Button -->
+        <div class="service-title-banner-wrapper">
+            <div class="service-title-banner">
+                <a href="#" class="service-back-btn" onclick="showListing(); return false;">&#8592;</a>
+                <h2 id="detail-title"></h2>
+            </div>
         </div>
-    </section>
 
-    <section class="container">
-        <h3 class="section-title center-text">SERVICE LISTING</h3>
-        
-        <div class="services-grid">
-            <div class="service-card">
-                <div class="card-icon">
-                    <i class="fas fa-file-invoice"></i>
+        <!-- Process Section -->
+        <section class="container service-detail-section">
+            <h3 class="process-title">PROCESS</h3>
+            <div class="process-grid">
+                <div class="process-box">
+                    <h4>REQUIREMENTS:</h4>
+                    <ul id="detail-requirements"></ul>
                 </div>
-                <div class="card-content">
-                    <h4>Barangay Clearance</h4>
-                    <a href="#" class="learn-more-btn">LEARN MORE</a>
+                <div class="process-box">
+                    <h4>PROCEDURE:</h4>
+                    <ol id="detail-procedure"></ol>
                 </div>
             </div>
+        </section>
 
-            <div class="service-card">
-                <div class="card-icon">
-                    <i class="fas fa-store"></i>
-                </div>
-                <div class="card-content">
-                    <h4>Business Permit Application</h4>
-                    <a href="#" class="learn-more-btn">LEARN MORE</a>
-                </div>
-            </div>
+        <!-- Other Services Section -->
+        <section class="container other-services-section">
+            <h3 class="other-services-title">OTHER SERVICES:</h3>
+            <div class="other-services-grid" id="other-services-container"></div>
+        </section>
 
-            <div class="service-card">
-                <div class="card-icon">
-                    <i class="fas fa-file-lines"></i>
-                </div>
-                <div class="card-content">
-                    <h4>Certificate of Indigency</h4>
-                    <a href="#" class="learn-more-btn">LEARN MORE</a>
-                </div>
-            </div>
+    </div>
 
-            <div class="service-card">
-                <div class="card-icon">
-                    <i class="fas fa-heart"></i>
-                </div>
-                <div class="card-content">
-                    <h4>Health Services</h4>
-                    <a href="#" class="learn-more-btn">LEARN MORE</a>
-                </div>
-            </div>
-
-            <div class="service-card">
-                <div class="card-icon">
-                    <i class="fas fa-bell"></i>
-                </div>
-                <div class="card-content">
-                    <h4>Disaster Response</h4>
-                    <a href="#" class="learn-more-btn">LEARN MORE</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
+    <!-- Footer (always visible) -->
     <footer class="main-footer">
         <div class="footer-grid">
             <div class="footer-col">
                 <h4>CONTACT INFORMATION</h4>
                 <ul class="contact-list">
                     <li><i class="fab fa-facebook-f"></i> Facebook Page: Barangay Pinyahan</li>
-                    <li><i class="fas fa-envelope"></i> Email: brgypinyahan@gmail.com</li>
-                    <li><i class="fas fa-phone"></i> Telephone: (02) 1234-5678</li>
+                    <li><i class="fas fa-envelope"></i> Gmail: pinyahan.qc@gmail.com</li>
+                    <li><i class="fas fa-phone"></i> Tel No.: 8922-4PUP(4787)</li>
                 </ul>
-                <div class="official-seals-footer">
-                    <span>OFFICIAL SEALS:</span>
-                    <div class="seals-row">
-                        <div class="seal-circle"></div>
-                        <div class="seal-circle"></div>
-                        <div class="seal-circle"></div>
-                    </div>
-                </div>
             </div>
             <div class="footer-col">
-                <h4>MAP LOCATION</h4>
-                <p>ADDRESS: Malakas St, Diliman, Quezon City</p>
-                <div class="map-box">[ Google Map ]</div>
+                <h4>QUICK LINKS</h4>
+                <ul class="quick-links">
+                    <li><a href="#">I want to...</a></li>
+                    <li><a href="#">Report a Concern</a></li>
+                    <li><a href="#">Services</a></li>
+                    <li><a href="#">Ask a question</a></li>
+                </ul>
             </div>
             <div class="footer-col">
-                <h4>EMERGENCY HOTLINE</h4>
-                <ul class="emergency-list">
-                    <li>National Emergency Hotline: 911</li>
-                    <li>Philippine National Police Hotline: 117</li>
-                    <li>Bureau of Fire Protection: (02) 8426-0219</li>
-                    <li>DSWD: 8931-81-08</li>
-                    <li>Coast Guard: 8527-3877</li>
-                    <li><a href="login.html" class="admin-login-link">Admin Login</a></li>
+                <h4>EMERGENCY HOTLINES</h4>
+                <ul class="emergency-hotlines">
+                    <li>Barangay Pinyahan: 8922-4787</li>
+                    <li>NDRRMC: 8911-5061</li>
+                    <li>Red Cross: 143</li>
+                    <li>BFP: 8426-0219</li>
+                    <li>PNP: 117</li>
+                    <li><a href="admin_login.html" class="admin-login-link">Admin Login</a></li>
                 </ul>
             </div>
         </div>
+        <div class="footer-bottom">
+            <p>REPUBLIC OF THE PHILIPPINES</p>
+            <p>All content is in the public domain unless otherwise stated.</p>
+        </div>
     </footer>
 
-    <div class="gov-footer">
-        <div class="gov-seal-img"></div>
-        <h4>REPUBLIC OF THE PHILIPPINES</h4>
-        <p>All content is in the public domain unless otherwise stated.</p>
-    </div>
+    <script>
+        // ── Service Data ──────────────────────────────────────────────
+        const serviceData = {
+            clearance: {
+                title: 'Barangay Clearance',
+                icon: 'fa-file-invoice',
+                requirements: [
+                    'Barangay Clearance Application Form',
+                    'Valid Government-issued ID',
+                    'Proof of Residency',
+                    'Cedula (Community Tax Certificate)'
+                ],
+                procedure: [
+                    'Submit requirements to the Barangay Office',
+                    'Verification of documents',
+                    'Pay clearance fee',
+                    'Processing and approval',
+                    'Release of Barangay Clearance'
+                ]
+            },
+            business: {
+                title: 'Business Permit Application',
+                icon: 'fa-store',
+                requirements: [
+                    'Duly accomplished Business Permit Application Form',
+                    'Valid Government-issued ID of the owner',
+                    'Barangay Clearance',
+                    'DTI/SEC/CDA Registration',
+                    'Lease Contract or Land Title (if applicable)'
+                ],
+                procedure: [
+                    'Secure and accomplish the application form',
+                    'Submit complete requirements to the Barangay Office',
+                    'Inspection of the business location',
+                    'Assessment and payment of applicable fees',
+                    'Release of Barangay Business Permit'
+                ]
+            },
+            indigency: {
+                title: 'Certificate of Indigency',
+                icon: 'fa-file-lines',
+                requirements: [
+                    'Request letter or filled-out application form',
+                    'Valid Government-issued ID',
+                    'Proof of Residency in Barangay Pinyahan',
+                    'Barangay Clearance (if required by the requesting institution)'
+                ],
+                procedure: [
+                    'Go to the Barangay Hall and state your purpose',
+                    'Submit required documents to the receiving clerk',
+                    'Verification of residency and financial status',
+                    'Processing and signing by the Punong Barangay',
+                    'Release of Certificate of Indigency'
+                ]
+            },
+            health: {
+                title: 'Health Services',
+                icon: 'fa-heart',
+                requirements: [
+                    'Valid Government-issued ID or Barangay ID',
+                    'Proof of Residency in Barangay Pinyahan',
+                    'PhilHealth ID (if available)',
+                    'Referral letter (for specialist consultations)'
+                ],
+                procedure: [
+                    'Register at the Barangay Health Center',
+                    'Present required documents',
+                    'Wait for queue number and consultation schedule',
+                    'Consultation with the Barangay Health Worker or Physician',
+                    'Receive medicines or referral as needed'
+                ]
+            },
+            disaster: {
+                title: 'Disaster Response',
+                icon: 'fa-bell',
+                requirements: [
+                    'Valid Government-issued ID or Barangay ID',
+                    'Proof of residency in the affected area',
+                    'Disaster/Calamity Report (if available)',
+                    'Request for Assistance Form'
+                ],
+                procedure: [
+                    'Report the disaster/emergency to the Barangay Hall or BDRRMC',
+                    'Assessment of damage and affected families',
+                    'Coordination with DRRMC and relevant agencies',
+                    'Distribution of relief goods and temporary shelter (if needed)',
+                    'Post-disaster monitoring and rehabilitation assistance'
+                ]
+            }
+        };
+
+        // ── Show a service detail ──────────────────────────────────────
+        let lastScrollPosition = 0;
+
+        function showDetail(key) {
+            const svc = serviceData[key];
+            if (!svc) return;
+
+            // Save the exact user scroll position
+            lastScrollPosition = window.scrollY;
+
+            // Set title
+            document.getElementById('detail-title').textContent = svc.title;
+
+            // Set requirements
+            const reqList = document.getElementById('detail-requirements');
+            reqList.innerHTML = svc.requirements.map(r => `<li>${r}</li>`).join('');
+
+            // Set procedure
+            const procList = document.getElementById('detail-procedure');
+            procList.innerHTML = svc.procedure.map(p => `<li>${p}</li>`).join('');
+
+            // Build "Other Services" cards (all except current)
+            const container = document.getElementById('other-services-container');
+            container.innerHTML = Object.entries(serviceData)
+                .filter(([k]) => k !== key)
+                .map(([k, s]) => `
+                    <div class="service-card">
+                        <div class="card-icon"><i class="fas ${s.icon}"></i></div>
+                        <div class="card-content">
+                            <h4>${s.title}</h4>
+                            <button class="learn-more-btn" onclick="showDetail('${k}')">LEARN MORE</button>
+                        </div>
+                    </div>
+                `).join('');
+
+            // Switch views
+            document.getElementById('view-listing').style.display = 'none';
+            document.getElementById('view-detail').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+
+        // ── Back to listing ───────────────────────────────────────────
+        function showListing() {
+            document.getElementById('view-detail').style.display = 'none';
+            document.getElementById('view-listing').style.display = 'block';
+            window.scrollTo({ top: lastScrollPosition, behavior: 'instant' });
+        }
+    </script>
 
 </body>
 </html>

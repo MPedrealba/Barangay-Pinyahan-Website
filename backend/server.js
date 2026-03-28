@@ -118,6 +118,7 @@ const serviceRoutes = require('./routes/services');
 const accountRoutes = require('./routes/accounts');
 const notificationRoutes = require('./routes/notifications');
 const dashboardRoutes = require('./routes/dashboard');
+const reportsRoutes = require('./routes/reports');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintRoutes);
@@ -127,6 +128,7 @@ app.use('/api/admin/services', serviceRoutes);
 app.use('/api/admin/accounts', accountRoutes);
 app.use('/api/admin/notifications', notificationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/admin/reports', reportsRoutes);
 
 // ------------------------------------------
 // STEP 10: Start the server
