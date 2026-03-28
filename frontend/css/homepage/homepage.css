@@ -497,13 +497,38 @@ nav {
 /* --- RESPONSIVE MEDIA QUERIES --- */
 @media (max-width: 768px) {
     .header-content, .header-container { flex-direction: column; text-align: center; gap: 10px; }
-    .header-title { font-size: 1.8rem; margin: 10px 0; }
-    .nav-links { flex-direction: column; text-align: center;}
-    .nav-links li { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .header-title { font-size: 1.6rem; margin: 10px 0; }
+    .header-logo { height: 60px; }
+    
+    .nav-links { 
+        flex-direction: row; 
+        flex-wrap: nowrap; 
+        overflow-x: auto; 
+        justify-content: flex-start;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 5px; /* for scrollbar */
+    }
+    .nav-links::-webkit-scrollbar { height: 6px; }
+    .nav-links::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.4); border-radius: 3px; }
+    .nav-links li { 
+        border-right: 1px solid rgba(255,255,255,0.3); 
+        border-bottom: none; 
+        flex: 0 0 auto;
+    }
+    .nav-links a { padding: 12px 18px; font-size: 0.85rem; }
+
     .events-grid { grid-template-columns: 1fr 1fr; }
     .footer-grid { grid-template-columns: 1fr; }
-    .history-container, .mission-vision-container { flex-direction: column; }
+    .history-container, .mission-vision-container, .content-row { flex-direction: column; }
     .org-level { flex-wrap: wrap; gap: 10px; }
+    .welcome-section { padding: 30px 15px; }
+    .welcome-title { font-size: 1.5rem; }
+    
+    .carousel-slide img { height: 250px; }
+    .hero-news, .hero-charter, .hero-services { height: 250px; padding-bottom: 20px; }
+    .charter-title-bar h1 { font-size: 1.8rem; }
+    .hero-services h1, .hero-overlay-news h1 { font-size: 1.6rem; }
+    .track-card { padding: 20px; }
 }
 /* --- SHARED LAYOUT & UTILITIES (From AboutUs) --- */
 .white-container {
@@ -617,119 +642,7 @@ nav {
     margin: 0 auto 30px;
 }
 
-/* --- SHARED LAYOUT & UTILITIES (From AboutUs) --- */
-.white-container {
-    background-color: white;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    padding: 30px; /* Adjusted padding */
-}
 
-.content-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 40px;
-}
-
-.text-col {
-    flex: 2;
-    line-height: 1.8;
-}
-
-.text-col p {
-    text-align: justify;
-}
-
-.image-col {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.image-col img, .history-seal {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.centered {
-    justify-content: center;
-}
-
-.padding-left {
-    padding-left: 20px;
-}
-
-/* --- MISSION & VISION --- */
-.mv-block {
-    margin-bottom: 30px;
-}
-
-.mv-title {
-    font-size: 1.5em;
-    color: #333;
-    margin-bottom: 10px;
-}
-
-.mv-list {
-    list-style-type: disc;
-    padding-left: 20px;
-}
-
-.mv-list li {
-    margin-bottom: 10px;
-}
-
-/* --- ORGANIZATIONAL CHART --- */
-.org-section {
-    background-color: #eef5ff; /* Light blue background */
-    padding: 40px 0;
-}
-
-.org-chart-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 30px;
-    padding-top: 30px;
-}
-
-.org-level {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    width: 100%;
-}
-
-.org-card {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    width: 120px;
-    height: 120px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.org-card .fas {
-    font-size: 3em;
-    color: #0056b3; /* Matched to var(--primary-blue) */
-}
-
-.connector-line {
-    width: 2px;
-    height: 40px;
-    background-color: #ccc;
-    margin: 0 auto 30px;
-}
-
-/* --- SERVICES PAGE STYLES --- */
 
 /* Hero Section with Text Overlay */
 .hero-services {
