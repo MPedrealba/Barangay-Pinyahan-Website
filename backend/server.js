@@ -135,13 +135,19 @@ app.use('/api/admin/reports', reportsRoutes);
 // ------------------------------------------
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log("==========================================");
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📡 API endpoint: http://localhost:${PORT}/api`);
-  console.log("==========================================");
-  testConnection(); // Test DB connection on startup
-});
+// Only spin up the actual server if not running in a Vercel serverless environment
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log("==========================================");
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📡 API endpoint: http://localhost:${PORT}/api`);
+    console.log("==========================================");
+    testConnection(); // Test DB connection on startup
+  });
+} else {
+  // Test connection passively if on Vercel
+  testConnection();
+}
 
-// Export db pool so route files can use it
-module.exports = { app, db };
+// Export the Express app as the default export so Vercel can run it serverlessly
+module.exports = app;
