@@ -129,14 +129,20 @@ nav {
 /* --- HERO SECTIONS --- */
 .hero-section {
     position: relative;
+    overflow: hidden;
+    background-color: #003366;
 }
 
-.hero-section img, .hero-full img {
+/* Responsive hero image — scales cleanly at all widths */
+.hero-section img.hero-img,
+.hero-section img,
+.hero-full img {
     width: 100%;
     height: auto;
     display: block;
     object-fit: cover;
-    max-height: 500px;
+    max-height: 520px;   /* Cap on ultra-wide desktops */
+    min-height: 180px;
 }
 
 /* HOME text overlay on hero */
@@ -460,46 +466,118 @@ nav {
 /* --- FOOTER --- */
 .main-footer {
     background-color: #e6e6e6;
-    padding: 40px 5%;
+    padding: 48px 5% 36px;
     font-size: 0.9rem;
-    border-top: 1px solid #ccc;
+    border-top: 3px solid #006eb3;
 }
 
 .footer-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 30px;
+    gap: 36px;
     max-width: 1200px;
     margin: 0 auto;
 }
 
 .footer-col h4 {
-    font-size: 1.1rem;
-    margin-bottom: 15px;
+    font-size: 1rem;
+    margin-bottom: 16px;
     text-transform: uppercase;
     font-weight: 800;
+    color: #003366;
+    border-bottom: 2px solid #006eb3;
+    padding-bottom: 8px;
 }
 
+.footer-address {
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+/* Contact list with icons */
 .contact-list li {
-    margin-bottom: 10px;
+    min-height: 44px;
     display: flex;
     align-items: center;
     gap: 10px;
+    font-size: 0.88rem;
+    color: #333;
+    padding: 4px 0;
 }
+.contact-list li i {
+    color: #006eb3;
+    font-size: 1rem;
+    flex-shrink: 0;
+    width: 18px;
+    text-align: center;
+}
+.contact-list li a {
+    color: #0056b3;
+    text-decoration: underline;
+}
+.contact-list li a:hover { color: #003d80; }
 
+/* Official seals in footer */
 .official-seals {
     display: flex;
-    gap: 10px;
-    margin-top: 15px;
+    gap: 12px;
+    margin-top: 18px;
+    align-items: center;
 }
 
 .seal-icon {
-    width: 40px;
-    height: 40px;
-    background: #ccc; /* Placeholder for logo */
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
     border-radius: 50%;
+    background: #fff;
+    padding: 2px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
 }
 
+/* Emergency hotlines — 44px touch targets for accessibility */
+.hotline-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.hotline-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 44px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+    font-size: 0.86rem;
+    gap: 8px;
+}
+
+.hotline-list li:last-child {
+    border-bottom: none;
+}
+
+.hotline-label {
+    color: #444;
+    flex: 1;
+}
+
+.hotline-number {
+    font-weight: 700;
+    color: #cc0000;
+    text-decoration: none;
+    white-space: nowrap;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.hotline-number:hover {
+    background: rgba(204,0,0,0.08);
+}
+
+/* Map placeholder fallback */
 .map-placeholder, .map-box {
     width: 100%;
     height: 150px;
@@ -509,19 +587,26 @@ nav {
     justify-content: center;
     color: #666;
     border: 1px solid #ccc;
+    border-radius: 6px;
 }
 
-/* --- GOV FOOTER (Standard PH Footer) --- */
+/* --- GOV FOOTER --- */
 .gov-footer {
-    background-color: #003366; /* Standard PH Gov Blue */
+    background-color: #003366;
     color: white;
     padding: 20px;
     text-align: center;
-    border-top: 4px solid #cc0000; /* Standard PH Gov Red accent */
+    border-top: 4px solid #cc0000;
+}
+
+.gov-footer h4 {
+    font-size: 0.95rem;
+    margin: 8px 0 4px;
 }
 
 .gov-footer p {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
+    opacity: 0.85;
 }
 
 .gov-seal-container {
@@ -532,6 +617,106 @@ nav {
     gap: 10px;
 }
 
+/* --- ADMIN SUB-FOOTER --- */
+.sub-footer {
+    background-color: #1a1a2e;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 5%;
+    font-size: 0.78rem;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.sub-footer .admin-login-link {
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s;
+    min-height: 44px;
+    padding: 4px 0;
+}
+
+.sub-footer .admin-login-link:hover {
+    color: rgba(255,255,255,0.9);
+}
+
+.sub-footer-copy {
+    color: rgba(255,255,255,0.4);
+    font-size: 0.75rem;
+}
+
+/* --- SKELETON LOADERS --- */
+@keyframes shimmer {
+    0%   { background-position: -600px 0; }
+    100% { background-position: 600px 0; }
+}
+
+.skeleton-card {
+    border-radius: 8px;
+    height: 180px;
+    background: linear-gradient(90deg, #d0d0d0 25%, #e8e8e8 50%, #d0d0d0 75%);
+    background-size: 600px 100%;
+    animation: shimmer 1.4s infinite linear;
+}
+
+.skeleton-carousel,
+.skeleton-slide {
+    width: 100%;
+    height: 320px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #d0d0d0 25%, #e8e8e8 50%, #d0d0d0 75%);
+    background-size: 600px 100%;
+    animation: shimmer 1.4s infinite linear;
+}
+
+/* --- EMPTY STATES --- */
+.empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 20px;
+    text-align: center;
+    background: white;
+    border-radius: 10px;
+    border: 2px dashed #c0d6ea;
+    color: #555;
+    width: 100%;
+}
+
+.empty-state--error {
+    border-color: #f5c6cb;
+    background: #fff8f8;
+}
+
+.empty-state-icon {
+    font-size: 2.8rem;
+    color: #006eb3;
+    margin-bottom: 14px;
+    opacity: 0.7;
+}
+
+.empty-state--error .empty-state-icon {
+    color: #cc0000;
+}
+
+.empty-state-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.empty-state-sub {
+    font-size: 0.9rem;
+    color: #777;
+    max-width: 340px;
+}
 
 /* ============================================
    RESPONSIVE BREAKPOINTS — ALL DEVICE SIZES
@@ -634,6 +819,16 @@ nav {
     .footer-col:last-child { grid-column: auto; }
     .contact-list li { font-size: 0.88rem; gap: 8px; display: flex; align-items: center; }
     .contact-list li i { font-size: 1.1rem; color: #0056b3; flex-shrink: 0; }
+    .hotline-list li { flex-direction: column; align-items: flex-start; min-height: auto; padding: 10px 0; gap: 2px; }
+    .hotline-number { padding: 6px 0; font-size: 1rem; }
+
+    /* Sub-footer: stack on mobile */
+    .sub-footer { flex-direction: column; text-align: center; padding: 12px 4%; gap: 4px; }
+    .sub-footer-copy { order: -1; }
+
+    /* Skeleton mobile */
+    .skeleton-card { height: 120px; }
+    .skeleton-slide { height: 200px; }
 
     /* Shared pages */
     .history-container, .mission-vision-container, .content-row { flex-direction: column; }

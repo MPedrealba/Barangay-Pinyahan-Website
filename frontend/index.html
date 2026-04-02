@@ -3,42 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Official website of Barangay Pinyahan, Diliman, Quezon City. Access services, news, events, and submit complaints online.">
     <title>Barangay Pinyahan - Official Website</title>
     <link rel="stylesheet" href="css/homepage/homepage.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
+    <!-- ===== HEADER ===== -->
     <header>
         <div class="header-content">
-            <img src="images/Quezon_City_logo.svg" alt="Quezon City Logo" class="header-logo">
+            <img src="images/Quezon_City_logo.svg" alt="Quezon City Official Seal" class="header-logo">
             <h1 class="header-title">Barangay Pinyahan</h1>
-            <img src="images/Brgy._Pinyahan_Seal.png" alt="Barangay Pinyahan Seal" class="header-logo">
+            <img src="images/Brgy._Pinyahan_Seal.png" alt="Barangay Pinyahan Official Seal" class="header-logo">
         </div>
     </header>
 
-    <nav id="main-nav">
+    <!-- ===== NAVIGATION ===== -->
+    <nav id="main-nav" role="navigation" aria-label="Main Navigation">
         <div class="nav-wrapper">
             <ul class="nav-links" id="nav-links">
-                <li><a href="index.html">HOME</a></li>
+                <li><a href="index.html" class="active">HOME</a></li>
                 <li><a href="html/homepage/about.html">ABOUT US</a></li>
                 <li><a href="html/homepage/services.html">SERVICES</a></li>
-                <li><a href="html/homepage/news&upd.html">NEWS & EVENTS</a></li>
-                <li><a href="#">CITIZENS CHARTER</a></li>
+                <li><a href="html/homepage/news&upd.html">NEWS &amp; EVENTS</a></li>
+                <li><a href="html/homepage/citizens-charter.html">CITIZENS CHARTER</a></li>
                 <li><a href="html/homepage/submit_complaint.html">SUBMIT COMPLAINT</a></li>
                 <li><a href="html/homepage/track_complaint.html">TRACK COMPLAINT</a></li>
             </ul>
-            <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation">
-                <i class="fas fa-bars"></i>
+            <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+                <i class="fas fa-bars" aria-hidden="true"></i>
             </button>
         </div>
     </nav>
 
-    <section class="hero-section">
-        <img src="images/newly_elected_officials.jpg" alt="Newly Elected Barangay Officials">
-        <div class="hero-overlay-home"><span>HOME</span></div>
+    <!-- ===== HERO BANNER ===== -->
+    <section class="hero-section" aria-label="Banner">
+        <img
+            src="images/newly_elected_officials.jpg"
+            alt="Newly Elected Barangay Pinyahan Officials"
+            class="hero-img"
+            width="1200"
+            height="500"
+            loading="eager"
+        >
+        <div class="hero-overlay-home" aria-hidden="true"><span>HOME</span></div>
     </section>
 
+    <!-- ===== WELCOME ===== -->
     <section class="welcome-section">
         <h2 class="welcome-title">Welcome to the Barangay Pinyahan Official Website!</h2>
         <p class="welcome-text">
@@ -49,84 +61,122 @@
         </p>
     </section>
 
-    <section class="events-section" id="events-section">
-        <h3 class="section-title">EVENTS</h3>
-        <div class="events-grid" id="events-grid">
-            <!-- Dynamically populated from API -->
+    <!-- ===== EVENTS ===== -->
+    <section class="events-section" id="events-section" aria-labelledby="events-heading">
+        <h3 class="section-title" id="events-heading">EVENTS</h3>
+        <!-- Skeleton shown while loading -->
+        <div class="events-grid" id="events-grid" aria-live="polite" aria-busy="true">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
         </div>
     </section>
 
-    <section class="news-section" id="news-section">
-        <h3 class="section-title">NEWS & UPDATES</h3>
-        <div class="news-carousel" id="news-carousel">
-            <div class="carousel-track" id="carousel-track">
-                <!-- Dynamically populated from API -->
+    <!-- ===== NEWS & UPDATES ===== -->
+    <section class="news-section" id="news-section" aria-labelledby="news-heading">
+        <h3 class="section-title" id="news-heading">NEWS &amp; UPDATES</h3>
+        <div class="news-carousel" id="news-carousel" aria-live="polite">
+            <!-- Skeleton shown while loading -->
+            <div class="skeleton-carousel" id="carousel-skeleton">
+                <div class="skeleton-slide"></div>
             </div>
-            <button class="carousel-arrow carousel-arrow-left" id="carousel-prev">
-                <i class="fas fa-chevron-left"></i>
+            <div class="carousel-track" id="carousel-track" style="display:none;"></div>
+            <button class="carousel-arrow carousel-arrow-left" id="carousel-prev" aria-label="Previous news" style="display:none;">
+                <i class="fas fa-chevron-left" aria-hidden="true"></i>
             </button>
-            <button class="carousel-arrow carousel-arrow-right" id="carousel-next">
-                <i class="fas fa-chevron-right"></i>
+            <button class="carousel-arrow carousel-arrow-right" id="carousel-next" aria-label="Next news" style="display:none;">
+                <i class="fas fa-chevron-right" aria-hidden="true"></i>
             </button>
             <div class="carousel-dots" id="carousel-dots"></div>
         </div>
     </section>
 
-    <footer class="main-footer">
+    <!-- ===== MAIN FOOTER ===== -->
+    <footer class="main-footer" role="contentinfo">
         <div class="footer-grid">
-            
+
+            <!-- Contact Information -->
             <div class="footer-col">
                 <h4>CONTACT INFORMATION</h4>
                 <ul class="contact-list">
-                    <li><i class="fab fa-facebook-square"></i> Facebook Page: Barangay Pinyahan</li>
-                    <li><i class="fas fa-envelope"></i> Email: brgypinyahan@gmail.com</li>
-                    <li><i class="fas fa-phone-alt"></i> Telephone: (02) 1234-5678</li>
+                    <li>
+                        <i class="fab fa-facebook-square" aria-hidden="true"></i>
+                        <span>Facebook: <a href="https://facebook.com" target="_blank" rel="noopener">Barangay Pinyahan</a></span>
+                    </li>
+                    <li>
+                        <i class="fas fa-envelope" aria-hidden="true"></i>
+                        <span>Email: <a href="mailto:brgypinyahan@gmail.com">brgypinyahan@gmail.com</a></span>
+                    </li>
+                    <li>
+                        <i class="fas fa-phone-alt" aria-hidden="true"></i>
+                        <span>Tel: (02) 1234-5678</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                        <span>Malakas St, Diliman, Quezon City</span>
+                    </li>
                 </ul>
                 <div class="official-seals">
-                    <img src="https://placehold.co/50?text=Seal" class="seal-icon">
-                    <img src="https://placehold.co/50?text=Seal" class="seal-icon">
-                    <img src="https://placehold.co/50?text=Seal" class="seal-icon">
+                    <img src="images/Quezon_City_logo.svg" alt="Quezon City Official Seal" class="seal-icon">
+                    <img src="images/Brgy._Pinyahan_Seal.png" alt="Barangay Pinyahan Official Seal" class="seal-icon">
                 </div>
             </div>
 
+            <!-- Map Location -->
             <div class="footer-col">
                 <h4>MAP LOCATION</h4>
-                <p>ADDRESS: Malakas St, Diliman, Quezon City</p>
-                <br>
+                <p class="footer-address">Malakas St, Diliman, Quezon City, Metro Manila</p>
                 <iframe
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3860.5!2d121.0505!3d14.6477!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b700a30da6d5%3A0x5c8e4b7b!2sMalakas%20St%2C%20Diliman%2C%20Quezon%20City!5e0!3m2!1sen!2sph!4v1711000000000"
-                    width="100%" height="150" style="border:0; border-radius:6px;" allowfullscreen="" loading="lazy"
+                    title="Barangay Pinyahan Map Location"
+                    width="100%" height="160"
+                    style="border:0; border-radius:6px; margin-top:10px;"
+                    allowfullscreen="" loading="lazy"
                     referrerpolicy="no-referrer-when-downgrade">
                 </iframe>
             </div>
 
+            <!-- Emergency Hotlines -->
             <div class="footer-col">
-                <h4>EMERGENCY HOTLINE</h4>
-                <ul class="contact-list" style="font-size: 0.85rem;">
-                    <li>National Emergency Hotline: 911</li>
-                    <li>Philippine National Police Hotline: 117</li>
-                    <li>Philippine Red Cross: 143</li>
-                    <li>Bureau of Fire Protection: (02) 8426-0219</li>
-                    <li>DSWD: 8931-81-08</li>
-                    <li>Coast Guard: 8527-3877</li>
-                    <li><a href="html/homepage/admin_login.html" class="admin-login-link">Admin Login</a></li>
+                <h4>EMERGENCY HOTLINES</h4>
+                <ul class="hotline-list">
+                    <li><span class="hotline-label">National Emergency</span><a href="tel:911" class="hotline-number">911</a></li>
+                    <li><span class="hotline-label">Philippine National Police</span><a href="tel:117" class="hotline-number">117</a></li>
+                    <li><span class="hotline-label">Philippine Red Cross</span><a href="tel:143" class="hotline-number">143</a></li>
+                    <li><span class="hotline-label">Bureau of Fire Protection</span><a href="tel:02-8426-0219" class="hotline-number">(02) 8426-0219</a></li>
+                    <li><span class="hotline-label">DSWD</span><a href="tel:8931-81-08" class="hotline-number">8931-81-08</a></li>
+                    <li><span class="hotline-label">Coast Guard</span><a href="tel:8527-3877" class="hotline-number">8527-3877</a></li>
                 </ul>
             </div>
+
         </div>
     </footer>
 
+    <!-- ===== GOV FOOTER ===== -->
     <div class="gov-footer">
         <div class="gov-seal-container">
-            <img src="https://placehold.co/50?text=RP" alt="Republic Seal" style="border-radius:50%; width: 40px;">
+            <img src="images/Quezon_City_logo.svg" alt="Quezon City Official Seal" style="height:40px; width:auto; border-radius:50%;">
         </div>
-        <br>
         <h4>REPUBLIC OF THE PHILIPPINES</h4>
         <p>All content is in the public domain unless otherwise stated.</p>
     </div>
 
+    <!-- ===== ADMIN SUB-FOOTER ===== -->
+    <div class="sub-footer">
+        <a href="html/homepage/admin_login.html" class="admin-login-link">
+            <i class="fas fa-lock" aria-hidden="true"></i> Admin Login
+        </a>
+        <span class="sub-footer-copy">&copy; 2025 Barangay Pinyahan. All rights reserved.</span>
+    </div>
+
+    <!-- ===== SCRIPTS ===== -->
     <script src="js/api.js"></script>
     <script>
-        const API = 'http://localhost:3000';
+        // Use dynamic API base — works both locally and on Vercel
+        const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '[::1]')
+            ? 'http://localhost:3000'
+            : '';
 
         document.addEventListener('DOMContentLoaded', async function () {
             await loadEvents();
@@ -136,15 +186,19 @@
         // ========== EVENTS ==========
         async function loadEvents() {
             const grid = document.getElementById('events-grid');
+            grid.setAttribute('aria-busy', 'true');
             try {
                 const res = await fetch(API + '/api/admin/events/public');
                 const data = await res.json();
+                grid.setAttribute('aria-busy', 'false');
                 if (data && data.events && data.events.length > 0) {
                     grid.innerHTML = data.events.map(ev => {
-                        const imgSrc = ev.photo_url ? API + ev.photo_url : 'https://placehold.co/300x200?text=' + encodeURIComponent(ev.name);
+                        const imgSrc = ev.photo_url
+                            ? API + ev.photo_url
+                            : `https://placehold.co/300x200/006eb3/ffffff?text=${encodeURIComponent(ev.name)}`;
                         return `
                             <a href="html/homepage/event-view.html?id=${ev.id}" class="event-card" title="${ev.name}">
-                                <img src="${imgSrc}" alt="${ev.name}">
+                                <img src="${imgSrc}" alt="${ev.name}" loading="lazy">
                                 <div class="event-card-overlay">
                                     <span class="event-card-name">${ev.name}</span>
                                 </div>
@@ -152,11 +206,22 @@
                         `;
                     }).join('');
                 } else {
-                    grid.innerHTML = '<p class="empty-message">No events posted yet.</p>';
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times empty-state-icon"></i>
+                            <p class="empty-state-title">No Upcoming Events</p>
+                            <p class="empty-state-sub">Check back soon for announcements from Barangay Pinyahan.</p>
+                        </div>`;
                 }
             } catch (e) {
                 console.error('Failed to load events:', e);
-                grid.innerHTML = '<p class="empty-message">Unable to load events.</p>';
+                grid.setAttribute('aria-busy', 'false');
+                grid.innerHTML = `
+                    <div class="empty-state empty-state--error">
+                        <i class="fas fa-exclamation-circle empty-state-icon"></i>
+                        <p class="empty-state-title">Unable to Load Events</p>
+                        <p class="empty-state-sub">Please check your connection and try again.</p>
+                    </div>`;
             }
         }
 
@@ -169,19 +234,32 @@
             const track = document.getElementById('carousel-track');
             const dotsContainer = document.getElementById('carousel-dots');
             const carousel = document.getElementById('news-carousel');
+            const skeleton = document.getElementById('carousel-skeleton');
+            const prevBtn = document.getElementById('carousel-prev');
+            const nextBtn = document.getElementById('carousel-next');
+
             try {
                 const res = await fetch(API + '/api/admin/news/public?limit=10');
                 const data = await res.json();
+
+                // Hide skeleton
+                if (skeleton) skeleton.style.display = 'none';
+
                 if (data && data.news && data.news.length > 0) {
                     totalSlides = data.news.length;
 
-                    // Build slides
+                    track.style.display = '';
+                    prevBtn.style.display = '';
+                    nextBtn.style.display = '';
+
                     track.innerHTML = data.news.map(n => {
-                        const imgSrc = n.photo_url ? API + n.photo_url : 'https://placehold.co/900x400?text=' + encodeURIComponent(n.title);
+                        const imgSrc = n.photo_url
+                            ? API + n.photo_url
+                            : `https://placehold.co/900x400/006eb3/ffffff?text=${encodeURIComponent(n.title)}`;
                         const date = new Date(n.date_published).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
                         return `
                             <a href="html/homepage/news-detail.html?id=${n.id}" class="carousel-slide" title="${n.title}">
-                                <img src="${imgSrc}" alt="${n.title}">
+                                <img src="${imgSrc}" alt="${n.title}" loading="lazy">
                                 <div class="carousel-slide-overlay">
                                     <h4>${n.title}</h4>
                                     <p class="carousel-slide-date">${date}</p>
@@ -191,57 +269,50 @@
                         `;
                     }).join('');
 
-                    // Build dots
                     dotsContainer.innerHTML = data.news.map((_, i) =>
-                        `<button class="carousel-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></button>`
+                        `<button class="carousel-dot ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="Go to slide ${i + 1}"></button>`
                     ).join('');
 
-                    // Dot click
                     dotsContainer.querySelectorAll('.carousel-dot').forEach(dot => {
-                        dot.addEventListener('click', () => {
-                            goToSlide(parseInt(dot.dataset.index));
-                            resetAutoSlide();
-                        });
+                        dot.addEventListener('click', () => { goToSlide(parseInt(dot.dataset.index)); resetAutoSlide(); });
                     });
 
-                    // Arrow clicks
-                    document.getElementById('carousel-prev').addEventListener('click', () => {
-                        goToSlide(currentSlide - 1);
-                        resetAutoSlide();
-                    });
-                    document.getElementById('carousel-next').addEventListener('click', () => {
-                        goToSlide(currentSlide + 1);
-                        resetAutoSlide();
-                    });
+                    prevBtn.addEventListener('click', () => { goToSlide(currentSlide - 1); resetAutoSlide(); });
+                    nextBtn.addEventListener('click', () => { goToSlide(currentSlide + 1); resetAutoSlide(); });
 
-                    // Auto-slide
                     startAutoSlide();
                     goToSlide(0);
                 } else {
-                    // No news — hide carousel, show message
-                    carousel.innerHTML = '<p class="empty-message">No news updates yet.</p>';
+                    carousel.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-newspaper empty-state-icon"></i>
+                            <p class="empty-state-title">No News Updates Yet</p>
+                            <p class="empty-state-sub">Stay tuned for the latest news from Barangay Pinyahan.</p>
+                        </div>`;
                 }
             } catch (e) {
                 console.error('Failed to load news:', e);
-                carousel.innerHTML = '<p class="empty-message">Unable to load news.</p>';
+                if (skeleton) skeleton.style.display = 'none';
+                carousel.innerHTML = `
+                    <div class="empty-state empty-state--error">
+                        <i class="fas fa-exclamation-circle empty-state-icon"></i>
+                        <p class="empty-state-title">Unable to Load News</p>
+                        <p class="empty-state-sub">Please check your connection and try again.</p>
+                    </div>`;
             }
         }
 
         function goToSlide(index) {
             if (totalSlides === 0) return;
             currentSlide = ((index % totalSlides) + totalSlides) % totalSlides;
-            const track = document.getElementById('carousel-track');
-            track.style.transform = `translateX(-${currentSlide * 100}%)`;
-            // Update dots
+            document.getElementById('carousel-track').style.transform = `translateX(-${currentSlide * 100}%)`;
             document.querySelectorAll('.carousel-dot').forEach((dot, i) => {
                 dot.classList.toggle('active', i === currentSlide);
             });
         }
 
         function startAutoSlide() {
-            autoSlideInterval = setInterval(() => {
-                goToSlide(currentSlide + 1);
-            }, 5000);
+            autoSlideInterval = setInterval(() => goToSlide(currentSlide + 1), 5000);
         }
 
         function resetAutoSlide() {
@@ -254,22 +325,33 @@
     <script>
         // Hamburger menu toggle
         const hamburgerBtn = document.getElementById('hamburger-btn');
-        const navLinks = document.getElementById('nav-links');
+        const navLinksList = document.getElementById('nav-links');
         if (hamburgerBtn) {
             hamburgerBtn.addEventListener('click', function () {
-                navLinks.classList.toggle('nav-open');
+                const isOpen = navLinksList.classList.toggle('nav-open');
+                hamburgerBtn.setAttribute('aria-expanded', isOpen);
                 const icon = hamburgerBtn.querySelector('i');
-                icon.classList.toggle('fa-bars');
-                icon.classList.toggle('fa-times');
+                icon.classList.toggle('fa-bars', !isOpen);
+                icon.classList.toggle('fa-times', isOpen);
             });
-            // Close menu when a link is clicked on mobile
-            navLinks.querySelectorAll('a').forEach(link => {
+            navLinksList.querySelectorAll('a').forEach(link => {
                 link.addEventListener('click', () => {
-                    navLinks.classList.remove('nav-open');
+                    navLinksList.classList.remove('nav-open');
+                    hamburgerBtn.setAttribute('aria-expanded', 'false');
                     const icon = hamburgerBtn.querySelector('i');
                     icon.classList.add('fa-bars');
                     icon.classList.remove('fa-times');
                 });
+            });
+            // Close on outside click
+            document.addEventListener('click', function (e) {
+                if (!hamburgerBtn.contains(e.target) && !navLinksList.contains(e.target)) {
+                    navLinksList.classList.remove('nav-open');
+                    hamburgerBtn.setAttribute('aria-expanded', 'false');
+                    const icon = hamburgerBtn.querySelector('i');
+                    icon.classList.add('fa-bars');
+                    icon.classList.remove('fa-times');
+                }
             });
         }
     </script>
