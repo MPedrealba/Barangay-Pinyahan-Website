@@ -91,16 +91,21 @@
         </div>
     </header>
 
-    <nav>
-        <ul class="nav-links">
-            <li><a href="../../index.html">HOME</a></li>
-            <li><a href="about.html">ABOUT US</a></li>
-            <li><a href="services.html">SERVICES</a></li>
-            <li><a href="news&upd.html">NEWS & EVENTS</a></li>
-            <li><a href="#">CITIZENS CHARTER</a></li>
-            <li><a href="submit_complaint.html">SUBMIT COMPLAINT</a></li>
-            <li><a href="track_complaint.html">TRACK COMPLAINT</a></li>
-        </ul>
+    <nav id="main-nav">
+        <div class="nav-wrapper">
+            <ul class="nav-links" id="nav-links">
+                <li><a href="../../index.html">HOME</a></li>
+                <li><a href="about.html">ABOUT US</a></li>
+                <li><a href="services.html">SERVICES</a></li>
+                <li><a href="news&upd.html">NEWS & EVENTS</a></li>
+                <li><a href="#">CITIZENS CHARTER</a></li>
+                <li><a href="submit_complaint.html">SUBMIT COMPLAINT</a></li>
+                <li><a href="track_complaint.html">TRACK COMPLAINT</a></li>
+            </ul>
+            <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
     </nav>
 
     <!-- Event Detail -->
@@ -237,5 +242,25 @@
     </script>
 
     <script src="../../js/i18n.js"></script>
+    <script>
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const navLinks = document.getElementById('nav-links');
+        if (hamburgerBtn) {
+            hamburgerBtn.addEventListener('click', function () {
+                navLinks.classList.toggle('nav-open');
+                const icon = hamburgerBtn.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            });
+            navLinks.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinks.classList.remove('nav-open');
+                    const icon = hamburgerBtn.querySelector('i');
+                    icon.classList.add('fa-bars');
+                    icon.classList.remove('fa-times');
+                });
+            });
+        }
+    </script>
 </body>
 </html>
