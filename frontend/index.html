@@ -12,27 +12,31 @@
     <header>
         <div class="header-content">
             <img src="images/Quezon_City_logo.svg" alt="Quezon City Logo" class="header-logo">
-            
             <h1 class="header-title">Barangay Pinyahan</h1>
-            
             <img src="images/Brgy._Pinyahan_Seal.png" alt="Barangay Pinyahan Seal" class="header-logo">
         </div>
     </header>
 
-    <nav>
-        <ul class="nav-links">
-            <li><a href="index.html">HOME</a></li>
-            <li><a href="html/homepage/about.html">ABOUT US</a></li>
-            <li><a href="html/homepage/services.html">SERVICES</a></li>
-            <li><a href="html/homepage/news&upd.html">NEWS & EVENTS</a></li>
-            <li><a href="#">CITIZENS CHARTER</a></li>
-            <li><a href="html/homepage/submit_complaint.html">SUBMIT COMPLAINT</a></li>
-            <li><a href="html/homepage/track_complaint.html">TRACK COMPLAINT</a></li>
-        </ul>
+    <nav id="main-nav">
+        <div class="nav-wrapper">
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="html/homepage/about.html">ABOUT US</a></li>
+                <li><a href="html/homepage/services.html">SERVICES</a></li>
+                <li><a href="html/homepage/news&upd.html">NEWS & EVENTS</a></li>
+                <li><a href="#">CITIZENS CHARTER</a></li>
+                <li><a href="html/homepage/submit_complaint.html">SUBMIT COMPLAINT</a></li>
+                <li><a href="html/homepage/track_complaint.html">TRACK COMPLAINT</a></li>
+            </ul>
+            <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
     </nav>
 
     <section class="hero-section">
         <img src="images/newly_elected_officials.jpg" alt="Newly Elected Barangay Officials">
+        <div class="hero-overlay-home"><span>HOME</span></div>
     </section>
 
     <section class="welcome-section">
@@ -89,9 +93,11 @@
                 <h4>MAP LOCATION</h4>
                 <p>ADDRESS: Malakas St, Diliman, Quezon City</p>
                 <br>
-                <div class="map-placeholder">
-                    [ Google Map Embed Goes Here ]
-                </div>
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3860.5!2d121.0505!3d14.6477!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b700a30da6d5%3A0x5c8e4b7b!2sMalakas%20St%2C%20Diliman%2C%20Quezon%20City!5e0!3m2!1sen!2sph!4v1711000000000"
+                    width="100%" height="150" style="border:0; border-radius:6px;" allowfullscreen="" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
             </div>
 
             <div class="footer-col">
@@ -245,5 +251,27 @@
     </script>
 
     <script src="js/i18n.js"></script>
+    <script>
+        // Hamburger menu toggle
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const navLinks = document.getElementById('nav-links');
+        if (hamburgerBtn) {
+            hamburgerBtn.addEventListener('click', function () {
+                navLinks.classList.toggle('nav-open');
+                const icon = hamburgerBtn.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            });
+            // Close menu when a link is clicked on mobile
+            navLinks.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinks.classList.remove('nav-open');
+                    const icon = hamburgerBtn.querySelector('i');
+                    icon.classList.add('fa-bars');
+                    icon.classList.remove('fa-times');
+                });
+            });
+        }
+    </script>
 </body>
 </html>
