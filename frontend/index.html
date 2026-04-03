@@ -6,6 +6,7 @@
     <meta name="description" content="Official website of Barangay Pinyahan, Diliman, Quezon City. Access services, news, events, and submit complaints online.">
     <title>Barangay Pinyahan - Official Website</title>
     <link rel="stylesheet" href="css/homepage/homepage.css">
+    <link rel="stylesheet" href="css/lang-modal.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -23,13 +24,13 @@
     <nav id="main-nav" role="navigation" aria-label="Main Navigation">
         <div class="nav-wrapper">
             <ul class="nav-links" id="nav-links">
-                <li><a href="index.html" class="active">HOME</a></li>
-                <li><a href="html/homepage/about.html">ABOUT US</a></li>
-                <li><a href="html/homepage/services.html">SERVICES</a></li>
-                <li><a href="html/homepage/news&upd.html">NEWS &amp; EVENTS</a></li>
-                <li><a href="html/homepage/citizens-charter.html">CITIZENS CHARTER</a></li>
-                <li><a href="html/homepage/submit_complaint.html">SUBMIT COMPLAINT</a></li>
-                <li><a href="html/homepage/track_complaint.html">TRACK COMPLAINT</a></li>
+                <li><a href="index.html" class="active" data-i18n="nav.home">HOME</a></li>
+                <li><a href="html/homepage/about.html" data-i18n="nav.about">ABOUT US</a></li>
+                <li><a href="html/homepage/services.html" data-i18n="nav.services">SERVICES</a></li>
+                <li><a href="html/homepage/news&upd.html" data-i18n="nav.news">NEWS &amp; EVENTS</a></li>
+                <li><a href="html/homepage/citizens-charter.html" data-i18n="nav.charter">CITIZENS CHARTER</a></li>
+                <li><a href="html/homepage/submit_complaint.html" data-i18n="nav.complaint">SUBMIT COMPLAINT</a></li>
+                <li><a href="html/homepage/track_complaint.html" data-i18n="nav.track">TRACK COMPLAINT</a></li>
             </ul>
             <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
                 <i class="fas fa-bars" aria-hidden="true"></i>
@@ -52,18 +53,18 @@
 
     <!-- ===== WELCOME ===== -->
     <section class="welcome-section">
-        <h2 class="welcome-title">Welcome to the Barangay Pinyahan Official Website!</h2>
-        <p class="welcome-text">
+        <h2 class="welcome-title" data-i18n="home.welcome.title">Welcome to the Barangay Pinyahan Official Website!</h2>
+        <p class="welcome-text" data-i18n="home.welcome.p1">
             We're happy to have you here! This space was created to keep our community informed, connected, and involved. Whether you're looking for the latest announcements, ongoing projects, public services, or ways to participate in our programs, everything you need is just a few clicks away.
         </p>
-        <p class="welcome-text">
+        <p class="welcome-text" data-i18n="home.welcome.p2">
             Our barangay thrives because of the people who call it home—and we hope this website makes it easier for you to stay updated, raise concerns, and engage with us. Thank you for being an important part of our community. Together, let's continue building a safe, caring, and progressive barangay.
         </p>
     </section>
 
     <!-- ===== EVENTS ===== -->
     <section class="events-section" id="events-section" aria-labelledby="events-heading">
-        <h3 class="section-title" id="events-heading">EVENTS</h3>
+        <h3 class="section-title" id="events-heading" data-i18n="home.events.title">EVENTS</h3>
         <!-- Skeleton shown while loading -->
         <div class="events-grid" id="events-grid" aria-live="polite" aria-busy="true">
             <div class="skeleton-card"></div>
@@ -75,7 +76,7 @@
 
     <!-- ===== NEWS & UPDATES ===== -->
     <section class="news-section" id="news-section" aria-labelledby="news-heading">
-        <h3 class="section-title" id="news-heading">NEWS &amp; UPDATES</h3>
+        <h3 class="section-title" id="news-heading" data-i18n="home.news.title">NEWS &amp; UPDATES</h3>
         <div class="news-carousel" id="news-carousel" aria-live="polite">
             <!-- Skeleton shown while loading -->
             <div class="skeleton-carousel" id="carousel-skeleton">
@@ -98,23 +99,23 @@
 
             <!-- Contact Information -->
             <div class="footer-col">
-                <h4>CONTACT INFORMATION</h4>
+                <h4 data-i18n="footer.contact.title">CONTACT INFORMATION</h4>
                 <ul class="contact-list">
                     <li>
                         <i class="fab fa-facebook-square" aria-hidden="true"></i>
-                        <span>Facebook: <a href="https://facebook.com" target="_blank" rel="noopener">Barangay Pinyahan</a></span>
+                        <span><span data-i18n="footer.contact.facebook">Facebook:</span> <a href="https://facebook.com" target="_blank" rel="noopener">Barangay Pinyahan</a></span>
                     </li>
                     <li>
                         <i class="fas fa-envelope" aria-hidden="true"></i>
-                        <span>Email: <a href="mailto:brgypinyahan@gmail.com">brgypinyahan@gmail.com</a></span>
+                        <span><span data-i18n="footer.contact.email">Email:</span> <a href="mailto:brgypinyahan@gmail.com">brgypinyahan@gmail.com</a></span>
                     </li>
                     <li>
                         <i class="fas fa-phone-alt" aria-hidden="true"></i>
-                        <span>Tel: (02) 1234-5678</span>
+                        <span><span data-i18n="footer.contact.tel">Tel:</span> (02) 1234-5678</span>
                     </li>
                     <li>
                         <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
-                        <span>Malakas St, Diliman, Quezon City</span>
+                        <span data-i18n="footer.contact.address">Malakas St, Diliman, Quezon City</span>
                     </li>
                 </ul>
                 <div class="official-seals">
@@ -125,8 +126,8 @@
 
             <!-- Map Location -->
             <div class="footer-col">
-                <h4>MAP LOCATION</h4>
-                <p class="footer-address">Malakas St, Diliman, Quezon City, Metro Manila</p>
+                <h4 data-i18n="footer.map.title">MAP LOCATION</h4>
+                <p class="footer-address" data-i18n="footer.map.address">Malakas St, Diliman, Quezon City, Metro Manila</p>
                 <iframe
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3860.5!2d121.0505!3d14.6477!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397b700a30da6d5%3A0x5c8e4b7b!2sMalakas%20St%2C%20Diliman%2C%20Quezon%20City!5e0!3m2!1sen!2sph!4v1711000000000"
                     title="Barangay Pinyahan Map Location"
@@ -139,14 +140,14 @@
 
             <!-- Emergency Hotlines -->
             <div class="footer-col">
-                <h4>EMERGENCY HOTLINES</h4>
+                <h4 data-i18n="footer.hotlines.title">EMERGENCY HOTLINES</h4>
                 <ul class="hotline-list">
-                    <li><span class="hotline-label">National Emergency</span><a href="tel:911" class="hotline-number">911</a></li>
-                    <li><span class="hotline-label">Philippine National Police</span><a href="tel:117" class="hotline-number">117</a></li>
-                    <li><span class="hotline-label">Philippine Red Cross</span><a href="tel:143" class="hotline-number">143</a></li>
-                    <li><span class="hotline-label">Bureau of Fire Protection</span><a href="tel:02-8426-0219" class="hotline-number">(02) 8426-0219</a></li>
-                    <li><span class="hotline-label">DSWD</span><a href="tel:8931-81-08" class="hotline-number">8931-81-08</a></li>
-                    <li><span class="hotline-label">Coast Guard</span><a href="tel:8527-3877" class="hotline-number">8527-3877</a></li>
+                    <li><span class="hotline-label" data-i18n="footer.hotlines.national">National Emergency</span><a href="tel:911" class="hotline-number">911</a></li>
+                    <li><span class="hotline-label" data-i18n="footer.hotlines.pnp">Philippine National Police</span><a href="tel:117" class="hotline-number">117</a></li>
+                    <li><span class="hotline-label" data-i18n="footer.hotlines.redcross">Philippine Red Cross</span><a href="tel:143" class="hotline-number">143</a></li>
+                    <li><span class="hotline-label" data-i18n="footer.hotlines.bfp">Bureau of Fire Protection</span><a href="tel:02-8426-0219" class="hotline-number">(02) 8426-0219</a></li>
+                    <li><span class="hotline-label" data-i18n="footer.hotlines.dswd">DSWD</span><a href="tel:8931-81-08" class="hotline-number">8931-81-08</a></li>
+                    <li><span class="hotline-label" data-i18n="footer.hotlines.coastguard">Coast Guard</span><a href="tel:8527-3877" class="hotline-number">8527-3877</a></li>
                 </ul>
             </div>
 
@@ -158,19 +159,20 @@
         <div class="gov-seal-container">
             <img src="images/Quezon_City_logo.svg" alt="Quezon City Official Seal" style="height:40px; width:auto; border-radius:50%;">
         </div>
-        <h4>REPUBLIC OF THE PHILIPPINES</h4>
-        <p>All content is in the public domain unless otherwise stated.</p>
+        <h4 data-i18n="footer.gov.republic">REPUBLIC OF THE PHILIPPINES</h4>
+        <p data-i18n="footer.gov.domain">All content is in the public domain unless otherwise stated.</p>
     </div>
 
     <!-- ===== ADMIN SUB-FOOTER ===== -->
     <div class="sub-footer">
         <a href="html/homepage/admin_login.html" class="admin-login-link">
-            <i class="fas fa-lock" aria-hidden="true"></i> Admin Login
+            <i class="fas fa-lock" aria-hidden="true"></i> <span data-i18n="footer.admin.link">Admin Login</span>
         </a>
-        <span class="sub-footer-copy">&copy; 2025 Barangay Pinyahan. All rights reserved.</span>
+        <span class="sub-footer-copy" data-i18n="footer.copy">&copy; 2025 Barangay Pinyahan. All rights reserved.</span>
     </div>
 
     <!-- ===== SCRIPTS ===== -->
+    <script src="js/i18n.js"></script>
     <script src="js/api.js"></script>
     <script>
         // Use dynamic API base — works both locally and on Vercel
