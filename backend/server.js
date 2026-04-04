@@ -37,7 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 // without getting blocked by the browser's same-origin policy
 app.use(
   cors({
-    origin: "*", // In production, replace with your actual domain
+    origin: process.env.ALLOWED_ORIGIN || "*", // Set ALLOWED_ORIGIN env var in Render to your deployed URL
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
@@ -64,10 +64,15 @@ const db = mysql.createPool({
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME || "barangay_pinyahan",
-  port: process.env.DB_PORT || 3306,
+  port: process.env.DB_PORT || 4000, // TiDB Cloud Serverless default port is 4000
   waitForConnections: true,
-  connectionLimit: 10, // Max 10 simultaneous connections
-  queueLimit: 0, // Unlimited queued requests
+  connectionLimit: 10,
+  queueLimit: 0,
+  // TiDB Cloud Serverless requires SSL — do NOT remove this
+  ssl: process.env.DB_SSL === "false" ? undefined : {
+    minVersion: "TLSv1.2",
+    rejectUnauthorized: true,
+  },
 });
 
 // ------------------------------------------
@@ -135,19 +140,12 @@ app.use('/api/admin/reports', reportsRoutes);
 // ------------------------------------------
 const PORT = process.env.PORT || 3000;
 
-// Only spin up the actual server if not running in a Vercel serverless environment
-if (!process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log("==========================================");
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📡 API endpoint: http://localhost:${PORT}/api`);
-    console.log("==========================================");
-    testConnection(); // Test DB connection on startup
-  });
-} else {
-  // Test connection passively if on Vercel
+app.listen(PORT, () => {
+  console.log("==========================================");
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📡 API endpoint: http://localhost:${PORT}/api`);
+  console.log("==========================================");
   testConnection();
-}
+});
 
-// Export the Express app as the default export so Vercel can run it serverlessly
 module.exports = app;
