@@ -60,17 +60,15 @@ app.get("/", (req, res) => {
 // A pool reuses connections instead of creating a new one
 // for every request — much more efficient
 const db = mysql.createPool({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "barangay_pinyahan",
-  port: process.env.DB_PORT || 4000, // TiDB Cloud Serverless default port is 4000
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  // TiDB Cloud Serverless requires SSL — do NOT remove this
-  ssl: process.env.DB_SSL === "false" ? undefined : {
-    minVersion: "TLSv1.2",
+  ssl: {
     rejectUnauthorized: true,
   },
 });
