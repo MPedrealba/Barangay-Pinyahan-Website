@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Environment variables — NEVER commit these
+backend/.env
+.env
+
+# Uploaded files (ephemeral on Render anyway)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Windows system files
+Thumbs.db
+desktop.ini
+
+# Cloudflare tunnel binary
+cloudflared.exe
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store

@@ -61,8 +61,11 @@ async function apiCall(endpoint, options = {}) {
 
     if (response.status === 401 || response.status === 403) {
         clearAuth();
-        window.location.href = '../homepage/admin_login.html';
-        return null;
+        // Only redirect if we are NOT already on the login page
+        if (!window.location.pathname.includes('admin_login.html')) {
+            window.location.href = '../homepage/admin_login.html';
+            return null;
+        }
     }
 
     if (!response.ok) {
