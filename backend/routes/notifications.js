@@ -9,7 +9,9 @@ const verifyToken = require('../middleware/auth');
 router.get('/', verifyToken, async (req, res) => {
     try {
         const [rows] = await req.db.query(
-            `SELECT * FROM notifications
+            `SELECT id, title, message, icon_class, is_read, created_at,
+                    notification_type, target_id, urgency
+             FROM notifications
              WHERE admin_id IS NULL OR admin_id = ?
              ORDER BY created_at DESC`,
             [req.admin.id]

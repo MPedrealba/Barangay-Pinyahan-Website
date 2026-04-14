@@ -60,11 +60,13 @@
                     </div>
 
                     <div class="form-group photo-group">
-                        <div class="photo-upload-area">
-                            <i class="fas fa-plus"></i>
-                            <span>ADD PHOTO</span>
-                            <input type="file" accept="image/*" class="photo-input">
+                        <div class="photo-upload-area" id="photo-upload-area">
+                            <img id="photo-preview" class="photo-preview-img" src="" alt="Current Photo" style="display:none;">
+                            <i class="fas fa-plus" id="photo-icon"></i>
+                            <span id="photo-label">ADD PHOTO</span>
+                            <input type="file" accept="image/*" class="photo-input" id="photo-input">
                         </div>
+                        <p class="photo-hint" id="photo-hint">Click to change photo</p>
                     </div>
 
                     <div class="form-group">
@@ -104,6 +106,30 @@
         const params = new URLSearchParams(window.location.search);
         const newsId = params.get('id');
 
+        // ── Live preview when admin selects a new local file ──
+        document.getElementById('photo-input').addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                showPreview(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Helper: swap placeholder icon/label for the preview image
+        function showPreview(src) {
+            const preview = document.getElementById('photo-preview');
+            const icon = document.getElementById('photo-icon');
+            const label = document.getElementById('photo-label');
+            const hint = document.getElementById('photo-hint');
+            preview.src = src;
+            preview.style.display = 'block';
+            icon.style.display = 'none';
+            label.style.display = 'none';
+            if (hint) hint.textContent = 'Click to change photo';
+        }
+
         document.addEventListener('DOMContentLoaded', async function () {
             if (!newsId) { window.location.href = 'news-dashboard.html'; return; }
             try {
@@ -113,9 +139,14 @@
                     inputs[0].value = data.news.title;
                     inputs[1].value = data.news.date_published ? data.news.date_published.split('T')[0] : '';
                     document.querySelector('.form-textarea').value = data.news.description;
+
+                    // ── Show existing saved photo ──
+                    if (data.news.photo_url) {
+                        showPreview(API_BASE + data.news.photo_url);
+                    }
                 }
             } catch (e) { 
-                console.warn('Backend not reachable. Loading template data...', e); 
+                console.warn('Backend not reachable:', e.message || e); 
                 const inputs = document.querySelectorAll('.form-input');
                 inputs[0].value = "Fire Hits DPWH Office in Barangay Pinyahan";
                 inputs[1].value = "2025-10-22";

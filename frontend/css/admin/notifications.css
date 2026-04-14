@@ -175,6 +175,61 @@
     flex-shrink: 0;
 }
 
+/* ─── CLICKABLE LINK RESET ─── */
+/* Notifications wrapped in <a> should look like the card, not a hyperlink */
+a.notification-item {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+a.notification-item:hover {
+    box-shadow: 0 4px 18px rgba(0, 86, 179, 0.15);
+    border-color: #90caf9;
+    transform: translateY(-1px);
+}
+
+/* ─── HIGH URGENCY ─── */
+.notification-item.urgency-high {
+    border-color: #e53935 !important;
+    border-width: 2px;
+    background: #fff5f5;
+}
+
+.notification-item.urgency-high .notification-title-row h3 {
+    color: #c62828;
+}
+
+/* Inline HIGH badge */
+.urgency-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: #fff;
+    background: #e53935;
+    padding: 2px 7px;
+    border-radius: 20px;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+
+/* ─── ICON COLOUR VARIANTS ─── */
+.notification-icon.orange {
+    background-color: #fff3e0;
+    color: #e65100;
+}
+
+.notification-icon.green {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.notification-icon.red {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 768px) {
     .notifications-content {

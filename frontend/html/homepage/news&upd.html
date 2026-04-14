@@ -144,8 +144,9 @@
     <script src="../../js/api.js"></script>
     <script src="../../js/i18n.js"></script>
     <script>
+        const RENDER_BACKEND = 'https://barangay-pinyahan-website-bz6q.onrender.com';
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
-        const API = isLocal ? 'http://localhost:3000' : '';
+        const API = isLocal ? 'http://localhost:3000' : RENDER_BACKEND;
 
         document.addEventListener('DOMContentLoaded', async function () {
             // Load featured post
@@ -173,7 +174,7 @@
                     featuredSection.style.display = 'none';
                 }
             } catch (e) {
-                console.error(e);
+                console.error('Failed to load featured post. Status/Details:', e.message || e);
                 document.getElementById('featured-section').style.display = 'none';
             }
 
@@ -201,7 +202,7 @@
                     grid.innerHTML = '<p style="color:#888;text-align:center;grid-column:1/-1;">No news articles yet.</p>';
                 }
             } catch (e) {
-                console.error(e);
+                console.error('Failed to load post listing. Status/Details:', e.message || e);
                 document.getElementById('news-grid').innerHTML = '<p style="color:#888;text-align:center;grid-column:1/-1;">Unable to load news.</p>';
             }
         });

@@ -35,9 +35,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // Enable CORS so your frontend HTML files can call the API
 // without getting blocked by the browser's same-origin policy
+// Set ALLOWED_ORIGIN env var in Render to restrict to your deployed frontend URL.
 app.use(
   cors({
-    origin: process.env.ALLOWED_ORIGIN || "*", // Set ALLOWED_ORIGIN env var in Render to your deployed URL
+    origin: process.env.ALLOWED_ORIGIN || 'https://barangay-pinyahan-website-bz6q.onrender.com',
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),

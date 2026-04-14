@@ -175,10 +175,11 @@
     <script src="js/i18n.js"></script>
     <script src="js/api.js"></script>
     <script>
-        // Use dynamic API base — works both locally and on Vercel
+        // Use dynamic API base — works both locally and on Render
+        const RENDER_BACKEND = 'https://barangay-pinyahan-website-bz6q.onrender.com';
         const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '[::1]')
             ? 'http://localhost:3000'
-            : '';
+            : RENDER_BACKEND;
 
         document.addEventListener('DOMContentLoaded', async function () {
             await loadEvents();
@@ -216,7 +217,7 @@
                         </div>`;
                 }
             } catch (e) {
-                console.error('Failed to load events:', e);
+                console.error('Failed to load events. Status/Details:', e.message || e);
                 grid.setAttribute('aria-busy', 'false');
                 grid.innerHTML = `
                     <div class="empty-state empty-state--error">
@@ -293,7 +294,7 @@
                         </div>`;
                 }
             } catch (e) {
-                console.error('Failed to load news:', e);
+                console.error('Failed to load news. Status/Details:', e.message || e);
                 if (skeleton) skeleton.style.display = 'none';
                 carousel.innerHTML = `
                     <div class="empty-state empty-state--error">

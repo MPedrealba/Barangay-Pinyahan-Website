@@ -137,6 +137,48 @@
     border: 1px solid #ef9a9a;
 }
 
+/* Role Badges */
+.role-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.role-badge.admin {
+    background-color: #e3f2fd;
+    color: #0056b3;
+    border: 1px solid #90caf9;
+}
+
+.role-badge.super-admin {
+    background-color: #ede7f6;
+    color: #4527a0;
+    border: 1px solid #b39ddb;
+}
+
+/* Select dropdown in modals */
+.form-select {
+    flex: 1;
+    padding: 8px 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    outline: none;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.form-select:focus {
+    border-color: #2196F3;
+}
+
 /* Action Buttons */
 .actions-cell {
     display: flex;

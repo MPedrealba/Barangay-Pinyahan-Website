@@ -70,62 +70,14 @@
                         <tr>
                             <th>ADMIN ID</th>
                             <th>FULL NAME</th>
+                            <th>ROLE</th>
                             <th>EMAIL</th>
                             <th>STATUS</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>01</td>
-                            <td>John Doe</td>
-                            <td>johndoe@gmail.com</td>
-                            <td><span class="status-badge-acc online">ONLINE</span></td>
-                            <td class="actions-cell">
-                                <button class="action-btn edit-btn" onclick="openEditModal('01', 'John Doe', 'JohnDoe_1', 'johndoe@gmail.com', 'January 7, 2026')">Edit</button>
-                                <button class="action-btn view-btn" onclick="openViewModal('01', 'JohnDoe_1', 'John Doe', 'johndoe@gmail.com', 'ONLINE', 'January 7, 2026')">View</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>02</td>
-                            <td>Jane Reyes</td>
-                            <td>janereyes@gmail.com</td>
-                            <td><span class="status-badge-acc online">ONLINE</span></td>
-                            <td class="actions-cell">
-                                <button class="action-btn edit-btn" onclick="openEditModal('02', 'Jane Reyes', 'JaneReyes_2', 'janereyes@gmail.com', 'January 10, 2026')">Edit</button>
-                                <button class="action-btn view-btn" onclick="openViewModal('02', 'JaneReyes_2', 'Jane Reyes', 'janereyes@gmail.com', 'ONLINE', 'January 10, 2026')">View</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>03</td>
-                            <td>John Lopez</td>
-                            <td>johnlopez@gmail.com</td>
-                            <td><span class="status-badge-acc online">ONLINE</span></td>
-                            <td class="actions-cell">
-                                <button class="action-btn edit-btn" onclick="openEditModal('03', 'John Lopez', 'JohnLopez_3', 'johnlopez@gmail.com', 'February 1, 2026')">Edit</button>
-                                <button class="action-btn view-btn" onclick="openViewModal('03', 'JohnLopez_3', 'John Lopez', 'johnlopez@gmail.com', 'ONLINE', 'February 1, 2026')">View</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>04</td>
-                            <td>Eleven</td>
-                            <td>eleven@gmail.com</td>
-                            <td><span class="status-badge-acc offline">OFFLINE</span></td>
-                            <td class="actions-cell">
-                                <button class="action-btn edit-btn" onclick="openEditModal('04', 'Eleven', 'Eleven_4', 'eleven@gmail.com', 'February 5, 2026')">Edit</button>
-                                <button class="action-btn view-btn" onclick="openViewModal('04', 'Eleven_4', 'Eleven', 'eleven@gmail.com', 'OFFLINE', 'February 5, 2026')">View</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>05</td>
-                            <td>Mike</td>
-                            <td>mike@gmail.com</td>
-                            <td><span class="status-badge-acc offline">OFFLINE</span></td>
-                            <td class="actions-cell">
-                                <button class="action-btn edit-btn" onclick="openEditModal('05', 'Mike', 'Mike_5', 'mike@gmail.com', 'February 12, 2026')">Edit</button>
-                                <button class="action-btn view-btn" onclick="openViewModal('05', 'Mike_5', 'Mike', 'mike@gmail.com', 'OFFLINE', 'February 12, 2026')">View</button>
-                            </td>
-                        </tr>
+                    <tbody id="admins-tbody">
+                        <tr><td colspan="6" style="text-align:center;color:#bbb;padding:24px;">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -142,6 +94,7 @@
                 <p><strong>USERNAME:</strong> <span id="viewUsername"></span></p>
                 <p><strong>FULL NAME:</strong> <span id="viewFullName"></span></p>
                 <p><strong>EMAIL:</strong> <span id="viewEmail"></span></p>
+                <p><strong>ROLE:</strong> <span id="viewRole"></span></p>
                 <p><strong>STATUS:</strong> <span id="viewStatus"></span></p>
                 <p><strong>DATE CREATED:</strong> <span id="viewDateCreated"></span></p>
             </div>
@@ -205,9 +158,16 @@
                     <label>PASSWORD:</label>
                     <input type="password" id="regPassword" placeholder="">
                 </div>
+                <div class="form-row">
+                    <label>ROLE:</label>
+                    <select id="regRole" class="form-select">
+                        <option value="Admin">Admin</option>
+                        <option value="Super Admin">Super Admin</option>
+                    </select>
+                </div>
             </div>
             <div class="modal-actions">
-                <button class="modal-btn save-btn" onclick="saveAndClose('registerModal')">Register</button>
+                <button class="modal-btn save-btn" id="registerSaveBtn">Register</button>
                 <button class="modal-btn back-btn" onclick="closeModal('registerModal')">Back</button>
             </div>
         </div>
@@ -226,16 +186,17 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
-        function openViewModal(adminId, username, fullName, email, status, dateCreated) {
+        function openViewModal(adminId, username, fullName, email, role, status, dateCreated) {
             document.getElementById('viewAdminId').textContent = adminId;
             document.getElementById('viewUsername').textContent = username;
             document.getElementById('viewFullName').textContent = fullName;
             document.getElementById('viewEmail').textContent = email;
-            
+            document.getElementById('viewRole').textContent = role || 'Admin';
+
             const statusSpan = document.getElementById('viewStatus');
             statusSpan.textContent = status;
             statusSpan.className = status === 'ONLINE' ? 'status-badge-acc online' : 'status-badge-acc offline';
-            
+
             document.getElementById('viewDateCreated').textContent = dateCreated;
             openModal('viewModal');
         }
@@ -257,29 +218,12 @@
             });
         });
 
-        // Register new admin
-        document.querySelector('#registerModal .save-btn').onclick = async function () {
-            const full_name = document.getElementById('regFullName').value;
-            const username = document.getElementById('regUsername').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-
-            if (!full_name || !username || !email || !password) { alert('Please fill all fields.'); return; }
-
-            try {
-                await apiPost('/api/admin/accounts', { full_name, username, email, password });
-                closeModal('registerModal');
-                document.getElementById('successPopup').classList.add('active');
-                setTimeout(() => { document.getElementById('successPopup').classList.remove('active'); location.reload(); }, 1500);
-            } catch (e) { alert('Failed to register: ' + e.message); }
-        };
-
-        // Save edit
+        // ── Save edit ──
         document.querySelector('#editModal .save-btn').onclick = async function () {
             const body = {
                 full_name: document.getElementById('editFullName').value,
-                username: document.getElementById('editUsername').value,
-                email: document.getElementById('editEmail').value
+                username:  document.getElementById('editUsername').value,
+                email:     document.getElementById('editEmail').value
             };
             const pw = document.getElementById('editPassword').value;
             if (pw) body.password = pw;
@@ -287,9 +231,81 @@
             try {
                 await apiPut(`/api/admin/accounts/${currentEditId}`, body);
                 closeModal('editModal');
-                document.getElementById('successPopup').classList.add('active');
-                setTimeout(() => { document.getElementById('successPopup').classList.remove('active'); location.reload(); }, 1500);
+                const popup = document.getElementById('successPopup');
+                popup.classList.add('active');
+                setTimeout(() => popup.classList.remove('active'), 1500);
+                await fetchAdmins();
             } catch (e) { alert('Failed to save: ' + e.message); }
+        };
+
+        // ── Shared helper: render one admin row ──
+        function renderAdminRow(a) {
+            const statusClass = a.status === 'online' ? 'online' : 'offline';
+            const statusText  = a.status === 'online' ? 'ONLINE' : 'OFFLINE';
+            const dateStr = new Date(a.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            const roleBadge = a.role === 'Super Admin'
+                ? `<span class="role-badge super-admin">${a.role}</span>`
+                : `<span class="role-badge admin">${a.role || 'Admin'}</span>`;
+            return `<tr>
+                <td>${a.id}</td>
+                <td>${a.full_name}</td>
+                <td>${roleBadge}</td>
+                <td>${a.email}</td>
+                <td><span class="status-badge-acc ${statusClass}">${statusText}</span></td>
+                <td class="actions-cell">
+                    <button class="action-btn edit-btn" onclick="openEditModal('${a.id}', '${a.full_name}', '${a.username}', '${a.email}', '${dateStr}')">Edit</button>
+                    <button class="action-btn view-btn" onclick="openViewModal('${a.id}', '${a.username}', '${a.full_name}', '${a.email}', '${a.role || 'Admin'}', '${statusText}', '${dateStr}')">View</button>
+                </td>
+            </tr>`;
+        }
+
+        // ── Load / refresh the admins table ──
+        async function fetchAdmins() {
+            try {
+                const data = await apiGet('/api/admin/accounts');
+                if (data && data.accounts) {
+                    const tbody = document.getElementById('admins-tbody');
+                    if (data.accounts.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#bbb;padding:24px;">No admin accounts found.</td></tr>';
+                    } else {
+                        tbody.innerHTML = data.accounts.map(renderAdminRow).join('');
+                    }
+                }
+            } catch (e) { console.error('Failed to load accounts:', e.message || e); }
+        }
+
+        // ── Register new admin ──
+        document.getElementById('registerSaveBtn').onclick = async function () {
+            const full_name = document.getElementById('regFullName').value.trim();
+            const username  = document.getElementById('regUsername').value.trim();
+            const email     = document.getElementById('regEmail').value.trim();
+            const password  = document.getElementById('regPassword').value;
+            const role      = document.getElementById('regRole').value;
+
+            if (!full_name || !username || !email || !password) {
+                alert('Please fill all fields.');
+                return;
+            }
+
+            try {
+                const result = await apiPost('/api/admin/accounts', { full_name, username, email, password, role });
+                // Clear form
+                ['regFullName','regUsername','regEmail','regPassword'].forEach(id => document.getElementById(id).value = '');
+                document.getElementById('regRole').value = 'Admin';
+                closeModal('registerModal');
+
+                // Show success then re-render table (no page reload)
+                const popup = document.getElementById('successPopup');
+                popup.classList.add('active');
+                setTimeout(() => popup.classList.remove('active'), 1500);
+
+                // Refresh list to reflect the new row and updated total
+                await fetchAdmins();
+
+                // Bump total count stat
+                const statNums = document.querySelectorAll('.stat-number');
+                if (statNums[0]) statNums[0].textContent = parseInt(statNums[0].textContent || 0) + 1;
+            } catch (e) { alert('Failed to register: ' + e.message); }
         };
 
         // Load accounts from API
@@ -305,27 +321,7 @@
                 }
             } catch (e) {}
 
-            try {
-                const data = await apiGet('/api/admin/accounts');
-                if (data && data.accounts) {
-                    const tbody = document.querySelector('.admins-table tbody');
-                    tbody.innerHTML = data.accounts.map(a => {
-                        const statusClass = a.status === 'online' ? 'online' : 'offline';
-                        const statusText = a.status === 'online' ? 'ONLINE' : 'OFFLINE';
-                        const dateStr = new Date(a.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-                        return `<tr>
-                            <td>${a.id}</td>
-                            <td>${a.full_name}</td>
-                            <td>${a.email}</td>
-                            <td><span class="status-badge-acc ${statusClass}">${statusText}</span></td>
-                            <td class="actions-cell">
-                                <button class="action-btn edit-btn" onclick="openEditModal('${a.id}', '${a.full_name}', '${a.username}', '${a.email}', '${dateStr}')">Edit</button>
-                                <button class="action-btn view-btn" onclick="openViewModal('${a.id}', '${a.username}', '${a.full_name}', '${a.email}', '${statusText}', '${dateStr}')">View</button>
-                            </td>
-                        </tr>`;
-                    }).join('');
-                }
-            } catch (e) { console.error(e); }
+            await fetchAdmins();
         });
     </script>
 

@@ -12,7 +12,7 @@ router.get('/', verifyToken, async (req, res) => {
         const [rows] = await req.db.query(
             'SELECT id, username, full_name, email, status, role, created_at FROM admins ORDER BY id ASC'
         );
-        res.json({ admins: rows });
+        res.json({ accounts: rows });
     } catch (error) {
         console.error('List accounts error:', error);
         res.status(500).json({ error: 'Server error.' });
@@ -26,8 +26,8 @@ router.get('/stats', verifyToken, async (req, res) => {
         const [active] = await req.db.query("SELECT COUNT(*) as count FROM admins WHERE status = 'online'");
 
         res.json({
-            total_admins: total[0].count,
-            active_admins: active[0].count
+            total: total[0].count,
+            active: active[0].count
         });
     } catch (error) {
         console.error('Account stats error:', error);
@@ -55,11 +55,15 @@ router.get('/:id', verifyToken, async (req, res) => {
 // POST /api/admin/accounts — Register new admin account
 router.post('/', verifyToken, async (req, res) => {
     try {
-        const { full_name, username, email, password } = req.body;
+        const { full_name, username, email, password, role } = req.body;
 
         if (!full_name || !username || !email || !password) {
             return res.status(400).json({ error: 'All fields are required.' });
         }
+
+        // Validate role — default to 'Admin' if not provided or invalid
+        const allowedRoles = ['Admin', 'Super Admin'];
+        const adminRole = allowedRoles.includes(role) ? role : 'Admin';
 
         // Check if username or email already exists
         const [existing] = await req.db.query(
@@ -74,11 +78,23 @@ router.post('/', verifyToken, async (req, res) => {
         const password_hash = await bcrypt.hash(password, salt);
 
         const [result] = await req.db.query(
-            'INSERT INTO admins (username, full_name, email, password_hash) VALUES (?, ?, ?, ?)',
-            [username, full_name, email, password_hash]
+            'INSERT INTO admins (username, full_name, email, password_hash, role) VALUES (?, ?, ?, ?, ?)',
+            [username, full_name, email, password_hash, adminRole]
         );
 
-        res.status(201).json({ message: 'Admin account created successfully.', id: result.insertId });
+        // Return the new account object so frontend can append row without reload
+        res.status(201).json({
+            message: 'Admin account created successfully.',
+            account: {
+                id: result.insertId,
+                full_name,
+                username,
+                email,
+                role: adminRole,
+                status: 'offline',
+                created_at: new Date().toISOString()
+            }
+        });
     } catch (error) {
         console.error('Register account error:', error);
         res.status(500).json({ error: 'Server error.' });

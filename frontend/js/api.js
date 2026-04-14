@@ -3,8 +3,13 @@
 // ============================================
 
 // Determine API base URL dynamically
-const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
-const API_BASE = isLocal ? 'http://localhost:3000' : '';
+// On localhost or file:// (local dev), point to local server.
+// On production (Render), use the deployed backend URL.
+const RENDER_BACKEND_URL = 'https://barangay-pinyahan-website-bz6q.onrender.com';
+const isLocal = window.location.hostname === 'localhost'
+    || window.location.hostname === '127.0.0.1'
+    || window.location.protocol === 'file:';
+const API_BASE = isLocal ? 'http://localhost:3000' : RENDER_BACKEND_URL;
 
 // Get stored auth token
 function getToken() {

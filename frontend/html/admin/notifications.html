@@ -61,38 +61,9 @@
 
                     <hr class="notifications-divider">
 
-                    <!-- Notification Items -->
-                    <div class="notifications-list">
-
-                        <!-- New Complaint (Unread) -->
-                        <div class="notification-item unread">
-                            <div class="notification-icon blue">
-                                <i class="fas fa-bell"></i>
-                            </div>
-                            <div class="notification-info">
-                                <div class="notification-title-row">
-                                    <h3>New Complaint</h3>
-                                    <span class="unread-dot"></span>
-                                </div>
-                                <p>A new complaint has been submitted.</p>
-                            </div>
-                            <span class="notification-time">08:00 PM</span>
-                        </div>
-
-                        <!-- System Update -->
-                        <div class="notification-item">
-                            <div class="notification-icon blue">
-                                <i class="fas fa-cog"></i>
-                            </div>
-                            <div class="notification-info">
-                                <div class="notification-title-row">
-                                    <h3>System Update</h3>
-                                </div>
-                                <p>Your system has an update available.</p>
-                            </div>
-                            <span class="notification-time">10:00 AM</span>
-                        </div>
-
+                    <!-- Notification Items will be injected here by JS -->
+                    <div class="notifications-list" id="notifications-list">
+                        <p style="text-align:center; color:#bbb; padding:30px 0;">Loading notifications...</p>
                     </div>
 
                 </div>
@@ -116,35 +87,70 @@
             } catch (e) { console.error(e); }
         }
 
+        // Build the deep-link href based on type + target_id
+        function buildLink(type, targetId) {
+            if (!targetId) return null;
+            switch ((type || '').toLowerCase()) {
+                case 'complaint': return `complaint-view.html?id=${targetId}`;
+                case 'news':     return `news-view.html?id=${targetId}`;
+                case 'event':    return `events-view.html?id=${targetId}`;
+                default:         return null;
+            }
+        }
+
+        // Choose icon colour class based on urgency / type
+        function iconClass(n) {
+            if ((n.urgency || '').toLowerCase() === 'high') return 'red';
+            switch ((n.notification_type || '').toLowerCase()) {
+                case 'complaint': return 'orange';
+                case 'news':      return 'blue';
+                case 'event':     return 'green';
+                default:          return 'blue';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async function () {
+            const list = document.getElementById('notifications-list');
             try {
                 const data = await apiGet('/api/admin/notifications');
                 if (data && data.notifications) {
-                    const list = document.querySelector('.notifications-list');
                     if (data.notifications.length === 0) {
-                        list.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">No notifications yet.</p>';
+                        list.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">No notifications yet.</p>';
                         return;
                     }
                     list.innerHTML = data.notifications.map(n => {
                         const time = new Date(n.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                        const isHigh = (n.urgency || '').toLowerCase() === 'high';
+                        const link  = buildLink(n.notification_type, n.target_id);
+                        const ic    = iconClass(n);
+
+                        // Wrap with <a> if we have a deep-link, otherwise use <div>
+                        const wrapOpen  = link
+                            ? `<a href="${link}" class="notification-item ${n.is_read ? '' : 'unread'} ${isHigh ? 'urgency-high' : ''}">`
+                            : `<div class="notification-item ${n.is_read ? '' : 'unread'} ${isHigh ? 'urgency-high' : ''}">` ;
+                        const wrapClose = link ? `</a>` : `</div>`;
+
                         return `
-                            <div class="notification-item ${n.is_read ? '' : 'unread'}">
-                                <div class="notification-icon blue">
+                            ${wrapOpen}
+                                <div class="notification-icon ${ic}">
                                     <i class="${n.icon_class || 'fas fa-bell'}"></i>
                                 </div>
                                 <div class="notification-info">
                                     <div class="notification-title-row">
-                                        <h3>${n.title}</h3>
+                                        <h3>${n.title}${isHigh ? ' <span class="urgency-badge">HIGH</span>' : ''}</h3>
                                         ${!n.is_read ? '<span class="unread-dot"></span>' : ''}
                                     </div>
                                     <p>${n.message}</p>
                                 </div>
                                 <span class="notification-time">${time}</span>
-                            </div>
+                            ${wrapClose}
                         `;
                     }).join('');
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error('Failed to load notifications:', e.message || e);
+                list.innerHTML = '<p style="text-align:center;color:#e53935;padding:20px;">Unable to load notifications.</p>';
+            }
         });
     </script>
 
