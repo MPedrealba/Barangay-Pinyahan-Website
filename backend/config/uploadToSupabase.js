@@ -7,7 +7,7 @@
 
 const supabase = require('./supabase');
 
-const BUCKET = 'uploads'; // Must match the bucket name you created in Supabase Storage
+const BUCKET = 'barangay-pinyahan-images'; // Must match the bucket name you created in Supabase Storage
 
 /**
  * Upload a file buffer to Supabase Storage.
