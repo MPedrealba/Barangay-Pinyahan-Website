@@ -211,7 +211,7 @@
                         document.getElementById('event-date').textContent = date + ' | Barangay Pinyahan';
                         document.getElementById('event-description').textContent = event.description || 'No description available.';
                         if (event.photo_url) {
-                            document.getElementById('event-image').src = API + event.photo_url;
+                            document.getElementById('event-image').src = getPhotoUrl(event.photo_url);
                             document.getElementById('event-image').alt = event.name;
                         }
                     } else {
@@ -223,7 +223,7 @@
                     const grid = document.getElementById('other-events-grid');
                     if (others.length > 0) {
                         grid.innerHTML = others.map(ev => {
-                            const imgSrc = ev.photo_url ? API + ev.photo_url : 'https://placehold.co/300x200?text=' + encodeURIComponent(ev.name);
+                            const imgSrc = getPhotoUrl(ev.photo_url) || 'https://placehold.co/300x200?text=' + encodeURIComponent(ev.name);
                             return `
                                 <a href="event-view.html?id=${ev.id}" class="event-card" title="${ev.name}">
                                     <img src="${imgSrc}" alt="${ev.name}">

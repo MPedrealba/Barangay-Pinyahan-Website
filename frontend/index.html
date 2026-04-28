@@ -172,15 +172,9 @@
     </div>
 
     <!-- ===== SCRIPTS ===== -->
-    <script src="js/i18n.js"></script>
     <script src="js/api.js"></script>
     <script>
-        // Use dynamic API base — works both locally and on Render
-        const RENDER_BACKEND = 'https://barangay-pinyahan-website-bz6q.onrender.com';
-        const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '[::1]')
-            ? 'http://localhost:3000'
-            : RENDER_BACKEND;
-
+        // API_BASE is defined in api.js — correct for both local dev and Render
         document.addEventListener('DOMContentLoaded', async function () {
             await loadEvents();
             await loadNewsCarousel();
@@ -191,14 +185,13 @@
             const grid = document.getElementById('events-grid');
             grid.setAttribute('aria-busy', 'true');
             try {
-                const res = await fetch(API + '/api/admin/events/public');
+                const res = await fetch(API_BASE + '/api/admin/events/public');
                 const data = await res.json();
                 grid.setAttribute('aria-busy', 'false');
                 if (data && data.events && data.events.length > 0) {
                     grid.innerHTML = data.events.map(ev => {
-                        const imgSrc = ev.photo_url
-                            ? API + ev.photo_url
-                            : `https://placehold.co/300x200/006eb3/ffffff?text=${encodeURIComponent(ev.name)}`;
+                        const imgSrc = getPhotoUrl(ev.photo_url)
+                            || `https://placehold.co/300x200/006eb3/ffffff?text=${encodeURIComponent(ev.name)}`;
                         return `
                             <a href="html/homepage/event-view.html?id=${ev.id}" class="event-card" title="${ev.name}">
                                 <img src="${imgSrc}" alt="${ev.name}" loading="lazy">
@@ -242,7 +235,7 @@
             const nextBtn = document.getElementById('carousel-next');
 
             try {
-                const res = await fetch(API + '/api/admin/news/public?limit=10');
+                const res = await fetch(API_BASE + '/api/admin/news/public?limit=10');
                 const data = await res.json();
 
                 // Hide skeleton
@@ -256,9 +249,8 @@
                     nextBtn.style.display = '';
 
                     track.innerHTML = data.news.map(n => {
-                        const imgSrc = n.photo_url
-                            ? API + n.photo_url
-                            : `https://placehold.co/900x400/006eb3/ffffff?text=${encodeURIComponent(n.title)}`;
+                        const imgSrc = getPhotoUrl(n.photo_url)
+                            || `https://placehold.co/900x400/006eb3/ffffff?text=${encodeURIComponent(n.title)}`;
                         const date = new Date(n.date_published).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
                         return `
                             <a href="html/homepage/news-detail.html?id=${n.id}" class="carousel-slide" title="${n.title}">

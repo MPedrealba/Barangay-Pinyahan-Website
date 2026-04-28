@@ -139,7 +139,7 @@
                         <p><strong>CATEGORY:</strong> ${c.category || c.complaint_type}</p>
                         <p><strong>URGENCY LEVEL:</strong> <span class="urgency-badge ${c.urgency_level.toLowerCase()}">${c.urgency_level.toUpperCase()}</span></p>
                         <p><strong>DETAILS:</strong> ${c.message}</p>
-                        ${c.photo_url ? `<p><strong>PHOTO:</strong> <img src="${API_BASE}${c.photo_url}" style="max-width:200px; margin-top:5px; border-radius: 8px;"></p>` : ''}
+                        ${c.photo_url ? `<p><strong>PHOTO:</strong> <img src="${getPhotoUrl(c.photo_url)}" style="max-width:200px; margin-top:5px; border-radius: 8px;"></p>` : ''}
                     `;
 
                     // Set status dropdown

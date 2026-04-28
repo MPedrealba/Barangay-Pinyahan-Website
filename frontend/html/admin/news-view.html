@@ -88,7 +88,7 @@
                     document.querySelector('.article-date').innerHTML = '<strong>DATE PUBLISHED:</strong> ' + date;
                     document.querySelector('.article-description p').textContent = n.description;
                     if (n.photo_url) {
-                        document.querySelector('.article-image').src = API_BASE + n.photo_url;
+                        document.querySelector('.article-image').src = getPhotoUrl(n.photo_url);
                     }
                 }
             } catch (e) { console.error(e); }

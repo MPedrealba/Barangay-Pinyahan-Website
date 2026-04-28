@@ -5,6 +5,7 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../config/multer');
 const verifyToken = require('../middleware/auth');
+const uploadToSupabase = require('../config/uploadToSupabase');
 
 // ------------------------------------------
 // PUBLIC ROUTES
@@ -62,7 +63,8 @@ router.post('/', verifyToken, upload.single('photo'), async (req, res) => {
             return res.status(400).json({ error: 'Name, date, time, and location are required.' });
         }
 
-        const photo_url = req.file ? `/uploads/${req.file.filename}` : null;
+        // Upload to Supabase Storage (returns full public URL or null)
+        const photo_url = await uploadToSupabase(req.file);
 
         const [result] = await req.db.query(
             'INSERT INTO events (name, date, time, location, description, photo_url) VALUES (?, ?, ?, ?, ?, ?)',
@@ -89,7 +91,12 @@ router.put('/:id', verifyToken, upload.single('photo'), async (req, res) => {
         if (time) { fields.push('time = ?'); values.push(time); }
         if (location) { fields.push('location = ?'); values.push(location); }
         if (description !== undefined) { fields.push('description = ?'); values.push(description); }
-        if (req.file) { fields.push('photo_url = ?'); values.push(`/uploads/${req.file.filename}`); }
+        if (req.file) {
+            // Upload new photo to Supabase, store full public URL
+            const newPhotoUrl = await uploadToSupabase(req.file);
+            fields.push('photo_url = ?');
+            values.push(newPhotoUrl);
+        }
 
         if (fields.length === 0) {
             return res.status(400).json({ error: 'No fields to update.' });

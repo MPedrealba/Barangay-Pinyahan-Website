@@ -1119,22 +1119,34 @@ nav {
 
 /* Hero Section (Specific for News) */
 .hero-news {
-    /* Use your specific News banner image here */
-    background-image: url('https://placehold.co/1200x400?text=News+Billboard+Park'); 
+    background-color: #003366; /* Fallback while image loads */
+    background-image: url('../../images/newly_elected_officials.jpg');
     background-size: cover;
-    background-position: center;
+    background-position: center top;
     height: 350px;
     display: flex;
     align-items: center;
-    /* Centers the text box */
-    justify-content: center; 
+    justify-content: center;
     position: relative;
+    overflow: hidden;
+}
+
+/* Full-bleed dark overlay — sits on top of bg image, behind text */
+.hero-news::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 33, 71, 0.62);
+    z-index: 1;
 }
 
 .hero-overlay-news {
-    background-color: rgba(0, 51, 102, 0.7); /* Darker blue opacity */
+    position: relative;
+    z-index: 2;  /* Above the ::before overlay */
+    background: transparent; /* No box — full bleed handles dimming */
     padding: 15px 30px;
     border-radius: 4px;
+    border: 2px solid rgba(255,255,255,0.25);
 }
 
 .hero-overlay-news h1 {
@@ -1143,6 +1155,7 @@ nav {
     font-weight: 800;
     text-transform: uppercase;
     margin: 0;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
 /* Advisory Bar */

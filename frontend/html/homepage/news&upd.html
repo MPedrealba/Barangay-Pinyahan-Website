@@ -142,16 +142,12 @@
     </div>
 
     <script src="../../js/api.js"></script>
-    <script src="../../js/i18n.js"></script>
     <script>
-        const RENDER_BACKEND = 'https://barangay-pinyahan-website-bz6q.onrender.com';
-        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
-        const API = isLocal ? 'http://localhost:3000' : RENDER_BACKEND;
-
+        // API_BASE is defined in api.js above
         document.addEventListener('DOMContentLoaded', async function () {
             // Load featured post
             try {
-                const featData = await fetch(API + '/api/admin/news/featured');
+                const featData = await fetch(API_BASE + '/api/admin/news/featured');
                 const featJson = await featData.json();
                 const featuredCard = document.getElementById('featured-card');
                 const featuredSection = document.getElementById('featured-section');
@@ -159,7 +155,7 @@
                 if (featJson && featJson.news) {
                     const n = featJson.news;
                     const date = new Date(n.date_published).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-                    const imgSrc = n.photo_url ? API + n.photo_url : 'https://placehold.co/600x400?text=No+Image';
+                    const imgSrc = getPhotoUrl(n.photo_url) || 'https://placehold.co/600x400?text=No+Image';
                     featuredCard.innerHTML = `
                         <div class="featured-img-container">
                             <img src="${imgSrc}" alt="${n.title}">
@@ -180,13 +176,13 @@
 
             // Load post listing
             try {
-                const listRes = await fetch(API + '/api/admin/news/public?limit=6');
+                const listRes = await fetch(API_BASE + '/api/admin/news/public?limit=6');
                 const listData = await listRes.json();
                 const grid = document.getElementById('news-grid');
 
                 if (listData && listData.news && listData.news.length > 0) {
                     grid.innerHTML = listData.news.map(n => {
-                        const imgSrc = n.photo_url ? API + n.photo_url : 'https://placehold.co/150x150?text=No+Image';
+                        const imgSrc = getPhotoUrl(n.photo_url) || 'https://placehold.co/150x150?text=No+Image';
                         return `
                             <div class="news-card-small">
                                 <img src="${imgSrc}" alt="${n.title}">

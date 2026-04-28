@@ -102,3 +102,19 @@ async function apiPut(endpoint, body) {
 async function apiDelete(endpoint) {
     return apiCall(endpoint, { method: 'DELETE' });
 }
+
+/**
+ * Resolve a photo_url from the database to a displayable image URL.
+ * Handles two cases:
+ *  1. Legacy: '/uploads/filename.jpg'  → prepend API_BASE (local Render path)
+ *  2. New: 'https://...supabase.co/...' → use directly (already a full URL)
+ * @param {string|null} photoUrl - The photo_url value from the DB
+ * @returns {string|null} - A full displayable URL, or null
+ */
+function getPhotoUrl(photoUrl) {
+    if (!photoUrl) return null;
+    if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
+        return photoUrl; // Already a full URL (Supabase)
+    }
+    return API_BASE + photoUrl; // Legacy local path
+}

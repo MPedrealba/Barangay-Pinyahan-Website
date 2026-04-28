@@ -5,6 +5,7 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../config/multer');
 const verifyToken = require('../middleware/auth');
+const uploadToSupabase = require('../config/uploadToSupabase');
 
 // ------------------------------------------
 // Helper: Generate random reference number
@@ -111,7 +112,8 @@ router.post('/', upload.single('photo'), async (req, res) => {
             else ref_no = generateRefNo();
         }
 
-        const photo_url = req.file ? `/uploads/${req.file.filename}` : null;
+        // Upload complaint photo to Supabase Storage (returns full public URL or null)
+        const photo_url = await uploadToSupabase(req.file);
 
         // AI Classification
         const classification = await classifyComplaint(message);

@@ -142,7 +142,7 @@
 
                     // ── Show existing saved photo ──
                     if (data.news.photo_url) {
-                        showPreview(API_BASE + data.news.photo_url);
+                        showPreview(getPhotoUrl(data.news.photo_url));
                     }
                 }
             } catch (e) { 

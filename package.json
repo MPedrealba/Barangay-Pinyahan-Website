@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/MPedrealba/Barangay-Pinyahan-Website#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",

@@ -97,7 +97,7 @@
                     `;
                     document.querySelector('.event-description p').textContent = ev.description || '';
                     if (ev.photo_url) {
-                        document.querySelector('.event-image').src = API_BASE + ev.photo_url;
+                        document.querySelector('.event-image').src = getPhotoUrl(ev.photo_url);
                     }
                 }
             } catch (e) { console.error(e); }

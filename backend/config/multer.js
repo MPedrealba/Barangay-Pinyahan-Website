@@ -1,20 +1,15 @@
 // ============================================
 // config/multer.js — File Upload Configuration
 // ============================================
-const multer = require('multer');
-const path = require('path');
+// Uses memoryStorage so the file buffer is available in req.file.buffer
+// for direct upload to Supabase Storage (no local disk writing).
+// ============================================
 
-// Configure where uploaded files are stored and how they're named
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '..', 'uploads'));
-    },
-    filename: function (req, file, cb) {
-        // Create unique filename: timestamp-originalname
-        const uniqueName = Date.now() + '-' + file.originalname.replace(/\s+/g, '_');
-        cb(null, uniqueName);
-    }
-});
+const multer = require('multer');
+
+// Memory storage — file stays in RAM as req.file.buffer
+// This is required for cloud uploads (Supabase, S3, etc.)
+const storage = multer.memoryStorage();
 
 // Filter to only allow image files
 const fileFilter = (req, file, cb) => {

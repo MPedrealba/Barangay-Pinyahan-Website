@@ -203,7 +203,7 @@
                         document.getElementById('news-date').textContent = date;
                         document.getElementById('news-description').textContent = article.description || 'No description available.';
                         if (article.photo_url) {
-                            document.getElementById('news-image').src = API + article.photo_url;
+                            document.getElementById('news-image').src = getPhotoUrl(article.photo_url);
                             document.getElementById('news-image').alt = article.title;
                         }
                     } else {

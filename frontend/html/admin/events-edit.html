@@ -140,7 +140,7 @@
                     inputs[3].value = data.event.location;
                     document.querySelector('.form-textarea').value = data.event.description || '';
                     if (data.event.photo_url) {
-                        document.getElementById('photoPreview').src = API_BASE + data.event.photo_url;
+                        document.getElementById('photoPreview').src = getPhotoUrl(data.event.photo_url);
                     }
                 }
             } catch (e) { 
