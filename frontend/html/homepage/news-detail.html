@@ -163,13 +163,10 @@
         <span class="sub-footer-copy" data-i18n="footer.copy">&copy; 2025 Barangay Pinyahan. All rights reserved.</span>
     </div>
 
+    <script src="../../js/api.js"></script>
     <script src="../../js/i18n.js"></script>
 
     <script>
-        const RENDER_BACKEND = 'https://barangay-pinyahan-website-bz6q.onrender.com';
-        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
-        const API = isLocal ? 'http://localhost:3000' : RENDER_BACKEND;
-
         document.addEventListener('DOMContentLoaded', async function () {
             const params = new URLSearchParams(window.location.search);
             const id = params.get('id');
@@ -192,24 +189,23 @@
             }
 
             try {
-                const res = await fetch(API + '/api/admin/news/public?limit=50');
+                const res = await fetch(API_BASE + '/api/admin/news/public/' + id);
+                if (!res.ok) throw new Error('News not found');
                 const data = await res.json();
                 if (data && data.news) {
-                    const article = data.news.find(n => n.id == id);
-                    if (article) {
-                        document.title = article.title + ' - Barangay Pinyahan';
-                        document.getElementById('news-title').textContent = article.title;
-                        const date = new Date(article.date_published).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-                        document.getElementById('news-date').textContent = date;
-                        document.getElementById('news-description').textContent = article.description || 'No description available.';
-                        if (article.photo_url) {
-                            document.getElementById('news-image').src = getPhotoUrl(article.photo_url);
-                            document.getElementById('news-image').alt = article.title;
-                        }
-                    } else {
-                        document.getElementById('news-title').textContent = 'News article not found.';
-                        document.getElementById('news-image').style.display = 'none';
-                    }
+                    const article = data.news;
+                    document.title = article.title + ' - Barangay Pinyahan';
+                    document.getElementById('news-title').textContent = article.title;
+                    const date = new Date(article.date_published).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                    document.getElementById('news-date').textContent = date;
+                    document.getElementById('news-description').textContent = article.description || 'No description available.';
+                    
+                    const imgSrc = getPhotoUrl(article.photo_url) || 'https://placehold.co/800x350?text=' + encodeURIComponent(article.title);
+                    document.getElementById('news-image').src = imgSrc;
+                    document.getElementById('news-image').alt = article.title;
+                } else {
+                    document.getElementById('news-title').textContent = 'News article not found.';
+                    document.getElementById('news-image').style.display = 'none';
                 }
             } catch (e) {
                 console.error('Failed to load news detail. Status/Details:', e.message || e);
@@ -217,6 +213,7 @@
             }
         });
     </script>
+
 
     <script>
         const hamburgerBtn = document.getElementById('hamburger-btn');

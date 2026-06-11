@@ -25,18 +25,20 @@ router.get('/public', async (req, res) => {
     }
 });
 
-// GET /api/admin/news/featured — Get featured news (public)
-router.get('/featured', async (req, res) => {
+// GET /api/admin/news/public/:id — Get single news (public)
+router.get('/public/:id', async (req, res) => {
     try {
-        const [rows] = await req.db.query(
-            'SELECT * FROM news WHERE is_featured = TRUE ORDER BY date_published DESC LIMIT 1'
-        );
-        res.json({ news: rows[0] || null });
+        const [rows] = await req.db.query('SELECT * FROM news WHERE id = ?', [req.params.id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'News not found.' });
+        }
+        res.json({ news: rows[0] });
     } catch (error) {
-        console.error('Featured news error:', error);
+        console.error('Get public news error:', error);
         res.status(500).json({ error: 'Server error.' });
     }
 });
+
 
 // ------------------------------------------
 // ADMIN ROUTES (protected)

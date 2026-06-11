@@ -172,12 +172,10 @@
         <span class="sub-footer-copy" data-i18n="footer.copy">&copy; 2025 Barangay Pinyahan. All rights reserved.</span>
     </div>
 
+    <script src="../../js/api.js"></script>
     <script src="../../js/i18n.js"></script>
 
     <script>
-        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
-        const API = isLocal ? 'http://localhost:3000' : '';
-
         document.addEventListener('DOMContentLoaded', async function () {
             const params = new URLSearchParams(window.location.search);
             const id = params.get('id');
@@ -200,25 +198,32 @@
             }
 
             try {
-                const res = await fetch(API + '/api/admin/events/public');
+                const res = await fetch(API_BASE + '/api/admin/events/public/' + id);
+                if (!res.ok) throw new Error('Event not found.');
+                const data = await res.json();
+                if (data && data.event) {
+                    const event = data.event;
+                    document.title = event.name + ' - Barangay Pinyahan';
+                    document.getElementById('event-title').textContent = event.name;
+                    const date = new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                    document.getElementById('event-date').textContent = date + ' | Barangay Pinyahan';
+                    document.getElementById('event-description').textContent = event.description || 'No description available.';
+                    const imgSrc = getPhotoUrl(event.photo_url) || 'https://placehold.co/800x280?text=' + encodeURIComponent(event.name);
+                    document.getElementById('event-image').src = imgSrc;
+                    document.getElementById('event-image').alt = event.name;
+                } else {
+                    document.getElementById('event-title').textContent = 'Event not found.';
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('event-title').textContent = 'Unable to load event.';
+            }
+
+            // Fetch other events (exclude current)
+            try {
+                const res = await fetch(API_BASE + '/api/admin/events/public?limit=9');
                 const data = await res.json();
                 if (data && data.events) {
-                    const event = data.events.find(e => e.id == id);
-                    if (event) {
-                        document.title = event.name + ' - Barangay Pinyahan';
-                        document.getElementById('event-title').textContent = event.name;
-                        const date = new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-                        document.getElementById('event-date').textContent = date + ' | Barangay Pinyahan';
-                        document.getElementById('event-description').textContent = event.description || 'No description available.';
-                        if (event.photo_url) {
-                            document.getElementById('event-image').src = getPhotoUrl(event.photo_url);
-                            document.getElementById('event-image').alt = event.name;
-                        }
-                    } else {
-                        document.getElementById('event-title').textContent = 'Event not found.';
-                    }
-
-                    // Other events (exclude current)
                     const others = data.events.filter(e => e.id != id);
                     const grid = document.getElementById('other-events-grid');
                     if (others.length > 0) {
@@ -239,10 +244,10 @@
                 }
             } catch (e) {
                 console.error(e);
-                document.getElementById('event-title').textContent = 'Unable to load event.';
             }
         });
     </script>
+
 
     <script>
         const hamburgerBtn = document.getElementById('hamburger-btn');

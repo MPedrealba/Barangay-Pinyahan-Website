@@ -25,6 +25,21 @@ router.get('/public', async (req, res) => {
     }
 });
 
+// GET /api/admin/events/public/:id — Get single event (public)
+router.get('/public/:id', async (req, res) => {
+    try {
+        const [rows] = await req.db.query('SELECT * FROM events WHERE id = ?', [req.params.id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Event not found.' });
+        }
+        res.json({ event: rows[0] });
+    } catch (error) {
+        console.error('Get public event error:', error);
+        res.status(500).json({ error: 'Server error.' });
+    }
+});
+
+
 // ------------------------------------------
 // ADMIN ROUTES (protected)
 // ------------------------------------------

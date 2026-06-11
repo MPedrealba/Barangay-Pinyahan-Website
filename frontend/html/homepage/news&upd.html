@@ -174,7 +174,7 @@
                 document.getElementById('featured-section').style.display = 'none';
             }
 
-            // Load post listing
+                      // Load post listing
             try {
                 const listRes = await fetch(API_BASE + '/api/admin/news/public?limit=6');
                 const listData = await listRes.json();
@@ -182,10 +182,11 @@
 
                 if (listData && listData.news && listData.news.length > 0) {
                     grid.innerHTML = listData.news.map(n => {
-                        const imgSrc = getPhotoUrl(n.photo_url) || 'https://placehold.co/150x150?text=No+Image';
+                        console.log('[DEBUG] news item id=' + n.id + ' photo_url=', n.photo_url);
+                        const imgSrc = getPhotoUrl(n.photo_url) || 'https://placehold.co/150x150/006eb3/ffffff?text=No+Image';
                         return `
                             <div class="news-card-small">
-                                <img src="${imgSrc}" alt="${n.title}">
+                                <img src="${imgSrc}" alt="${n.title}" onerror="this.src='https://placehold.co/150x150/cccccc/666666?text=Image+Error'">
                                 <div class="news-small-content">
                                     <h4>${n.title}</h4>
                                     <p>${n.description ? n.description.substring(0, 60) + '...' : ''}</p>
