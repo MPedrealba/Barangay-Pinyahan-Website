@@ -82,6 +82,19 @@
 }
 
 /* Table */
+.table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    display: block;
+}
+
+.table-container thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fafbfc;
+}
+
 .admins-table {
     width: 100%;
     border-collapse: collapse;

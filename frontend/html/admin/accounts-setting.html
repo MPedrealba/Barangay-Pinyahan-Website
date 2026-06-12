@@ -65,21 +65,23 @@
             <!-- Admins List Table -->
             <div class="admins-table-card">
                 <h2 class="table-title">ADMINS LIST</h2>
-                <table class="admins-table">
-                    <thead>
-                        <tr>
-                            <th>ADMIN ID</th>
-                            <th>FULL NAME</th>
-                            <th>ROLE</th>
-                            <th>EMAIL</th>
-                            <th>STATUS</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admins-tbody">
-                        <tr><td colspan="6" style="text-align:center;color:#bbb;padding:24px;">Loading...</td></tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table class="admins-table">
+                        <thead>
+                            <tr>
+                                <th>ADMIN ID</th>
+                                <th>FULL NAME</th>
+                                <th>ROLE</th>
+                                <th>EMAIL</th>
+                                <th>STATUS</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admins-tbody">
+                            <tr><td colspan="6" style="text-align:center;color:#bbb;padding:24px;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         </main>
@@ -117,10 +119,7 @@
                     <label>USERNAME:</label>
                     <input type="text" id="editUsername">
                 </div>
-                <div class="form-row">
-                    <label>NEW PASSWORD:</label>
-                    <input type="password" id="editPassword" placeholder="">
-                </div>
+
                 <div class="form-row">
                     <label>EMAIL:</label>
                     <input type="email" id="editEmail">
@@ -154,10 +153,7 @@
                     <label>EMAIL:</label>
                     <input type="email" id="regEmail" placeholder="">
                 </div>
-                <div class="form-row">
-                    <label>PASSWORD:</label>
-                    <input type="password" id="regPassword" placeholder="">
-                </div>
+
                 <div class="form-row">
                     <label>ROLE:</label>
                     <select id="regRole" class="form-select">
@@ -205,7 +201,6 @@
             currentEditId = adminId;
             document.getElementById('editFullName').value = fullName;
             document.getElementById('editUsername').value = username;
-            document.getElementById('editPassword').value = '';
             document.getElementById('editEmail').value = email;
             document.getElementById('editDateCreated').value = dateCreated;
             openModal('editModal');
@@ -225,8 +220,6 @@
                 username:  document.getElementById('editUsername').value,
                 email:     document.getElementById('editEmail').value
             };
-            const pw = document.getElementById('editPassword').value;
-            if (pw) body.password = pw;
 
             try {
                 await apiPut(`/api/admin/accounts/${currentEditId}`, body);
@@ -279,18 +272,17 @@
             const full_name = document.getElementById('regFullName').value.trim();
             const username  = document.getElementById('regUsername').value.trim();
             const email     = document.getElementById('regEmail').value.trim();
-            const password  = document.getElementById('regPassword').value;
             const role      = document.getElementById('regRole').value;
 
-            if (!full_name || !username || !email || !password) {
+            if (!full_name || !username || !email) {
                 alert('Please fill all fields.');
                 return;
             }
 
             try {
-                const result = await apiPost('/api/admin/accounts', { full_name, username, email, password, role });
+                const result = await apiPost('/api/admin/accounts', { full_name, username, email, role });
                 // Clear form
-                ['regFullName','regUsername','regEmail','regPassword'].forEach(id => document.getElementById(id).value = '');
+                ['regFullName','regUsername','regEmail'].forEach(id => document.getElementById(id).value = '');
                 document.getElementById('regRole').value = 'Admin';
                 closeModal('registerModal');
 

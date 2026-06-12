@@ -6,8 +6,17 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const verifyToken = require('../middleware/auth');
 
+// Middleware: Only allow Super Admins to access account management
+const verifySuperAdmin = (req, res, next) => {
+    if (req.admin && req.admin.role === 'Super Admin') {
+        next();
+    } else {
+        res.status(403).json({ error: 'Access denied. Super Admin privileges required.' });
+    }
+};
+
 // GET /api/admin/accounts — List all admin accounts
-router.get('/', verifyToken, async (req, res) => {
+router.get('/', verifyToken, verifySuperAdmin, async (req, res) => {
     try {
         const [rows] = await req.db.query(
             'SELECT id, username, full_name, email, status, role, created_at FROM admins ORDER BY id ASC'
@@ -20,7 +29,7 @@ router.get('/', verifyToken, async (req, res) => {
 });
 
 // GET /api/admin/accounts/stats — Get account stats
-router.get('/stats', verifyToken, async (req, res) => {
+router.get('/stats', verifyToken, verifySuperAdmin, async (req, res) => {
     try {
         const [total] = await req.db.query('SELECT COUNT(*) as count FROM admins');
         const [active] = await req.db.query("SELECT COUNT(*) as count FROM admins WHERE status = 'online'");
@@ -36,7 +45,7 @@ router.get('/stats', verifyToken, async (req, res) => {
 });
 
 // GET /api/admin/accounts/:id — Get single admin account
-router.get('/:id', verifyToken, async (req, res) => {
+router.get('/:id', verifyToken, verifySuperAdmin, async (req, res) => {
     try {
         const [rows] = await req.db.query(
             'SELECT id, username, full_name, email, status, role, created_at FROM admins WHERE id = ?',
@@ -52,57 +61,40 @@ router.get('/:id', verifyToken, async (req, res) => {
     }
 });
 
-// POST /api/admin/accounts — Register new admin account
-router.post('/', verifyToken, async (req, res) => {
+// POST /api/admin/accounts — Register new admin
+router.post('/', verifyToken, verifySuperAdmin, async (req, res) => {
+    // Note: We removed 'password' from the request body
+    const { full_name, username, email, role } = req.body;
+    
+    if (!full_name || !username || !email || !role) {
+        return res.status(400).json({ error: 'All fields are required.' });
+    }
+
     try {
-        const { full_name, username, email, password, role } = req.body;
+        // 1. Hash the default preset password
+        const defaultPassword = 'admin123';
+        const saltRounds = 10;
+        const password_hash = await bcrypt.hash(defaultPassword, saltRounds);
 
-        if (!full_name || !username || !email || !password) {
-            return res.status(400).json({ error: 'All fields are required.' });
-        }
-
-        // Validate role — default to 'Admin' if not provided or invalid
-        const allowedRoles = ['Admin', 'Super Admin'];
-        const adminRole = allowedRoles.includes(role) ? role : 'Admin';
-
-        // Check if username or email already exists
-        const [existing] = await req.db.query(
-            'SELECT id FROM admins WHERE username = ? OR email = ?', [username, email]
-        );
-        if (existing.length > 0) {
-            return res.status(409).json({ error: 'Username or email already exists.' });
-        }
-
-        // Hash the password
-        const salt = await bcrypt.genSalt(10);
-        const password_hash = await bcrypt.hash(password, salt);
-
+        // 2. Insert into database with requires_password_change = true
         const [result] = await req.db.query(
-            'INSERT INTO admins (username, full_name, email, password_hash, role) VALUES (?, ?, ?, ?, ?)',
-            [username, full_name, email, password_hash, adminRole]
+            `INSERT INTO admins (full_name, username, email, password_hash, role, requires_password_change) 
+             VALUES (?, ?, ?, ?, ?, TRUE)`,
+            [full_name, username, email, password_hash, role]
         );
 
-        // Return the new account object so frontend can append row without reload
-        res.status(201).json({
-            message: 'Admin account created successfully.',
-            account: {
-                id: result.insertId,
-                full_name,
-                username,
-                email,
-                role: adminRole,
-                status: 'offline',
-                created_at: new Date().toISOString()
-            }
-        });
+        res.status(201).json({ message: 'Admin registered successfully with default password.', id: result.insertId });
     } catch (error) {
-        console.error('Register account error:', error);
+        console.error('Register admin error:', error);
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ error: 'Username or Email already exists.' });
+        }
         res.status(500).json({ error: 'Server error.' });
     }
 });
 
 // PUT /api/admin/accounts/:id — Update admin account
-router.put('/:id', verifyToken, async (req, res) => {
+router.put('/:id', verifyToken, verifySuperAdmin, async (req, res) => {
     try {
         const { full_name, username, email, password } = req.body;
 
@@ -134,7 +126,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 });
 
 // DELETE /api/admin/accounts/:id — Delete admin account
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:id', verifyToken, verifySuperAdmin, async (req, res) => {
     try {
         // Prevent deleting yourself
         if (parseInt(req.params.id) === req.admin.id) {

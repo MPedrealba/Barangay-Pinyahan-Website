@@ -26,6 +26,90 @@ document.addEventListener('DOMContentLoaded', function () {
         greeting.textContent = `Welcome, ${admin.full_name}!`;
     }
 
+    // ── Role-Based Access Control (RBAC) ──
+    const adminData = JSON.parse(localStorage.getItem('admin'));
+
+    if (adminData && adminData.role !== 'Super Admin') {
+        // Hide the Accounts Setting sidebar link for non-Super Admins
+        const accountsLink = document.querySelector('a[href*="accounts-setting.html"]');
+        if (accountsLink) {
+            accountsLink.closest('li').style.display = 'none';
+        }
+
+        // Kick non-Super Admins off the accounts page if they navigate there directly
+        if (window.location.href.includes('accounts-setting.html')) {
+            window.location.replace('admin-dashboard.html');
+            return;
+        }
+    }
+
+    if (adminData && adminData.requires_password_change === 1) {
+        // 1. Create a full-screen, non-dismissible overlay
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+        overlay.style.zIndex = '9999';
+        overlay.style.display = 'flex';
+        overlay.style.justifyContent = 'center';
+        overlay.style.alignItems = 'center';
+
+        // 2. Build the forced change UI
+        overlay.innerHTML = `
+            <div style="background: white; padding: 30px; border-radius: 8px; text-align: center; max-width: 400px; width: 90%;">
+                <h2 style="color: #d9534f; margin-bottom: 10px;">Security Alert</h2>
+                <p style="margin-bottom: 20px;">You are currently using the default password. For security reasons, you must change it before accessing the dashboard.</p>
+                <input type="password" id="forced-new-password" placeholder="Enter New Password" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;">
+                <button id="forced-change-btn" style="background: #006eb3; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold;">Update Password</button>
+                <p id="forced-error-msg" style="color: red; margin-top: 10px; display: none;"></p>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+
+        // 3. Handle the submission
+        document.getElementById('forced-change-btn').addEventListener('click', async () => {
+            const newPassword = document.getElementById('forced-new-password').value;
+            const errorMsg = document.getElementById('forced-error-msg');
+
+            if (newPassword.length < 6) {
+                errorMsg.textContent = 'Password must be at least 6 characters.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch(API_BASE + '/api/auth/force-change-password', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        username: adminData.username, 
+                        new_password: newPassword 
+                    })
+                });
+
+                if (response.ok) {
+                    // Update local storage so the prompt disappears
+                    adminData.requires_password_change = 0;
+                    localStorage.setItem('admin', JSON.stringify(adminData));
+                    
+                    alert('Password updated successfully! Welcome to the dashboard.');
+                    overlay.remove(); // Remove the lockout screen
+                } else {
+                    const data = await response.json();
+                    errorMsg.textContent = data.error || 'Failed to update password.';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                errorMsg.textContent = 'A network error occurred.';
+                errorMsg.style.display = 'block';
+            }
+        });
+    }
+
     // Wire up logout button
     const logoutBtns = document.querySelectorAll('.logout-btn');
     logoutBtns.forEach(btn => {

@@ -15,6 +15,7 @@ CREATE TABLE admins (
     password_hash VARCHAR(255) NOT NULL,
     status ENUM('online', 'offline') DEFAULT 'offline',
     role VARCHAR(50) DEFAULT 'Administrator',
+    requires_password_change BOOLEAN DEFAULT FALSE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
