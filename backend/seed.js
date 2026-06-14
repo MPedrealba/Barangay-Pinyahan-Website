@@ -14,9 +14,14 @@ async function seed() {
         host: process.env.DB_HOST || 'localhost',
         user: process.env.DB_USER || 'root',
         password: process.env.DB_PASSWORD || '',
-        database: process.env.DB_NAME || 'barangay_pinyahan',
-        port: process.env.DB_PORT || 3306
+        port: process.env.DB_PORT || 3306,
+        ssl: {
+            rejectUnauthorized: true
+        }
     });
+
+    // Manually select the database after connecting (bypasses TiDB handshake issue)
+    await db.query('USE ' + (process.env.DB_NAME || 'barangay_pinyahan'));
 
     console.log('Connected to database.');
 

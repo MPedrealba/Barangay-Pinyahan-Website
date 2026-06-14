@@ -64,7 +64,6 @@ const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
   port: process.env.DB_PORT,
   waitForConnections: true,
   connectionLimit: 10,
@@ -74,13 +73,21 @@ const db = mysql.createPool({
   },
 });
 
+// Automatically select the database on every new pool connection
+// (bypasses TiDB Cloud Serverless handshake rejection for custom DB names)
+const DB_NAME = process.env.DB_NAME || 'barangay_pinyahan';
+db.pool.on('connection', (connection) => {
+  connection.query('USE `' + DB_NAME + '`');
+});
+
 // ------------------------------------------
 // STEP 6: Test the database connection
 // ------------------------------------------
 async function testConnection() {
   try {
     const connection = await db.getConnection();
-    console.log("✅ Database connected successfully!");
+    await connection.query('USE `' + DB_NAME + '`');
+    console.log("✅ Database connected successfully! Using: " + DB_NAME);
     connection.release(); // Return connection back to the pool
   } catch (error) {
     console.error("❌ Database connection failed:", error.message);
