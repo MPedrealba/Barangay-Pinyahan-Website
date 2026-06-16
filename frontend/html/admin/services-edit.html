@@ -144,7 +144,7 @@
                             </select>
                         </div>
                         <div class="service-edit-actions">
-                            <button class="btn-save" onclick="showSuccessPopup('services-dashboard.html')">Save Changes</button>
+                            <button class="btn-save" onclick="handleSave()">Save Changes</button>
                             <a href="services-view.html" class="btn-cancel">Cancel</a>
                         </div>
                     </div>
@@ -211,12 +211,39 @@
         </div>
     </div>
 
+    <script src="../../js/api.js"></script>
+    <script src="../../js/admin-common.js"></script>
     <script>
         function showSuccessPopup(redirectUrl) {
             document.getElementById('successPopup').classList.add('active');
             setTimeout(function() {
                 window.location.href = redirectUrl;
             }, 1500);
+        }
+
+        async function handleSave() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if(!id) { alert('No service ID found.'); return; }
+
+            const name = document.querySelector('.edit-title-input').value;
+            const description = document.querySelector('.edit-subtitle-input').value;
+            const requirements = Array.from(document.querySelectorAll('#requirementsList input')).map(i => i.value).filter(v => v.trim() !== '');
+            const procedures = Array.from(document.querySelectorAll('#procedureList input')).map(i => i.value).filter(v => v.trim() !== '');
+            const status = document.querySelector('.status-select').value === 'active' ? 'Active' : 'Inactive';
+
+            const btn = document.querySelector('.btn-save');
+            btn.textContent = 'Saving...';
+            btn.disabled = true;
+
+            try {
+                await apiPut(`/api/admin/services/${id}`, { name, description, requirements, procedures, status });
+                showSuccessPopup('services-dashboard.html');
+            } catch (err) {
+                alert('Failed to save changes: ' + err.message);
+                btn.textContent = 'Save Changes';
+                btn.disabled = false;
+            }
         }
     </script>
 </body>

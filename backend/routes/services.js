@@ -99,6 +99,12 @@ router.put('/:id', verifyToken, async (req, res) => {
         values.push(req.params.id);
         await req.db.query(`UPDATE services SET ${fields.join(', ')} WHERE id = ?`, values);
 
+        // Audit Trail
+        await req.db.query(
+            `INSERT INTO audit_logs (admin_id, action_type, action_details) VALUES (?, ?, ?)`,
+            [req.admin.id, 'Service', `Updated requirements/procedures for Service #${req.params.id}`]
+        );
+
         res.json({ message: 'Service updated successfully.' });
     } catch (error) {
         console.error('Update service error:', error);

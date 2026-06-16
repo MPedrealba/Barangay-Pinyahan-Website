@@ -251,6 +251,12 @@ router.put('/admin/:id', verifyToken, async (req, res) => {
         values.push(req.params.id);
         await req.db.query(`UPDATE complaints SET ${fields.join(', ')} WHERE id = ?`, values);
 
+        // Audit Trail
+        await req.db.query(
+            `INSERT INTO audit_logs (admin_id, action_type, action_details) VALUES (?, ?, ?)`,
+            [req.admin.id, 'Complaint', `Updated details/status for Complaint #${req.params.id}`]
+        );
+
         res.json({ message: 'Complaint updated successfully.' });
     } catch (error) {
         console.error('Update complaint error:', error);

@@ -66,7 +66,7 @@
                         <div class="detail-right">
                             <div class="status-control">
                                 <label for="status-select"><strong>STATUS:</strong></label>
-                                <select id="status-select" class="status-dropdown">
+                                <select id="status-select" class="status-dropdown" disabled>
                                     <option value="pending">Pending</option>
                                     <option value="on-going" selected>On-Going</option>
                                     <option value="resolved">Resolved</option>
@@ -77,13 +77,15 @@
 
                     <!-- Notes Area -->
                     <div class="complaint-notes">
-                        <textarea placeholder="Add notes here..."></textarea>
+                        <textarea placeholder="Add notes here..." disabled></textarea>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="complaint-actions">
-                        <button class="btn-save">Save</button>
+                        <button class="btn-edit" style="padding: 10px 20px; background-color: #006eb3; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-right: 10px;">Edit</button>
+                        <button class="btn-save" style="display:none;">Save</button>
                         <a href="complaint-dashboard.html" class="btn-back">Back</a>
+                        <button class="btn-cancel" style="display:none; padding: 10px 20px; background-color: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Cancel</button>
                     </div>
 
                 </div>
@@ -167,6 +169,32 @@
                 } catch (err) {
                     alert('Failed to save: ' + err.message);
                 }
+            };
+
+            // Toggle Edit/View Modes
+            const statusSelect = document.getElementById('status-select');
+            const notesTextarea = document.querySelector('.complaint-notes textarea');
+            const btnEdit = document.querySelector('.btn-edit');
+            const btnSave = document.querySelector('.btn-save');
+            const btnBack = document.querySelector('.btn-back');
+            const btnCancel = document.querySelector('.btn-cancel');
+
+            btnEdit.onclick = () => {
+                statusSelect.disabled = false;
+                notesTextarea.disabled = false;
+                btnEdit.style.display = 'none';
+                btnBack.style.display = 'none';
+                btnSave.style.display = 'inline-block';
+                btnCancel.style.display = 'inline-block';
+            };
+
+            btnCancel.onclick = () => {
+                statusSelect.disabled = true;
+                notesTextarea.disabled = true;
+                btnEdit.style.display = 'inline-block';
+                btnBack.style.display = 'inline-block';
+                btnSave.style.display = 'none';
+                btnCancel.style.display = 'none';
             };
         });
     </script>
