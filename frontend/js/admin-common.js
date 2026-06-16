@@ -62,7 +62,8 @@ document.addEventListener('DOMContentLoaded', function () {
             <div style="background: white; padding: 30px; border-radius: 8px; text-align: center; max-width: 400px; width: 90%;">
                 <h2 style="color: #d9534f; margin-bottom: 10px;">Security Alert</h2>
                 <p style="margin-bottom: 20px;">You are currently using the default password. For security reasons, you must change it before accessing the dashboard.</p>
-                <input type="password" id="forced-new-password" placeholder="Enter New Password" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;">
+                <input type="password" id="forced-new-password" placeholder="New Password" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;">
+                <input type="password" id="forced-confirm-password" placeholder="Confirm Password" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;">
                 <button id="forced-change-btn" style="background: #006eb3; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold;">Update Password</button>
                 <p id="forced-error-msg" style="color: red; margin-top: 10px; display: none;"></p>
             </div>
@@ -73,8 +74,24 @@ document.addEventListener('DOMContentLoaded', function () {
         // 3. Handle the submission
         document.getElementById('forced-change-btn').addEventListener('click', async () => {
             const newPassword = document.getElementById('forced-new-password').value;
+            const confirmPassword = document.getElementById('forced-confirm-password').value;
             const errorMsg = document.getElementById('forced-error-msg');
 
+            // Check if both fields are filled
+            if (!newPassword || !confirmPassword) {
+                errorMsg.textContent = 'Please fill in both password fields.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Check if passwords match
+            if (newPassword !== confirmPassword) {
+                errorMsg.textContent = 'Passwords do not match. Please try again.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Check minimum length
             if (newPassword.length < 6) {
                 errorMsg.textContent = 'Password must be at least 6 characters.';
                 errorMsg.style.display = 'block';
