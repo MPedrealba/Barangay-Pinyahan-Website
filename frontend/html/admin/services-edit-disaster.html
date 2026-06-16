@@ -149,11 +149,12 @@
                                 <option value="inactive">Inactive</option>
                             </select>
                         </div>
-                        <div class="service-edit-actions d-flex justify-content-end gap-2">
-                            <button class="btn btn-secondary btn-close" onclick="window.location.href='services-dashboard.html'">Close</button>
-                            <button class="btn btn-primary btn-edit-mode">Edit</button>
-                            <button class="btn btn-danger btn-cancel" style="display:none;">Cancel</button>
-                            <button class="btn btn-success btn-save" style="display:none;" onclick="handleSave()">Save Changes</button>
+                        <div class="d-flex justify-content-end align-items-center gap-2">
+                            <button type="button" id="closeBtn" class="btn btn-secondary px-4">Close</button>
+                            <button type="button" id="editBtn" class="btn btn-primary px-4">Edit</button>
+
+                            <button type="button" id="cancelBtn" class="btn btn-danger px-4" style="display: none;">Cancel</button>
+                            <button type="button" id="saveBtn" class="btn btn-success px-4" style="display: none;" onclick="handleSave()">Save Changes</button>
                         </div>
                     </div>
 
@@ -245,7 +246,7 @@
 
             const status = document.querySelector('.status-select').value === 'active' ? 'Active' : 'Inactive';
 
-            const btn = document.querySelector('.btn-save');
+            const btn = document.getElementById('saveBtn');
             btn.textContent = 'Saving...';
             btn.disabled = true;
 
@@ -265,10 +266,10 @@
             const getRemoveBtns = () => document.querySelectorAll('.remove-item-btn');
             const getAddBtns = () => document.querySelectorAll('.add-item-btn');
             
-            const btnClose = document.querySelector('.btn-close');
-            const btnEdit = document.querySelector('.btn-edit-mode');
-            const btnCancel = document.querySelector('.btn-cancel');
-            const btnSave = document.querySelector('.btn-save');
+            const btnClose = document.getElementById('closeBtn');
+            const btnEdit = document.getElementById('editBtn');
+            const btnCancel = document.getElementById('cancelBtn');
+            const btnSave = document.getElementById('saveBtn');
 
             const enterViewMode = () => {
                 getInputs().forEach(i => i.disabled = true);
@@ -297,6 +298,7 @@
 
             btnEdit.onclick = enterEditMode;
             btnCancel.onclick = enterViewMode;
+            btnClose.onclick = () => window.location.href = 'services-dashboard.html';
         });
     </script>
 </body>
