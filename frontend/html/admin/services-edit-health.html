@@ -77,27 +77,27 @@
                             <ul class="edit-list" id="requirementsList">
                                 <li>
                                     <span class="dot blue"></span>
-                                    <input type="text" value="Barangay Health Record / ID Card">
+                                    <input type="text" class="requirement-input" value="Barangay Health Record / ID Card">
                                     <button class="remove-item-btn" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
                                 </li>
                                 <li>
                                     <span class="dot blue"></span>
-                                    <input type="text" value="PhilHealth ID (if available)">
+                                    <input type="text" class="requirement-input" value="PhilHealth ID (if available)">
                                     <button class="remove-item-btn" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
                                 </li>
                                 <li>
                                     <span class="dot blue"></span>
-                                    <input type="text" value="Vaccination Card (for infants)">
+                                    <input type="text" class="requirement-input" value="Vaccination Card (for infants)">
                                     <button class="remove-item-btn" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
                                 </li>
                                 <li>
                                     <span class="dot blue"></span>
-                                    <input type="text" value="Previous Medical Prescriptions">
+                                    <input type="text" class="requirement-input" value="Previous Medical Prescriptions">
                                     <button class="remove-item-btn" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
                                 </li>
                                 <li>
                                     <span class="dot blue"></span>
-                                    <input type="text" value="Proof of Address">
+                                    <input type="text" class="requirement-input" value="Proof of Address">
                                     <button class="remove-item-btn" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
                                 </li>
                             </ul>
@@ -110,27 +110,27 @@
                             <ul class="edit-list" id="procedureList">
                                 <li>
                                     <span class="step-num">1</span>
-                                    <input type="text" value="Sign-in at the Health Center Desk">
+                                    <input type="text" class="procedure-input" value="Sign-in at the Health Center Desk">
                                     <button class="remove-item-btn" onclick="removeStep(this)"><i class="fas fa-times"></i></button>
                                 </li>
                                 <li>
                                     <span class="step-num">2</span>
-                                    <input type="text" value="Initial check-up (Vitals/Weight)">
+                                    <input type="text" class="procedure-input" value="Initial check-up (Vitals/Weight)">
                                     <button class="remove-item-btn" onclick="removeStep(this)"><i class="fas fa-times"></i></button>
                                 </li>
                                 <li>
                                     <span class="step-num">3</span>
-                                    <input type="text" value="Consultation with Doctor/Midwife">
+                                    <input type="text" class="procedure-input" value="Consultation with Doctor/Midwife">
                                     <button class="remove-item-btn" onclick="removeStep(this)"><i class="fas fa-times"></i></button>
                                 </li>
                                 <li>
                                     <span class="step-num">4</span>
-                                    <input type="text" value="Laboratory or Medicine dispensing">
+                                    <input type="text" class="procedure-input" value="Laboratory or Medicine dispensing">
                                     <button class="remove-item-btn" onclick="removeStep(this)"><i class="fas fa-times"></i></button>
                                 </li>
                                 <li>
                                     <span class="step-num">5</span>
-                                    <input type="text" value="Schedule follow-up appointment">
+                                    <input type="text" class="procedure-input" value="Schedule follow-up appointment">
                                     <button class="remove-item-btn" onclick="removeStep(this)"><i class="fas fa-times"></i></button>
                                 </li>
                             </ul>
@@ -149,8 +149,10 @@
                             </select>
                         </div>
                         <div class="service-edit-actions">
-                            <button class="btn-save" onclick="handleSave()">Save Changes</button>
-                            <a href="services-view-health.html" class="btn-cancel">Cancel</a>
+                            <button class="btn-secondary btn-close" onclick="window.location.href='services-dashboard.html'">Close</button>
+                            <button class="btn-primary btn-edit-mode">Edit</button>
+                            <button class="btn-secondary btn-cancel" style="display:none;">Cancel</button>
+                            <button class="btn-success btn-save" style="display:none;" onclick="handleSave()">Save Changes</button>
                         </div>
                     </div>
 
@@ -167,7 +169,7 @@
             const li = document.createElement('li');
             li.innerHTML = `
                 <span class="dot blue"></span>
-                <input type="text" placeholder="Enter requirement">
+                <input type="text" class="requirement-input" placeholder="Enter requirement">
                 <button class="remove-item-btn" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
             `;
             list.appendChild(li);
@@ -180,7 +182,7 @@
             const li = document.createElement('li');
             li.innerHTML = `
                 <span class="step-num">${stepCount}</span>
-                <input type="text" placeholder="Enter step">
+                <input type="text" class="procedure-input" placeholder="Enter step">
                 <button class="remove-item-btn" onclick="removeStep(this)"><i class="fas fa-times"></i></button>
             `;
             list.appendChild(li);
@@ -229,8 +231,17 @@
 
             const name = document.querySelector('.edit-title-input').value;
             const description = document.querySelector('.edit-subtitle-input').value;
-            const requirements = Array.from(document.querySelectorAll('#requirementsList input')).map(i => i.value).filter(v => v.trim() !== '');
-            const procedures = Array.from(document.querySelectorAll('#procedureList input')).map(i => i.value).filter(v => v.trim() !== '');
+            
+            const requirements = [];
+            document.querySelectorAll('.requirement-input').forEach(i => {
+                if(i.value.trim() !== '') requirements.push(i.value.trim());
+            });
+
+            const procedures = [];
+            document.querySelectorAll('.procedure-input').forEach(i => {
+                if(i.value.trim() !== '') procedures.push(i.value.trim());
+            });
+
             const status = document.querySelector('.status-select').value === 'active' ? 'Active' : 'Inactive';
 
             const btn = document.querySelector('.btn-save');
@@ -246,6 +257,46 @@
                 btn.disabled = false;
             }
         }
+
+        // View/Edit Toggle State Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const getInputs = () => document.querySelectorAll('.edit-title-input, .edit-subtitle-input, .requirement-input, .procedure-input, .status-select');
+            const getRemoveBtns = () => document.querySelectorAll('.remove-item-btn');
+            const getAddBtns = () => document.querySelectorAll('.add-item-btn');
+            
+            const btnClose = document.querySelector('.btn-close');
+            const btnEdit = document.querySelector('.btn-edit-mode');
+            const btnCancel = document.querySelector('.btn-cancel');
+            const btnSave = document.querySelector('.btn-save');
+
+            const enterViewMode = () => {
+                getInputs().forEach(i => i.disabled = true);
+                getRemoveBtns().forEach(b => b.style.display = 'none');
+                getAddBtns().forEach(b => b.style.display = 'none');
+                
+                btnClose.style.display = 'inline-block';
+                btnEdit.style.display = 'inline-block';
+                btnCancel.style.display = 'none';
+                btnSave.style.display = 'none';
+            };
+
+            const enterEditMode = () => {
+                getInputs().forEach(i => i.disabled = false);
+                getRemoveBtns().forEach(b => b.style.display = 'inline-block');
+                getAddBtns().forEach(b => b.style.display = 'inline-block');
+                
+                btnClose.style.display = 'none';
+                btnEdit.style.display = 'none';
+                btnCancel.style.display = 'inline-block';
+                btnSave.style.display = 'inline-block';
+            };
+
+            // Start in view mode
+            enterViewMode();
+
+            btnEdit.onclick = enterEditMode;
+            btnCancel.onclick = enterViewMode;
+        });
     </script>
 </body>
 </html>
