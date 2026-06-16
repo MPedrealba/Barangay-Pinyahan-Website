@@ -155,7 +155,7 @@ router.post('/track', async (req, res) => {
         const cleanName = full_name.trim().toLowerCase();
 
         const [rows] = await req.db.query(
-            'SELECT ref_no, full_name, complaint_type, category, status, urgency_level, submitted_at FROM complaints WHERE LOWER(TRIM(ref_no)) = ? AND LOWER(full_name) LIKE ?',
+            'SELECT ref_no, full_name, complaint_type, category, status, urgency_level, message, admin_notes, photo_url, submitted_at FROM complaints WHERE LOWER(TRIM(ref_no)) = ? AND LOWER(full_name) LIKE ?',
             [cleanRef, `%${cleanName}%`]
         );
 
@@ -177,6 +177,15 @@ router.post('/track', async (req, res) => {
 // GET /api/complaints/admin — List all active complaints (admin)
 router.get('/admin', verifyToken, async (req, res) => {
     try {
+        // Auto-escalation sweep: bump urgency to 'High' for unresolved complaints older than 7 days
+        await req.db.query(
+            `UPDATE complaints 
+             SET urgency_level = 'High' 
+             WHERE status != 'Resolved' 
+               AND urgency_level != 'High'
+               AND DATEDIFF(NOW(), submitted_at) >= 7`
+        );
+
         const [rows] = await req.db.query(
             'SELECT * FROM complaints WHERE status != "Resolved" ORDER BY submitted_at DESC'
         );
