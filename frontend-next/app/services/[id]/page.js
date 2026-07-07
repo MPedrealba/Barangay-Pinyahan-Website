@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -39,7 +39,7 @@ export default function ServiceDetailPage() {
   useEffect(() => {
     if (!id) return;
     // Fetch all active services — no auth needed
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/services/public`))
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/services/public`)
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then(data => {
         const raw = Array.isArray(data) ? data : (data.services || []);

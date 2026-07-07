@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -43,7 +43,7 @@ export default function PublicHomePage() {
 
   // ── Fetch Events ──────────────────────────────────────────────
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/public`))
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/public`)
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => setEvents(data.events || []))
       .catch(() => setErrorEvents(true))
@@ -52,7 +52,7 @@ export default function PublicHomePage() {
 
   // ── Fetch News ────────────────────────────────────────────────
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/public?limit=10`))
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/public?limit=10`)
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => setNews(data.news || []))
       .catch(() => setErrorNews(true))
