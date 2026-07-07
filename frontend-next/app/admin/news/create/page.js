@@ -35,7 +35,7 @@ export default function CreateNewsPage() {
         formData.append('photo', image);
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news`), {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData

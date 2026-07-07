@@ -12,7 +12,7 @@ export default function EventsPage() {
     const fetchEvents = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events`), {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 

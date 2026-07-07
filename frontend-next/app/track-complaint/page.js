@@ -24,7 +24,7 @@ export default function TrackComplaintPage() {
     setTracking(true);
     setErrMsg('');
     try {
-      const res  = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/complaints/track`), {
+      const res  = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/complaints/track`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ref_no: refNo, full_name: fullName }),

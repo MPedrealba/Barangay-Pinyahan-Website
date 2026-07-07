@@ -11,7 +11,7 @@ export default function NewsPage() {
     const fetchNews = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news`), {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
