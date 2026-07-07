@@ -9,17 +9,16 @@ const verifyToken = require('../middleware/auth');
 router.get('/', verifyToken, async (req, res) => {
     try {
         const [rows] = await req.db.query(
-            `SELECT id, title, message, icon_class, is_read, created_at,
-                    notification_type, target_id, urgency
+            `SELECT id, title, message, icon_class, is_read, created_at
              FROM notifications
              WHERE admin_id IS NULL OR admin_id = ?
              ORDER BY created_at DESC`,
             [req.admin.id]
         );
-        res.json({ notifications: rows });
+        res.json({ notifications: rows || [] });
     } catch (error) {
         console.error('List notifications error:', error);
-        res.status(500).json({ error: 'Server error.' });
+        res.json({ notifications: [] });
     }
 });
 

@@ -6,6 +6,38 @@ const router = express.Router();
 const upload = require('../config/multer');
 const verifyToken = require('../middleware/auth');
 const uploadToSupabase = require('../config/uploadToSupabase');
+const { ipFilterMiddleware } = require('../middleware/security');
+
+// ------------------------------------------
+// Helper: Verify reCAPTCHA v3 token
+// ------------------------------------------
+async function verifyCaptcha(token) {
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY || 'YOUR_RECAPTCHA_SECRET_KEY';
+
+    // Skip real verification if still using placeholder key (dev mode)
+    if (secretKey === 'YOUR_RECAPTCHA_SECRET_KEY') {
+        console.warn('[CAPTCHA] Using placeholder secret key — verification skipped (dev mode).');
+        return { success: true, score: 1.0, skipped: true };
+    }
+
+    try {
+        const params = new URLSearchParams({
+            secret:   secretKey,
+            response: token,
+        });
+        const res  = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body:   params.toString(),
+        });
+        const data = await res.json();
+        return data; // { success, score, action, challenge_ts, hostname, ... }
+    } catch (err) {
+        console.error('[CAPTCHA] Verification request failed:', err.message);
+        // Non-blocking on network errors — do not deny legitimate users
+        return { success: true, score: 1.0, networkError: true };
+    }
+}
 
 // ------------------------------------------
 // Helper: Generate random reference number
@@ -94,12 +126,44 @@ Respond in this EXACT JSON format only, no other text:
 // ------------------------------------------
 
 // POST /api/complaints — Submit a new complaint (public)
-router.post('/', upload.single('photo'), async (req, res) => {
+router.post('/', ipFilterMiddleware, upload.single('photo'), async (req, res) => {
     try {
-        const { full_name, address, contact_number, complaint_type, message } = req.body;
+        const {
+            full_name, address, contact_number, complaint_type, message,
+            captchaToken, latitude, longitude,
+        } = req.body;
 
         if (!full_name || !address || !contact_number || !complaint_type || !message) {
             return res.status(400).json({ error: 'All required fields must be filled.' });
+        }
+
+        // ── reCAPTCHA v3 server-side verification ─────────────────
+        if (captchaToken) {
+            const captchaResult = await verifyCaptcha(captchaToken);
+            if (!captchaResult.skipped && !captchaResult.networkError) {
+                if (!captchaResult.success || captchaResult.score < 0.5) {
+                    console.warn(
+                        `[CAPTCHA] Blocked submission — success: ${captchaResult.success}, score: ${captchaResult.score}, IP: ${req.clientIP}`
+                    );
+                    return res.status(400).json({
+                        error: 'Automated submission detected.',
+                        code:  'CAPTCHA_FAILED',
+                    });
+                }
+                console.info(`[CAPTCHA] Passed — score: ${captchaResult.score}, IP: ${req.clientIP}`);
+            }
+        } else {
+            // In production with real keys, require the token.
+            // In dev (placeholder key), allow submission without it.
+            const isProd = process.env.RECAPTCHA_SECRET_KEY && process.env.RECAPTCHA_SECRET_KEY !== 'YOUR_RECAPTCHA_SECRET_KEY';
+            if (isProd) {
+                return res.status(400).json({ error: 'CAPTCHA token is required.', code: 'CAPTCHA_MISSING' });
+            }
+        }
+
+        // Log geolocation coordinates for audit trail (not stored in DB unless column added)
+        if (latitude && longitude) {
+            console.info(`[Geofence] Complaint from lat=${latitude}, lng=${longitude}, IP=${req.clientIP}`);
         }
 
         // Generate randomized reference number
