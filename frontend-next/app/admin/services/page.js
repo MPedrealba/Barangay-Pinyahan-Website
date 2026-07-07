@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
@@ -27,7 +27,7 @@ export default function ServicesPage() {
     const fetchServices = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:3000/api/admin/services', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/services`), {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {

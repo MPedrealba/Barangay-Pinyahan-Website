@@ -1,11 +1,11 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PublicShell from '@/components/PublicShell';
 
 function getPhotoUrl(url) {
   if (!url) return null;
-  return url.startsWith('http') ? url : `http://localhost:3000${url}`;
+  return url.startsWith('http') ? url : `${process.env.NEXT_PUBLIC_API_URL}${url}`;
 }
 
 function formatDate(str) {
@@ -21,14 +21,14 @@ export default function NewsPage() {
 
   useEffect(() => {
     // Featured
-    fetch('http://localhost:3000/api/admin/news/featured')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/featured`))
       .then(r => r.ok ? r.json() : { news: null })
       .then(d => setFeatured(d.news || null))
       .catch(() => setFeatured(null))
       .finally(() => setLoadFeatured(false));
 
     // Post listing
-    fetch('http://localhost:3000/api/admin/news/public?limit=6')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/public?limit=6`))
       .then(r => r.ok ? r.json() : { news: [] })
       .then(d => setNewsList(d.news || []))
       .catch(() => setNewsList([]))

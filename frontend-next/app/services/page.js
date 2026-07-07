@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PublicShell from '@/components/PublicShell';
@@ -112,7 +112,7 @@ function getIcon(name = '') {
 
 function getPhotoUrl(url) {
   if (!url) return null;
-  return url.startsWith('http') ? url : `http://localhost:3000${url}`;
+  return url.startsWith('http') ? url : `${process.env.NEXT_PUBLIC_API_URL}${url}`;
 }
 
 export default function ServicesPage() {
@@ -124,7 +124,7 @@ export default function ServicesPage() {
   // ── Fetch active services from backend ──────────────────────────
   useEffect(() => {
     // /api/admin/services/public already filters Active server-side
-    fetch('http://localhost:3000/api/admin/services/public')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/services/public`))
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => {
         const raw = Array.isArray(data) ? data : (data.services || []);

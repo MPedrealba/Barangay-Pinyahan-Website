@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -57,7 +57,7 @@ export default function AddEventPage() {
         submitData.append('photo', photo);
       }
 
-      const res = await fetch('http://localhost:3000/api/admin/events', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events`), {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: submitData

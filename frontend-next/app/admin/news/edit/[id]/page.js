@@ -27,7 +27,7 @@ export default function EditNewsPage({ params }) {
     const fetchNews = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:3000/api/admin/news/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -52,7 +52,7 @@ export default function EditNewsPage({ params }) {
             setExistingPhotoUrl(
               item.photo_url.startsWith('http') 
                 ? item.photo_url 
-                : `http://localhost:3000${item.photo_url.startsWith('/') ? '' : '/'}${item.photo_url}`
+                : `${process.env.NEXT_PUBLIC_API_URL}${item.photo_url.startsWith('/') ? '' : '/'}${item.photo_url}`
             );
           }
         } else {
@@ -108,7 +108,7 @@ export default function EditNewsPage({ params }) {
         submitData.append('photo', photo);
       }
 
-      const res = await fetch(`http://localhost:3000/api/admin/news/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/${id}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` },
         body: submitData

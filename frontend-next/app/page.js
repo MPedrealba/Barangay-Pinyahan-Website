@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 function getPhotoUrl(url) {
   if (!url) return null;
   if (url.startsWith('http')) return url;
-  return `http://localhost:3000${url}`;
+  return `${process.env.NEXT_PUBLIC_API_URL}${url}`;
 }
 
 function formatDate(str) {
@@ -43,7 +43,7 @@ export default function PublicHomePage() {
 
   // ── Fetch Events ──────────────────────────────────────────────
   useEffect(() => {
-    fetch('http://localhost:3000/api/admin/events/public')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/public`))
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => setEvents(data.events || []))
       .catch(() => setErrorEvents(true))
@@ -52,7 +52,7 @@ export default function PublicHomePage() {
 
   // ── Fetch News ────────────────────────────────────────────────
   useEffect(() => {
-    fetch('http://localhost:3000/api/admin/news/public?limit=10')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/public?limit=10`))
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => setNews(data.news || []))
       .catch(() => setErrorNews(true))

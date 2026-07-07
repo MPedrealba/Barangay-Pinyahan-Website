@@ -17,7 +17,7 @@ export default function ComplaintView({ params }) {
     const fetchComplaint = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:3000/api/complaints/admin/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/complaints/admin/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
@@ -43,7 +43,7 @@ export default function ComplaintView({ params }) {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:3000/api/complaints/admin/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/complaints/admin/${id}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
@@ -169,7 +169,7 @@ export default function ComplaintView({ params }) {
           <div className="mb-8">
             <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">Attached Photo</span>
             <img 
-              src={`http://localhost:3000${complaint.photo_url.startsWith('/') ? '' : '/'}${complaint.photo_url}`} 
+              src={`${process.env.NEXT_PUBLIC_API_URL}${complaint.photo_url.startsWith('/') ? '' : '/'}${complaint.photo_url}`} 
               alt="Evidence" 
               className="w-full max-w-md rounded-lg border border-gray-200 shadow-sm"
             />

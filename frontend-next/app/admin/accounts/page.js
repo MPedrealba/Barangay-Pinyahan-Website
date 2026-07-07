@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // API helper
 // ─────────────────────────────────────────────────────────────────────────────
-const API_BASE = 'http://localhost:3000';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 async function apiFetch(path, options = {}) {
   const token = localStorage.getItem('token');

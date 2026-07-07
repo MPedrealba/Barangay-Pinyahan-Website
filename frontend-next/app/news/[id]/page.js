@@ -18,7 +18,7 @@ export default function NewsDetailPage() {
 
   useEffect(() => {
     if (!id) { router.push('/news'); return; }
-    fetch(`http://localhost:3000/api/admin/news/public/${id}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/public/${id}`)
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(d => setArticle(d.news || null))
       .catch(() => setError(true))
@@ -26,7 +26,7 @@ export default function NewsDetailPage() {
   }, [id]);
 
   const imgSrc = article?.photo_url
-    ? (article.photo_url.startsWith('http') ? article.photo_url : `http://localhost:3000${article.photo_url}`)
+    ? (article.photo_url.startsWith('http') ? article.photo_url : `${process.env.NEXT_PUBLIC_API_URL}${article.photo_url}`)
     : `https://placehold.co/800x350?text=${encodeURIComponent(article?.title || 'News')}`;
 
   return (
