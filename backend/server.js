@@ -38,7 +38,10 @@ app.use(express.urlencoded({ extended: true }));
 // Set ALLOWED_ORIGIN env var in Render to restrict to your deployed frontend URL.
 app.use(
   cors({
-    origin: process.env.ALLOWED_ORIGIN || 'https://barangay-pinyahan-website-bz6q.onrender.com',
+    origin: [
+      process.env.ALLOWED_ORIGIN || 'https://barangay-pinyahan-website-bz6q.onrender.com',
+      'http://localhost:3001'
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
@@ -47,12 +50,9 @@ app.use(
 // Serve uploaded files from the /uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Serve frontend files so you can access the website at localhost:3000
-app.use(express.static(path.join(__dirname, "..", "frontend")));
-
-// Redirect root to the homepage
+// Root health-check — frontend is served by Next.js (port 3001)
 app.get("/", (req, res) => {
-  res.redirect("/html/homepage/about.html");
+  res.json({ message: "Barangay Pinyahan API is running!", status: "OK" });
 });
 
 // ------------------------------------------

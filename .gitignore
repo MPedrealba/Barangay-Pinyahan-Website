@@ -3,7 +3,13 @@ node_modules/
 
 # Environment variables — NEVER commit these
 backend/.env
+frontend-next/.env.local
 .env
+.env.local
+
+# Next.js build output
+frontend-next/.next/
+frontend-next/out/
 
 # Uploaded files (ephemeral on Render anyway)
 backend/uploads/*
