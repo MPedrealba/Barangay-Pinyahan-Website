@@ -27,7 +27,7 @@ export default function ServicesPage() {
     const fetchServices = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/services`), {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/services`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {

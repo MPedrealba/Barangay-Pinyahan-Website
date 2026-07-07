@@ -57,7 +57,7 @@ export default function AddEventPage() {
         submitData.append('photo', photo);
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events`), {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: submitData

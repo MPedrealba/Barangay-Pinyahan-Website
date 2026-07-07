@@ -69,7 +69,7 @@ export default function NotificationsPage() {
     const fetchNotifications = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res   = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/notifications`), {
+        const res   = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/notifications`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -111,7 +111,7 @@ export default function NotificationsPage() {
     setMarkingAll(true);
     try {
       const token = localStorage.getItem('token');
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/notifications/read-all`), {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/notifications/read-all`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });

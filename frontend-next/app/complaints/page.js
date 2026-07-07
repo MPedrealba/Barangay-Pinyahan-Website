@@ -230,7 +230,7 @@ function ComplaintForm() {
       if (captchaToken)       formData.append('captchaToken', captchaToken);
       if (photoFile)          formData.append('photo',        photoFile);
 
-      const res  = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/complaints`), { method: 'POST', body: formData });
+      const res  = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/complaints`, { method: 'POST', body: formData });
       const data = await res.json();
 
       if (!res.ok) {

@@ -57,7 +57,7 @@ export default function SetupPasswordPage() {
       // Backend endpoint: PUT /api/auth/force-change-password
       // Body: { username, new_password }
       // This also sets requires_password_change = FALSE in the DB
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/force-change-password`), {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/force-change-password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -19,7 +19,7 @@ export default function ComplaintsPage() {
         const headers = { 'Authorization': `Bearer ${token}` };
 
         // Fetch Stats
-        const statsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/dashboard/stats`), { headers });
+        const statsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/dashboard/stats`, { headers });
         if (statsRes.ok) {
           const statsData = await statsRes.json();
           setStats({
@@ -31,7 +31,7 @@ export default function ComplaintsPage() {
         }
 
         // Fetch Complaints list
-        const compRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/complaints/admin`), { headers });
+        const compRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/complaints/admin`, { headers });
         if (compRes.ok) {
           const compData = await compRes.json();
           setComplaints(compData.complaints || []);
