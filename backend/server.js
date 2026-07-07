@@ -40,7 +40,8 @@ app.use(
   cors({
     origin: [
       process.env.ALLOWED_ORIGIN || 'https://barangay-pinyahan-website-bz6q.onrender.com',
-      'http://localhost:3001'
+      'https://barangay-pinyahan-website-prod.onrender.com',
+      'http://localhost:3001',
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
