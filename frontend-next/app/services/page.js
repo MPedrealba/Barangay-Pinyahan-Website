@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PublicShell from '@/components/PublicShell';
@@ -124,7 +124,7 @@ export default function ServicesPage() {
   // ── Fetch active services from backend ──────────────────────────
   useEffect(() => {
     // /api/admin/services/public already filters Active server-side
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/services/public`))
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/services/public`)
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => {
         const raw = Array.isArray(data) ? data : (data.services || []);
