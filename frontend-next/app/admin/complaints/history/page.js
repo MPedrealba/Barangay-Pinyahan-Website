@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
@@ -10,7 +10,7 @@ export default function ComplaintHistoryPage() {
     const fetchHistory = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:3000/api/complaints/admin/history', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/complaints/admin/history`), {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 
 // ── Time ago helper ──────────────────────────────────────────────
@@ -69,7 +69,7 @@ export default function NotificationsPage() {
     const fetchNotifications = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res   = await fetch('http://localhost:3000/api/admin/notifications', {
+        const res   = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/notifications`), {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -94,7 +94,7 @@ export default function NotificationsPage() {
   const handleMarkRead = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:3000/api/admin/notifications/${id}/read`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/notifications/${id}/read`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -111,7 +111,7 @@ export default function NotificationsPage() {
     setMarkingAll(true);
     try {
       const token = localStorage.getItem('token');
-      await fetch('http://localhost:3000/api/admin/notifications/read-all', {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/notifications/read-all`), {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });

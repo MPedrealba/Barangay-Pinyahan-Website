@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
@@ -11,7 +11,7 @@ export default function NewsPage() {
     const fetchNews = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:3000/api/admin/news', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news`), {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -33,7 +33,7 @@ export default function NewsPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:3000/api/admin/news/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -125,7 +125,7 @@ export default function NewsPage() {
                   const photoSrc = item.photo_url
                     ? (item.photo_url.startsWith('http')
                         ? item.photo_url
-                        : `http://localhost:3000/${item.photo_url.replace(/^\//, '')}`)
+                        : `${process.env.NEXT_PUBLIC_API_URL}/${item.photo_url.replace(/^\//, '')}`)
                     : null;
 
                   return (

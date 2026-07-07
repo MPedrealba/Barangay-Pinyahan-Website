@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState } from 'react';
 import PublicShell from '@/components/PublicShell';
 
@@ -24,7 +24,7 @@ export default function TrackComplaintPage() {
     setTracking(true);
     setErrMsg('');
     try {
-      const res  = await fetch('http://localhost:3000/api/complaints/track', {
+      const res  = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/complaints/track`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ref_no: refNo, full_name: fullName }),
@@ -46,7 +46,7 @@ export default function TrackComplaintPage() {
   const c = complaint;
   const daysPending = c ? Math.floor((Date.now() - new Date(c.submitted_at)) / 86400000) : 0;
   const escalated   = c && daysPending >= 7 && c.status !== 'Resolved';
-  const photoSrc    = c?.photo_url ? (c.photo_url.startsWith('http') ? c.photo_url : `http://localhost:3000${c.photo_url}`) : null;
+  const photoSrc    = c?.photo_url ? (c.photo_url.startsWith('http') ? c.photo_url : `${process.env.NEXT_PUBLIC_API_URL}${c.photo_url}`) : null;
 
   return (
     <PublicShell activeHref="/track-complaint">

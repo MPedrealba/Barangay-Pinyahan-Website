@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -27,7 +27,7 @@ export default function EditServicePage({ params }) {
     const fetchService = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:3000/api/services/admin/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services/admin/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
@@ -76,7 +76,7 @@ export default function EditServicePage({ params }) {
       formData.append('requirements', JSON.stringify(requirements.filter((r) => r.trim())));
       formData.append('procedure', JSON.stringify(procedure.filter((s) => s.trim())));
 
-      const res = await fetch(`http://localhost:3000/api/services/admin/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services/admin/${id}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData

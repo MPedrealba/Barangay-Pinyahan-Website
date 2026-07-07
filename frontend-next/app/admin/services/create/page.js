@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -43,7 +43,7 @@ export default function CreateServicePage() {
       formData.append('requirements', JSON.stringify(requirements.filter((r) => r.trim())));
       formData.append('procedure', JSON.stringify(procedure.filter((s) => s.trim())));
 
-      const res = await fetch('http://localhost:3000/api/services/admin', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services/admin`), {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         body: formData

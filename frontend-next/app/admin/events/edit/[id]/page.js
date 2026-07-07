@@ -28,7 +28,7 @@ export default function EditEventPage({ params }) {
     const fetchEvent = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:3000/api/admin/events/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -51,7 +51,7 @@ export default function EditEventPage({ params }) {
           });
           
           if (ev.photo_url) {
-            setExistingPhotoUrl(`http://localhost:3000${ev.photo_url.startsWith('/') ? '' : '/'}${ev.photo_url}`);
+            setExistingPhotoUrl(`${process.env.NEXT_PUBLIC_API_URL}${ev.photo_url.startsWith('/') ? '' : '/'}${ev.photo_url}`);
           }
         } else {
           alert('Failed to load event details.');
@@ -104,7 +104,7 @@ export default function EditEventPage({ params }) {
         submitData.append('photo', photo);
       }
 
-      const res = await fetch(`http://localhost:3000/api/admin/events/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${id}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` },
         body: submitData

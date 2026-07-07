@@ -15,7 +15,7 @@ export default function ViewEventPage({ params }) {
     const fetchEvent = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:3000/api/admin/events/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -109,7 +109,7 @@ export default function ViewEventPage({ params }) {
             <div>
               <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Event Photo</h4>
               <img 
-                src={`http://localhost:3000${event.photo_url.startsWith('/') ? '' : '/'}${event.photo_url}`} 
+                src={`${process.env.NEXT_PUBLIC_API_URL}${event.photo_url.startsWith('/') ? '' : '/'}${event.photo_url}`} 
                 alt={event.name} 
                 className="max-w-2xl w-full rounded-xl border border-gray-200 shadow-sm"
               />

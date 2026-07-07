@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -35,7 +35,7 @@ export default function CreateNewsPage() {
         formData.append('photo', image);
       }
 
-      const res = await fetch('http://localhost:3000/api/admin/news', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news`), {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData

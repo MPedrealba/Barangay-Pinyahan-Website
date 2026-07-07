@@ -15,7 +15,7 @@ export default function ViewNewsPage({ params }) {
     const fetchNews = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:3000/api/admin/news/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -104,7 +104,7 @@ export default function ViewNewsPage({ params }) {
           {news.photo_url && (
             <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm max-w-2xl">
               <img 
-                src={news.photo_url.startsWith('http') ? news.photo_url : `http://localhost:3000${news.photo_url.startsWith('/') ? '' : '/'}${news.photo_url}`} 
+                src={news.photo_url.startsWith('http') ? news.photo_url : `${process.env.NEXT_PUBLIC_API_URL}${news.photo_url.startsWith('/') ? '' : '/'}${news.photo_url}`} 
                 alt={news.title} 
                 className="w-full h-auto object-cover"
               />

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -12,7 +12,7 @@ export default function EventsPage() {
     const fetchEvents = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:3000/api/admin/events', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events`), {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -34,7 +34,7 @@ export default function EventsPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:3000/api/admin/events/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -96,7 +96,7 @@ export default function EventsPage() {
                   const photoSrc = event.photo_url
                     ? (event.photo_url.startsWith('http')
                         ? event.photo_url
-                        : `http://localhost:3000/${event.photo_url.replace(/^\//, '')}`)
+                        : `${process.env.NEXT_PUBLIC_API_URL}/${event.photo_url.replace(/^\//, '')}`)
                     : null;
 
                   return (
