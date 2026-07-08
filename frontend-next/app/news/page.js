@@ -13,14 +13,21 @@ function formatDate(str) {
   return new Date(str).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
+function formatEventDate(str) {
+  if (!str) return '';
+  return new Date(str).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 export default function NewsPage() {
   const [featured,      setFeatured]      = useState(null);
   const [newsList,      setNewsList]      = useState([]);
+  const [eventsList,    setEventsList]    = useState([]);
   const [loadFeatured,  setLoadFeatured]  = useState(true);
   const [loadList,      setLoadList]      = useState(true);
+  const [loadEvents,    setLoadEvents]    = useState(true);
 
   useEffect(() => {
-    // Featured
+    // Featured news
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/featured`)
       .then(r => r.ok ? r.json() : { news: null })
       .then(d => setFeatured(d.news || null))
@@ -33,6 +40,13 @@ export default function NewsPage() {
       .then(d => setNewsList(d.news || []))
       .catch(() => setNewsList([]))
       .finally(() => setLoadList(false));
+
+    // Events
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/public`)
+      .then(r => r.ok ? r.json() : { events: [] })
+      .then(d => setEventsList(d.events || []))
+      .catch(() => setEventsList([]))
+      .finally(() => setLoadEvents(false));
   }, []);
 
   return (
@@ -82,9 +96,73 @@ export default function NewsPage() {
         </section>
       )}
 
-      {/* Post Listing */}
+      {/* ── UPCOMING EVENTS ──────────────────────────────────────── */}
+      <section style={{ width: '90%', maxWidth: 1200, margin: '0 auto', padding: '10px 0 40px' }}>
+        <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#333', textTransform: 'uppercase', marginBottom: 25 }}>
+          <i className="fas fa-calendar-alt" style={{ marginRight: 10, color: '#0056b3' }}></i>UPCOMING EVENTS
+        </h3>
+        {loadEvents ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }} className="events-grid-resp">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} style={{ height: 260, borderRadius: 8, background: 'linear-gradient(90deg,#d0d0d0 25%,#e8e8e8 50%,#d0d0d0 75%)', backgroundSize: '600px 100%', animation: 'shimmer 1.4s infinite linear' }} />
+            ))}
+          </div>
+        ) : eventsList.length > 0 ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }} className="events-grid-resp">
+            {eventsList.map(ev => {
+              const evImg = getPhotoUrl(ev.photo_url) || `https://placehold.co/400x200/003366/ffffff?text=${encodeURIComponent(ev.name || 'Event')}`;
+              const eventDate = ev.date ? new Date(ev.date) : null;
+              return (
+                <Link href={`/events/${ev.id}`} key={ev.id} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div style={{ borderRadius: 8, overflow: 'hidden', backgroundColor: '#f5f7fa', boxShadow: '0 2px 10px rgba(0,0,0,0.08)', transition: 'transform 0.2s, box-shadow 0.2s', cursor: 'pointer' }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 10px rgba(0,0,0,0.08)'; }}>
+                    {/* Event Image */}
+                    <div style={{ position: 'relative', height: 160, overflow: 'hidden' }}>
+                      <img src={evImg} alt={ev.name}
+                        onError={e => { e.currentTarget.src = `https://placehold.co/400x200/003366/ffffff?text=Event`; }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      {/* Date badge overlay */}
+                      {eventDate && (
+                        <div style={{ position: 'absolute', top: 10, right: 10, backgroundColor: '#0056b3', color: 'white', borderRadius: 6, padding: '6px 10px', textAlign: 'center', lineHeight: 1.1, boxShadow: '0 2px 6px rgba(0,0,0,0.3)' }}>
+                          <div style={{ fontSize: '1.3rem', fontWeight: 800 }}>{eventDate.getDate()}</div>
+                          <div style={{ fontSize: '0.65rem', fontWeight: 600, textTransform: 'uppercase' }}>
+                            {eventDate.toLocaleDateString('en-US', { month: 'short' })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {/* Event Info */}
+                    <div style={{ padding: '14px 16px' }}>
+                      <h4 style={{ fontWeight: 800, fontSize: '1rem', textTransform: 'uppercase', marginBottom: 6, color: '#222' }}>
+                        {ev.name}
+                      </h4>
+                      <p style={{ fontSize: '0.8rem', color: '#666', marginBottom: 4 }}>
+                        <i className="fas fa-calendar" style={{ marginRight: 6, color: '#0056b3', fontSize: '0.75rem' }}></i>
+                        {formatEventDate(ev.date)}
+                      </p>
+                      {ev.location && (
+                        <p style={{ fontSize: '0.8rem', color: '#666', margin: 0 }}>
+                          <i className="fas fa-map-marker-alt" style={{ marginRight: 6, color: '#0056b3', fontSize: '0.75rem' }}></i>
+                          {ev.location}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <p style={{ color: '#888', textAlign: 'center' }}>No upcoming events at this time.</p>
+        )}
+      </section>
+
+      {/* ── POST LISTING (News) ──────────────────────────────────── */}
       <section style={{ width: '90%', maxWidth: 1200, margin: '0 auto', padding: '0 0 40px' }}>
-        <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#333', textTransform: 'uppercase', marginBottom: 25 }}>POST LISTING</h3>
+        <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#333', textTransform: 'uppercase', marginBottom: 25 }}>
+          <i className="fas fa-newspaper" style={{ marginRight: 10, color: '#0056b3' }}></i>POST LISTING
+        </h3>
         {loadList ? (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
             {[...Array(4)].map((_, i) => (
@@ -115,8 +193,16 @@ export default function NewsPage() {
 
       <style>{`
         @keyframes shimmer { 0% { background-position: -600px 0; } 100% { background-position: 600px 0; } }
-        @media (max-width: 768px) { .featured-card-resp { flex-direction: column !important; } .news-grid-resp { grid-template-columns: 1fr !important; } }
-      `}</style>
+        @media (max-width: 768px) {
+          .featured-card-resp { flex-direction: column !important; }
+          .news-grid-resp { grid-template-columns: 1fr !important; }
+          .events-grid-resp { grid-template-columns: 1fr !important; }
+        }
+        @media (min-width: 769px) and (max-width: 1024px) {
+          .events-grid-resp { grid-template-columns: 1fr 1fr !important; }
+        }
+      `}
+      </style>
     </PublicShell>
   );
 }
