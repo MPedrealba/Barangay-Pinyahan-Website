@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 
@@ -72,6 +72,19 @@ export default function ComplaintsPage() {
       return matchSearch && matchCat && matchStatus && matchUrgency;
     });
   }, [complaints, search, filterCat, filterStatus, filterUrgency]);
+
+  // ── Sort: Urgency hierarchy (High → Medium → Low), then oldest first ────
+  const URGENCY_ORDER = { high: 0, medium: 1, low: 2 };
+  const SLA_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      const uA = URGENCY_ORDER[a.urgency_level?.toLowerCase()] ?? 99;
+      const uB = URGENCY_ORDER[b.urgency_level?.toLowerCase()] ?? 99;
+      if (uA !== uB) return uA - uB; // primary: urgency
+      return new Date(a.submitted_at) - new Date(b.submitted_at); // secondary: oldest first
+    });
+  }, [filtered]);
 
   const hasActiveFilter = search || filterCat || filterStatus || filterUrgency;
   const clearFilters = () => { setSearch(''); setFilterCat(''); setFilterStatus(''); setFilterUrgency(''); };
@@ -192,9 +205,17 @@ export default function ComplaintsPage() {
         {/* Table header with result count */}
         <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
           <h3 className="font-black text-gray-800 tracking-tight">ACTIVE COMPLAINTS</h3>
-          <span className="text-xs font-semibold text-gray-400">
-            {filtered.length} of {complaints.length} result{complaints.length !== 1 ? 's' : ''}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold text-gray-400">
+              {filtered.length} of {complaints.length} result{complaints.length !== 1 ? 's' : ''}
+            </span>
+            {sorted.some(c => (Date.now() - new Date(c.submitted_at).getTime() > SLA_MS) && c.status?.toLowerCase() !== 'resolved') && (
+              <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full flex items-center gap-1">
+                <i className="fas fa-exclamation-triangle"></i>
+                {sorted.filter(c => (Date.now() - new Date(c.submitted_at).getTime() > SLA_MS) && c.status?.toLowerCase() !== 'resolved').length} OVERDUE
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -212,34 +233,51 @@ export default function ComplaintsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filtered.length > 0 ? (
-                filtered.map((c) => (
-                  <tr key={c.id} className="hover:bg-gray-50 transition-colors text-sm text-gray-700">
-                    <td className="px-6 py-4 font-bold text-gray-900">{c.ref_no}</td>
-                    <td className="px-6 py-4">{c.full_name}</td>
-                    <td className="px-6 py-4">{c.category || c.complaint_type}</td>
-                    <td className="px-6 py-4">{new Date(c.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                    <td className="px-6 py-4">{new Date(c.submitted_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider ${getStatusColor(c.status)}`}>
-                        {c.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider ${getUrgencyColor(c.urgency_level)}`}>
-                        {c.urgency_level}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <Link
-                        href={`/admin/complaints/view/${c.id}`}
-                        className="bg-[#0056b3] text-white px-4 py-1.5 rounded-md text-xs font-bold hover:bg-blue-800 transition-colors inline-block shadow-sm no-underline"
-                      >
-                        View
-                      </Link>
-                    </td>
-                  </tr>
-                ))
+              {sorted.length > 0 ? (
+                sorted.map((c) => {
+                  const isOverdue = (Date.now() - new Date(c.submitted_at).getTime() > SLA_MS) && c.status?.toLowerCase() !== 'resolved';
+                  const daysOpen  = Math.floor((Date.now() - new Date(c.submitted_at).getTime()) / (24 * 60 * 60 * 1000));
+                  return (
+                    <tr key={c.id} className={`transition-colors text-sm text-gray-700 ${
+                      isOverdue
+                        ? 'bg-red-50 border-l-4 border-red-500 hover:bg-red-100'
+                        : 'hover:bg-gray-50'
+                    }`}>
+                      <td className="px-6 py-4 font-bold text-gray-900">{c.ref_no}</td>
+                      <td className="px-6 py-4">{c.full_name}</td>
+                      <td className="px-6 py-4">{c.category || c.complaint_type}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-0.5">
+                          <span>{new Date(c.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                          {isOverdue && (
+                            <span className="text-[10px] font-bold text-red-600 flex items-center gap-1">
+                              ⚠️ OVERDUE ({daysOpen}d)
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">{new Date(c.submitted_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider ${getStatusColor(c.status)}`}>
+                          {c.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider ${getUrgencyColor(c.urgency_level)}`}>
+                          {c.urgency_level}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Link
+                          href={`/admin/complaints/view/${c.id}`}
+                          className="bg-[#0056b3] text-white px-4 py-1.5 rounded-md text-xs font-bold hover:bg-blue-800 transition-colors inline-block shadow-sm no-underline"
+                        >
+                          View
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td colSpan="8" className="px-6 py-16 text-center">
