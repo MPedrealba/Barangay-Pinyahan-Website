@@ -302,6 +302,12 @@ router.put('/admin/:id', verifyToken, async (req, res) => {
             values.push(status); 
             if (status === 'Resolved') {
                 fields.push('resolved_at = CURRENT_TIMESTAMP');
+                fields.push('resolved_by = ?');
+                values.push(req.admin.full_name || req.admin.username);
+            } else {
+                // If status is changed back from Resolved, clear the audit fields
+                fields.push('resolved_at = NULL');
+                fields.push('resolved_by = NULL');
             }
         }
         if (urgency_level) { fields.push('urgency_level = ?'); values.push(urgency_level); }

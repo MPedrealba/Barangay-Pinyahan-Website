@@ -187,6 +187,35 @@ export default function ComplaintView({ params }) {
           ></textarea>
         </div>
 
+        {/* ── Resolution Audit Trail ──────────────────────────────── */}
+        {complaint.status === 'Resolved' && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <i className="fas fa-check-circle text-green-600"></i>
+              <span className="text-[12px] font-black text-green-700 uppercase tracking-widest">Resolution Audit Trail</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <span className="block text-[11px] font-bold text-green-600 uppercase tracking-widest mb-1">Resolved By</span>
+                <span className="block text-[14px] font-bold text-gray-900 flex items-center gap-2">
+                  <i className="fas fa-user-shield text-green-600 text-xs"></i>
+                  {complaint.resolved_by || <span className="text-gray-400 italic">Legacy Data</span>}
+                </span>
+              </div>
+              <div>
+                <span className="block text-[11px] font-bold text-green-600 uppercase tracking-widest mb-1">Date Resolved</span>
+                <span className="block text-[14px] font-bold text-gray-900 flex items-center gap-2">
+                  <i className="fas fa-clock text-green-600 text-xs"></i>
+                  {complaint.resolved_at 
+                    ? new Date(complaint.resolved_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })
+                    : <span className="text-gray-400 italic">Legacy Data</span>
+                  }
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
 {/* Fixed Buttons Layout (Edit / Back) */}
         <div className="flex justify-end items-center gap-5 pt-4">
           {!isEditing ? (
