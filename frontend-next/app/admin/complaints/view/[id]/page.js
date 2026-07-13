@@ -190,10 +190,6 @@ export default function ComplaintView({ params }) {
         {/* ── Resolution Audit Trail ──────────────────────────────── */}
         {complaint.status === 'Resolved' && (
           <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <i className="fas fa-check-circle text-green-600"></i>
-              <span className="text-[12px] font-black text-green-700 uppercase tracking-widest">Resolution Audit Trail</span>
-            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <span className="block text-[11px] font-bold text-green-600 uppercase tracking-widest mb-1">Resolved By</span>
