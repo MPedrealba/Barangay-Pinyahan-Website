@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
@@ -54,6 +54,7 @@ export default function ComplaintHistoryPage() {
                 <th className="px-6 py-4 font-bold">Category</th>
                 <th className="px-6 py-4 font-bold">Date</th>
                 <th className="px-6 py-4 font-bold">Time</th>
+                <th className="px-6 py-4 font-bold">Resolved By</th>
                 <th className="px-6 py-4 font-bold">Status</th>
                 <th className="px-6 py-4 font-bold text-center">Actions</th>
               </tr>
@@ -61,7 +62,7 @@ export default function ComplaintHistoryPage() {
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-12 text-center text-gray-400 text-sm">
+                  <td colSpan="8" className="px-6 py-12 text-center text-gray-400 text-sm">
                     Loading...
                   </td>
                 </tr>
@@ -82,6 +83,11 @@ export default function ComplaintHistoryPage() {
                       <td className="px-6 py-4">{dateStr}</td>
                       <td className="px-6 py-4">{timeStr}</td>
                       <td className="px-6 py-4">
+                        <span className="text-sm font-semibold text-gray-800">
+                          {c.resolved_by || <span className="text-gray-400 italic text-xs">Legacy</span>}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
                         <span className="px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider bg-green-100 text-green-700">
                           Resolved
                         </span>
@@ -99,7 +105,7 @@ export default function ComplaintHistoryPage() {
                 })
               ) : (
                 <tr>
-                  <td colSpan="7" className="px-6 py-12 text-center text-gray-500 font-medium">
+                  <td colSpan="8" className="px-6 py-12 text-center text-gray-500 font-medium">
                     No history of resolved complaints found.
                   </td>
                 </tr>
