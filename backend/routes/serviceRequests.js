@@ -29,11 +29,15 @@ function generateTrackingNo() {
 // POST /api/services/request — Submit a new service request (public)
 router.post('/request', async (req, res) => {
     try {
-        const { resident_name, service_type, purpose } = req.body;
+        const { resident_name, service_type, purpose, address, age, civil_status } = req.body;
 
         // Validation
         if (!resident_name?.trim() || !service_type?.trim() || !purpose?.trim()) {
             return res.status(400).json({ error: 'resident_name, service_type, and purpose are required.' });
+        }
+
+        if (age !== undefined && age !== '' && (isNaN(age) || parseInt(age) < 1 || parseInt(age) > 120)) {
+            return res.status(400).json({ error: 'age must be a valid number between 1 and 120.' });
         }
 
         if (!VALID_SERVICE_TYPES.includes(service_type)) {
@@ -57,9 +61,17 @@ router.post('/request', async (req, res) => {
 
         // Insert record
         await req.db.query(
-            `INSERT INTO service_requests (tracking_no, resident_name, service_type, purpose, status)
-             VALUES (?, ?, ?, ?, 'Pending')`,
-            [tracking_no, resident_name.trim(), service_type.trim(), purpose.trim()]
+            `INSERT INTO service_requests (tracking_no, resident_name, service_type, purpose, address, age, civil_status, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending')`,
+            [
+                tracking_no,
+                resident_name.trim(),
+                service_type.trim(),
+                purpose.trim(),
+                address?.trim() || null,
+                age ? parseInt(age) : null,
+                civil_status?.trim() || null,
+            ]
         );
 
         // Notify admins
