@@ -133,9 +133,25 @@ router.post('/', ipFilterMiddleware, upload.single('photo'), async (req, res) =>
             captchaToken, latitude, longitude,
         } = req.body;
 
-        if (!full_name || !accused_name || !address || !contact_number || !complaint_type || !message) {
+        if (!full_name || !address || !contact_number || !complaint_type || !message) {
             return res.status(400).json({ error: 'All required fields must be filled.' });
         }
+
+        // ── Validate accused_name based on category's accused_rule ──────
+        let accusedRule = 'OPTIONAL'; // default fallback
+        const [catRows] = await req.db.query(
+            'SELECT accused_rule FROM complaint_categories WHERE name = ?',
+            [complaint_type]
+        );
+        if (catRows.length > 0) {
+            accusedRule = catRows[0].accused_rule;
+        }
+
+        if (accusedRule === 'MANDATORY' && !accused_name?.trim()) {
+            return res.status(400).json({ error: 'Name of accused is required for this complaint type.' });
+        }
+
+        const finalAccusedName = accusedRule === 'HIDDEN' ? null : (accused_name?.trim() || null);
 
         // ── reCAPTCHA v3 server-side verification ─────────────────
         if (captchaToken) {
@@ -185,7 +201,7 @@ router.post('/', ipFilterMiddleware, upload.single('photo'), async (req, res) =>
         await req.db.query(
             `INSERT INTO complaints (ref_no, full_name, accused_name, address, contact_number, complaint_type, category, urgency_level, message, photo_url)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [ref_no, full_name, accused_name, address, contact_number, complaint_type, classification.category, classification.urgency_level, message, photo_url]
+            [ref_no, full_name, finalAccusedName, address, contact_number, complaint_type, classification.category, classification.urgency_level, message, photo_url]
         );
 
         // Create notification for admins
@@ -330,6 +346,29 @@ router.put('/admin/:id', verifyToken, async (req, res) => {
         res.json({ message: 'Complaint updated successfully.' });
     } catch (error) {
         console.error('Update complaint error:', error);
+        res.status(500).json({ error: 'Server error.' });
+    }
+});
+
+// PATCH /api/complaints/admin/:id/accused — Update accused_name (admin)
+router.patch('/admin/:id/accused', verifyToken, async (req, res) => {
+    try {
+        const { accused_name } = req.body;
+
+        await req.db.query(
+            'UPDATE complaints SET accused_name = ? WHERE id = ?',
+            [accused_name?.trim() || null, req.params.id]
+        );
+
+        // Audit Trail
+        await req.db.query(
+            'INSERT INTO audit_logs (admin_id, action_type, action_details) VALUES (?, ?, ?)',
+            [req.admin.id, 'Complaint', `Updated accused name for Complaint #${req.params.id} to "${accused_name || 'N/A'}"`]
+        );
+
+        res.json({ message: 'Accused name updated successfully.' });
+    } catch (error) {
+        console.error('Update accused name error:', error);
         res.status(500).json({ error: 'Server error.' });
     }
 });

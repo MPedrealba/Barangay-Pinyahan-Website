@@ -15,6 +15,9 @@ export default function ComplaintView({ params }) {
   const [offenseData, setOffenseData] = useState(null);
   const [showOffenseModal, setShowOffenseModal] = useState(false);
   const [offenseLoading, setOffenseLoading] = useState(false);
+  const [editingAccused, setEditingAccused] = useState(false);
+  const [accusedDraft, setAccusedDraft] = useState('');
+  const [savingAccused, setSavingAccused] = useState(false);
 
   useEffect(() => {
     const fetchComplaint = async () => {
@@ -105,6 +108,29 @@ export default function ComplaintView({ params }) {
       console.error('Failed to fetch offense history:', err);
     } finally {
       setOffenseLoading(false);
+    }
+  };
+
+  const saveAccusedName = async () => {
+    setSavingAccused(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/complaints/admin/${id}/accused`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ accused_name: accusedDraft })
+        }
+      );
+      if (res.ok) {
+        setComplaint(prev => ({ ...prev, accused_name: accusedDraft.trim() || null }));
+        setEditingAccused(false);
+      }
+    } catch (err) {
+      console.error('Failed to update accused name:', err);
+    } finally {
+      setSavingAccused(false);
     }
   };
 
@@ -222,12 +248,43 @@ export default function ComplaintView({ params }) {
                 </span>
               </div>
             </div>
-            {/* Accused Person */}
+            {/* Accused Person — Inline Editable */}
             <div>
               <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Accused Person</span>
-              {complaint.accused_name ? (
+              {editingAccused ? (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <input
+                    type="text"
+                    value={accusedDraft}
+                    onChange={e => setAccusedDraft(e.target.value)}
+                    placeholder="Enter accused name"
+                    className="border border-blue-300 rounded-lg px-3 py-1.5 text-[14px] font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200 w-48"
+                    autoFocus
+                  />
+                  <button
+                    onClick={saveAccusedName}
+                    disabled={savingAccused}
+                    className="text-[11px] font-bold text-white bg-green-600 px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1 disabled:opacity-50"
+                  >
+                    <i className={`fas ${savingAccused ? 'fa-spinner fa-spin' : 'fa-check'} text-[10px]`}></i>
+                    {savingAccused ? 'Saving...' : 'Save'}
+                  </button>
+                  <button
+                    onClick={() => setEditingAccused(false)}
+                    className="text-[11px] font-bold text-gray-500 hover:text-gray-700 px-2"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : complaint.accused_name ? (
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-[14px] font-bold text-gray-900">{complaint.accused_name}</span>
+                  <button
+                    onClick={() => { setAccusedDraft(complaint.accused_name); setEditingAccused(true); }}
+                    className="text-[11px] font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    <i className="fas fa-pen text-[9px]"></i>
+                  </button>
                   <button
                     onClick={fetchOffenseHistory}
                     disabled={offenseLoading}
@@ -238,7 +295,15 @@ export default function ComplaintView({ params }) {
                   </button>
                 </div>
               ) : (
-                <span className="text-[14px] text-gray-400 italic">N/A (Legacy Data)</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[14px] text-gray-400 italic">N/A</span>
+                  <button
+                    onClick={() => { setAccusedDraft(''); setEditingAccused(true); }}
+                    className="text-[11px] font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-1"
+                  >
+                    <i className="fas fa-plus text-[9px]"></i> Add
+                  </button>
+                </div>
               )}
             </div>
           </div>
