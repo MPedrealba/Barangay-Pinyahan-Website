@@ -34,6 +34,7 @@ export default function ServiceRequestsAdminPage() {
   const [filterStatus,  setFilterStatus]  = useState('');
   const [searchQuery,   setSearchQuery]   = useState('');
   const [updatingId,    setUpdatingId]    = useState(null);
+  const [showHistory,   setShowHistory]   = useState(false);
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -78,15 +79,25 @@ export default function ServiceRequestsAdminPage() {
     }
   };
 
-  // Client-side search filter
+  // Client-side filter: history mode shows only Completed/Claimed, active hides it
   const filtered = requests.filter(r => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
-    return (
-      r.tracking_no?.toLowerCase().includes(q) ||
-      r.resident_name?.toLowerCase().includes(q) ||
-      r.service_type?.toLowerCase().includes(q)
-    );
+    // History toggle
+    if (showHistory && r.status !== 'Completed/Claimed') return false;
+    if (!showHistory && r.status === 'Completed/Claimed') return false;
+
+    // Status dropdown filter (only relevant in active mode)
+    if (!showHistory && filterStatus && r.status !== filterStatus) return false;
+
+    // Text search
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      return (
+        r.tracking_no?.toLowerCase().includes(q) ||
+        r.resident_name?.toLowerCase().includes(q) ||
+        r.service_type?.toLowerCase().includes(q)
+      );
+    }
+    return true;
   });
 
   // Summary counts
@@ -106,22 +117,36 @@ export default function ServiceRequestsAdminPage() {
           </h1>
           <p className="text-sm text-gray-500 mt-1">Manage and process citizen document requests</p>
         </div>
+        {/* History Toggle */}
+        <button
+          onClick={() => { setShowHistory(h => !h); setFilterStatus(''); setSearchQuery(''); }}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm transition-all border-2 ${
+            showHistory
+              ? 'bg-[#6a1b9a] text-white border-[#6a1b9a] shadow-md'
+              : 'bg-white text-[#6a1b9a] border-[#6a1b9a] hover:bg-purple-50'
+          }`}
+        >
+          <i className={`fas ${showHistory ? 'fa-list' : 'fa-history'}`}></i>
+          {showHistory ? 'Show Active Requests' : 'Service Request History'}
+        </button>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {STATUS_OPTS.map(s => {
-          const style = STATUS_STYLE[s];
-          return (
-            <button key={s} onClick={() => setFilterStatus(filterStatus === s ? '' : s)}
-              className={`rounded-xl p-4 text-left border-2 transition-all ${filterStatus === s ? 'border-[#0056b3] shadow-md' : 'border-transparent'}`}
-              style={{ background: style.bg }}>
-              <p className="text-2xl font-black" style={{ color: style.text }}>{counts[s] || 0}</p>
-              <p className="text-[11px] font-bold mt-1" style={{ color: style.text, opacity: 0.8 }}>{s}</p>
-            </button>
-          );
-        })}
-      </div>
+      {/* Summary Cards — only in active view */}
+      {!showHistory && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {STATUS_OPTS.map(s => {
+            const style = STATUS_STYLE[s];
+            return (
+              <button key={s} onClick={() => setFilterStatus(filterStatus === s ? '' : s)}
+                className={`rounded-xl p-4 text-left border-2 transition-all ${filterStatus === s ? 'border-[#0056b3] shadow-md' : 'border-transparent'}`}
+                style={{ background: style.bg }}>
+                <p className="text-2xl font-black" style={{ color: style.text }}>{counts[s] || 0}</p>
+                <p className="text-[11px] font-bold mt-1" style={{ color: style.text, opacity: 0.8 }}>{s}</p>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Filters Row */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-5 flex flex-wrap gap-3 items-center">
@@ -129,17 +154,19 @@ export default function ServiceRequestsAdminPage() {
           <i className="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
           <input
             type="text"
-            placeholder="Search by name, tracking no., or service…"
+            placeholder={showHistory ? 'Search history by name, tracking no., or service…' : 'Search by name, tracking no., or service…'}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
           />
         </div>
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 font-semibold text-gray-700">
-          <option value="">All Statuses</option>
-          {STATUS_OPTS.map(s => <option key={s} value={s}>{s}</option>)}
-        </select>
+        {!showHistory && (
+          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 font-semibold text-gray-700">
+            <option value="">All Active Statuses</option>
+            {STATUS_OPTS.filter(s => s !== 'Completed/Claimed').map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        )}
         {(filterStatus || searchQuery) && (
           <button onClick={() => { setFilterStatus(''); setSearchQuery(''); }}
             className="text-xs font-bold text-gray-500 hover:text-gray-800 flex items-center gap-1">
@@ -221,6 +248,17 @@ export default function ServiceRequestsAdminPage() {
                     >
                       <i className="fas fa-file-pdf"></i> PDF
                     </Link>
+                    {r.status !== 'Completed/Claimed' && (
+                      <button
+                        onClick={() => handleStatusChange(r.id, 'Completed/Claimed')}
+                        disabled={updatingId === r.id}
+                        title="Mark as Completed/Claimed"
+                        className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        <i className={`fas ${updatingId === r.id ? 'fa-spinner fa-spin' : 'fa-check-circle'}`}></i>
+                        {updatingId === r.id ? '…' : 'Mark Done'}
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
