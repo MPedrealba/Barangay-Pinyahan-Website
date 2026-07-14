@@ -1,5 +1,5 @@
 'use client';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import PublicShell from '@/components/PublicShell';
@@ -133,9 +133,22 @@ function ComplaintForm() {
   const [photoFile,     setPhotoFile]     = useState(null);
   const [photoPreview,  setPhotoPreview]  = useState(null);
   const [submitting,    setSubmitting]    = useState(false);
-  const [geoStatus,     setGeoStatus]     = useState('idle'); // idle | checking | ok | denied | outside
+  const [geoStatus,     setGeoStatus]     = useState('idle');
   const [popup,         setPopup]         = useState(null);
-  const [areaHint,      setAreaHint]      = useState(null); // live detected area
+  const [areaHint,      setAreaHint]      = useState(null);
+  const [categories,    setCategories]    = useState([]);
+
+  // Derive the selected category object
+  const selectedCategory = categories.find(c => c.name === complaintType);
+  const accusedRule = selectedCategory?.accused_rule || 'OPTIONAL';
+
+  // Fetch dynamic categories on mount
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categories/public`)
+      .then(r => r.ok ? r.json() : { categories: [] })
+      .then(d => setCategories(d.categories || []))
+      .catch(() => setCategories([]));
+  }, []);
 
   const handleAddressChange = (e) => {
     const val = e.target.value;
@@ -153,8 +166,14 @@ function ComplaintForm() {
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
 
-    if (!fullName || !accusedName || !address || !contactNumber || !complaintType || !message) {
+    if (!fullName || !address || !contactNumber || !complaintType || !message) {
       setPopup({ title: 'Missing Fields', text: 'Please fill all required fields.', type: 'error' });
+      return;
+    }
+
+    // Validate accused_name based on category rule
+    if (accusedRule === 'MANDATORY' && !accusedName.trim()) {
+      setPopup({ title: 'Missing Fields', text: 'Name of Accused is required for this complaint type.', type: 'error' });
       return;
     }
 
@@ -221,7 +240,9 @@ function ComplaintForm() {
     try {
       const formData = new FormData();
       formData.append('full_name',      fullName);
-      formData.append('accused_name',   accusedName);
+      if (accusedRule !== 'HIDDEN' && accusedName.trim()) {
+        formData.append('accused_name', accusedName);
+      }
       formData.append('address',        address);
       formData.append('contact_number', contactNumber);
       formData.append('complaint_type', complaintType);
@@ -309,11 +330,6 @@ function ComplaintForm() {
               <input type="text" placeholder="Full Name (Pangalan ng nagrereklamo)" value={fullName} onChange={e => setFullName(e.target.value)} required
                 style={{ width: '100%', padding: '12px 20px', border: '1px solid #ccc', borderRadius: 25, fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }} />
             </div>
-            {/* Name of Accused */}
-            <div style={{ marginBottom: 20 }}>
-              <input type="text" placeholder="Name of Accused (Sino ang inirereklamo?)" value={accusedName} onChange={e => setAccusedName(e.target.value)} required
-                style={{ width: '100%', padding: '12px 20px', border: '1px solid #ccc', borderRadius: 25, fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }} />
-            </div>
             {/* Address */}
             <div style={{ marginBottom: 4 }}>
               <input type="text" placeholder="Address" value={address} onChange={handleAddressChange} required
@@ -334,20 +350,37 @@ function ComplaintForm() {
               <input type="tel" placeholder="Contact Number" value={contactNumber} onChange={e => setContactNumber(e.target.value)} required
                 style={{ width: '100%', padding: '12px 20px', border: '1px solid #ccc', borderRadius: 25, fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }} />
             </div>
-            {/* Complaint Type */}
+            {/* Complaint Type — Dynamic Categories */}
             <div style={{ marginBottom: 20 }}>
               <div style={{ position: 'relative' }}>
-                <select value={complaintType} onChange={e => setComplaintType(e.target.value)} required
+                <select value={complaintType} onChange={e => { setComplaintType(e.target.value); setAccusedName(''); }} required
                   style={{ width: '100%', padding: '12px 20px', border: '1px solid #ccc', borderRadius: 25, fontSize: '1rem', outline: 'none', appearance: 'none', background: 'white', cursor: 'pointer', boxSizing: 'border-box' }}>
                   <option value="" disabled>Type of Complaint</option>
-                  <option value="noise">Noise Complaint</option>
-                  <option value="trash">Garbage/Trash Issue</option>
-                  <option value="security">Security Concern</option>
-                  <option value="other">Other</option>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.name}>{cat.name}</option>
+                  ))}
                 </select>
                 <i className="fas fa-caret-down" style={{ position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', color: '#333', pointerEvents: 'none' }}></i>
               </div>
             </div>
+            {/* Conditional Accused Name Field */}
+            {complaintType && accusedRule !== 'HIDDEN' && (
+              <div style={{ marginBottom: 20 }}>
+                <input
+                  type="text"
+                  placeholder={accusedRule === 'MANDATORY' ? 'Name of Accused (Required — Sino ang inirereklamo?)' : 'Name of Accused (Optional — Sino ang inirereklamo?)'}
+                  value={accusedName}
+                  onChange={e => setAccusedName(e.target.value)}
+                  required={accusedRule === 'MANDATORY'}
+                  style={{ width: '100%', padding: '12px 20px', border: `1px solid ${accusedRule === 'MANDATORY' ? '#e57373' : '#ccc'}`, borderRadius: 25, fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }}
+                />
+                {accusedRule === 'MANDATORY' && (
+                  <p style={{ fontSize: '0.75rem', color: '#c62828', marginTop: 4, paddingLeft: 20, fontWeight: 600 }}>
+                    <i className="fas fa-exclamation-circle" style={{ marginRight: 4 }}></i> Required for this complaint type
+                  </p>
+                )}
+              </div>
+            )}
             {/* Message */}
             <div style={{ marginBottom: 20 }}>
               <textarea placeholder="Message" value={message} onChange={e => setMessage(e.target.value)} rows={5} required
