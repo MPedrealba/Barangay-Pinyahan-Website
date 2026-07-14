@@ -43,7 +43,7 @@ app.use(
       'https://barangay-pinyahan-website-prod.onrender.com',
       'http://localhost:3001',
     ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
