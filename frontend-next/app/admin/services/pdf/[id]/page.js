@@ -113,16 +113,29 @@ export default function ServicePDFPage({ params }) {
   };
   const docTitle = DOC_TITLES[serviceType] || 'BARANGAY CLEARANCE';
 
-  // Body text per service type
-  const bodyText = {
-    'Barangay Clearance': `This is to certify that ${residentName}, ${age} years old, ${civilStatus}, residing at ${address}, is a bonafide resident of Barangay Pinyahan, Quezon City and has no derogatory record on file in this office. This certification is being issued upon the request of the above-mentioned person for ${purpose} purposes.`,
-    'Business Permit Application': `This is to certify that ${residentName}, ${age} years old, ${civilStatus}, residing at ${address}, is a bonafide resident of Barangay Pinyahan, Quezon City. This office interposes no objection to the operation of his/her business within this barangay. This certification is issued upon the request of the above-named person for the purpose of ${purpose}.`,
-    'Certificate of Indigency': `This is to certify that ${residentName}, ${age} years old, ${civilStatus}, residing at ${address}, is a bonafide resident of Barangay Pinyahan, Quezon City and is known to belong to an indigent family in this barangay. This certification is being issued upon the request of the above-mentioned person for ${purpose} purposes.`,
-    'Certificate of Residency': `This is to certify that ${residentName}, ${age} years old, ${civilStatus}, is a bonafide resident of ${address}, Barangay Pinyahan, Quezon City. This certification is being issued upon the request of the above-mentioned person for ${purpose} purposes.`,
-    'Health Services': `This is to certify that ${residentName}, ${age} years old, ${civilStatus}, residing at ${address}, has requested health assistance from Barangay Pinyahan, Quezon City for the purpose of ${purpose}. This referral is issued to facilitate access to appropriate health services.`,
-    'Disaster Response': `This is to certify that ${residentName}, ${age} years old, ${civilStatus}, residing at ${address}, is a registered resident of Barangay Pinyahan, Quezon City and is hereby requesting disaster response assistance for ${purpose}. This certification is issued to support the processing of appropriate aid.`,
+  // Body JSX per service type — dynamic variables bolded
+  const bodyJSX = {
+    'Barangay Clearance': (
+      <>This is to certify that <strong>{residentName}</strong>, <strong>{age}</strong> years old, <strong>{civilStatus}</strong>, residing at <strong>{address}</strong>, is a bonafide resident of Barangay Pinyahan, Quezon City and has no derogatory record on file in this office. This certification is being issued upon the request of the above-mentioned person for <strong>{purpose}</strong> purposes.</>
+    ),
+    'Business Permit Application': (
+      <>This is to certify that <strong>{residentName}</strong>, <strong>{age}</strong> years old, <strong>{civilStatus}</strong>, residing at <strong>{address}</strong>, is a bonafide resident of Barangay Pinyahan, Quezon City. This office interposes no objection to the operation of his/her business within this barangay. This certification is issued upon the request of the above-named person for the purpose of <strong>{purpose}</strong>.</>
+    ),
+    'Certificate of Indigency': (
+      <>This is to certify that <strong>{residentName}</strong>, <strong>{age}</strong> years old, <strong>{civilStatus}</strong>, residing at <strong>{address}</strong>, is a bonafide resident of Barangay Pinyahan, Quezon City and is known to belong to an indigent family in this barangay. This certification is being issued upon the request of the above-mentioned person for <strong>{purpose}</strong> purposes.</>
+    ),
+    'Certificate of Residency': (
+      <>This is to certify that <strong>{residentName}</strong>, <strong>{age}</strong> years old, <strong>{civilStatus}</strong>, is a bonafide resident of <strong>{address}</strong>, Barangay Pinyahan, Quezon City. This certification is being issued upon the request of the above-mentioned person for <strong>{purpose}</strong> purposes.</>
+    ),
+    'Health Services': (
+      <>This is to certify that <strong>{residentName}</strong>, <strong>{age}</strong> years old, <strong>{civilStatus}</strong>, residing at <strong>{address}</strong>, has requested health assistance from Barangay Pinyahan, Quezon City for the purpose of <strong>{purpose}</strong>. This referral is issued to facilitate access to appropriate health services.</>
+    ),
+    'Disaster Response': (
+      <>This is to certify that <strong>{residentName}</strong>, <strong>{age}</strong> years old, <strong>{civilStatus}</strong>, residing at <strong>{address}</strong>, is a registered resident of Barangay Pinyahan, Quezon City and is hereby requesting disaster response assistance for <strong>{purpose}</strong>. This certification is issued to support the processing of appropriate aid.</>
+    ),
   };
-  const certBody = bodyText[serviceType] || bodyText['Barangay Clearance'];
+  const certBody = bodyJSX[serviceType] || bodyJSX['Barangay Clearance'];
+
 
   // ── Render ───────────────────────────────────────────────────────────────
   if (loading) {

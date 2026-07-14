@@ -149,7 +149,7 @@ export default function ServiceRequestPage() {
                 <i className="fas fa-plus" style={{ marginRight: 8 }}></i>Submit Another Request
               </button>
               <Link href="/services" style={{ display: 'block', textAlign: 'center', color: '#1565c0', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', paddingTop: 4 }}>
-                ← Back to Services
+                Back to Services
               </Link>
             </div>
           </div>
@@ -328,7 +328,7 @@ export default function ServiceRequestPage() {
               {/* Back link */}
               <div style={{ textAlign: 'center', marginTop: 18 }}>
                 <Link href="/services" style={{ color: '#78909c', fontSize: '0.87rem', fontWeight: 600, textDecoration: 'none' }}>
-                  ← Back to Services
+                  Back to Services
                 </Link>
               </div>
             </form>
