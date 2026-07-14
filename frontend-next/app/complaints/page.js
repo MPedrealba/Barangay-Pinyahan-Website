@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3';
@@ -125,6 +125,7 @@ function ComplaintForm() {
   const { executeRecaptcha } = useGoogleReCaptcha();
 
   const [fullName,      setFullName]      = useState('');
+  const [accusedName,   setAccusedName]   = useState('');
   const [address,       setAddress]       = useState('');
   const [contactNumber, setContactNumber] = useState('');
   const [complaintType, setComplaintType] = useState('');
@@ -152,7 +153,7 @@ function ComplaintForm() {
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
 
-    if (!fullName || !address || !contactNumber || !complaintType || !message) {
+    if (!fullName || !accusedName || !address || !contactNumber || !complaintType || !message) {
       setPopup({ title: 'Missing Fields', text: 'Please fill all required fields.', type: 'error' });
       return;
     }
@@ -220,6 +221,7 @@ function ComplaintForm() {
     try {
       const formData = new FormData();
       formData.append('full_name',      fullName);
+      formData.append('accused_name',   accusedName);
       formData.append('address',        address);
       formData.append('contact_number', contactNumber);
       formData.append('complaint_type', complaintType);
@@ -256,7 +258,7 @@ function ComplaintForm() {
     } finally {
       setSubmitting(false);
     }
-  }, [fullName, address, contactNumber, complaintType, message, photoFile, executeRecaptcha, router]);
+  }, [fullName, accusedName, address, contactNumber, complaintType, message, photoFile, executeRecaptcha, router]);
 
   // ── Geo status indicator label ─────────────────────────────────
   const geoLabel = {
@@ -304,7 +306,12 @@ function ComplaintForm() {
           <form onSubmit={handleSubmit}>
             {/* Full Name */}
             <div style={{ marginBottom: 20 }}>
-              <input type="text" placeholder="Full Name" value={fullName} onChange={e => setFullName(e.target.value)} required
+              <input type="text" placeholder="Full Name (Pangalan ng nagrereklamo)" value={fullName} onChange={e => setFullName(e.target.value)} required
+                style={{ width: '100%', padding: '12px 20px', border: '1px solid #ccc', borderRadius: 25, fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }} />
+            </div>
+            {/* Name of Accused */}
+            <div style={{ marginBottom: 20 }}>
+              <input type="text" placeholder="Name of Accused (Sino ang inirereklamo?)" value={accusedName} onChange={e => setAccusedName(e.target.value)} required
                 style={{ width: '100%', padding: '12px 20px', border: '1px solid #ccc', borderRadius: 25, fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }} />
             </div>
             {/* Address */}
