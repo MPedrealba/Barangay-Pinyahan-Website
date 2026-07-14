@@ -132,6 +132,7 @@ const notificationRoutes = require('./routes/notifications');
 const dashboardRoutes = require('./routes/dashboard');
 const reportsRoutes = require('./routes/reports');
 const categoryRoutes = require('./routes/categories');
+const serviceRequestRoutes = require('./routes/serviceRequests');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintRoutes);
@@ -143,6 +144,8 @@ app.use('/api/admin/notifications', notificationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/admin/reports', reportsRoutes);
 app.use('/api/admin/categories', categoryRoutes);
+app.use('/api/services', serviceRequestRoutes);        // public: /request, /track
+app.use('/api/admin/service-requests', serviceRequestRoutes); // admin: GET, PATCH, DELETE
 
 // ------------------------------------------
 // STEP 10: Start the server

@@ -194,6 +194,31 @@ export default function ServicesPage() {
             </div>
           </section>
 
+          {/* Online Service Request CTA */}
+          <section style={{ background: 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)', padding: '30px 5%' }}>
+            <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+              <div>
+                <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
+                  <i className="fas fa-bolt" style={{ marginRight: 6 }}></i>New — Online Service Request
+                </p>
+                <h2 style={{ color: 'white', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>
+                  Skip the queue. Request your documents online!
+                </h2>
+                <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem', marginTop: 4 }}>
+                  Submit requests for Barangay Clearance, Certificates, and more — get a tracking number instantly.
+                </p>
+              </div>
+              <Link href="/services/request" style={{
+                backgroundColor: 'white', color: '#1565c0', padding: '12px 28px',
+                borderRadius: 30, fontWeight: 800, fontSize: '0.92rem', textDecoration: 'none',
+                display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
+              }}>
+                <i className="fas fa-file-alt"></i> Request a Service
+              </Link>
+            </div>
+          </section>
+
           {/* Service Listing */}
           <section style={{ width: '90%', maxWidth: 1200, margin: '0 auto', padding: '20px 0 60px' }}>
             <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#333', textTransform: 'uppercase', marginBottom: 25, textAlign: 'center' }}>
