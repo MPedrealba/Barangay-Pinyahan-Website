@@ -12,6 +12,9 @@ export default function ComplaintView({ params }) {
   const [status, setStatus] = useState('Pending');
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(true);
+  const [offenseData, setOffenseData] = useState(null);
+  const [showOffenseModal, setShowOffenseModal] = useState(false);
+  const [offenseLoading, setOffenseLoading] = useState(false);
 
   useEffect(() => {
     const fetchComplaint = async () => {
@@ -84,9 +87,92 @@ export default function ComplaintView({ params }) {
     return 'bg-green-500';
   };
 
+  const fetchOffenseHistory = async () => {
+    if (!complaint?.accused_name) return;
+    setOffenseLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/complaints/admin/offense-history/${encodeURIComponent(complaint.accused_name)}`,
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setOffenseData(data);
+        setShowOffenseModal(true);
+      }
+    } catch (err) {
+      console.error('Failed to fetch offense history:', err);
+    } finally {
+      setOffenseLoading(false);
+    }
+  };
+
   return (
     <div className="p-6 md:p-8 max-w-5xl mx-auto">
-      {/* The exact Card layout from image_301d7f.png */}
+      {/* ── Offense History Modal ── */}
+      {showOffenseModal && offenseData && (
+        <div onClick={() => setShowOffenseModal(false)}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div onClick={e => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-2xl w-[94%] max-w-lg p-7 max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-[15px] font-black text-[#002B5B] uppercase tracking-wide flex items-center gap-2">
+                <i className="fas fa-user-shield text-orange-500"></i> Offense History
+              </h3>
+              <button onClick={() => setShowOffenseModal(false)} className="text-gray-400 hover:text-gray-600 text-lg">
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+
+            {/* Summary */}
+            <div className={`rounded-xl p-4 mb-5 border ${offenseData.total_offenses > 2 ? 'bg-red-50 border-red-200' : offenseData.total_offenses > 1 ? 'bg-orange-50 border-orange-200' : 'bg-green-50 border-green-200'}`}>
+              <p className="text-sm font-bold text-gray-800 mb-1">
+                <span className="text-[13px]">{offenseData.accused_name}</span>
+              </p>
+              <p className="text-2xl font-black text-gray-900">
+                {offenseData.total_offenses} {offenseData.total_offenses === 1 ? 'Offense' : 'Offenses'}
+              </p>
+              {offenseData.categories.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {offenseData.categories.map(cat => (
+                    <span key={cat} className="text-[10px] font-bold bg-white px-2 py-0.5 rounded-full border border-gray-200 text-gray-600">{cat}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Detailed list */}
+            {offenseData.history.length > 0 && (
+              <div className="space-y-2">
+                {offenseData.history.map((h, idx) => (
+                  <div key={h.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100 text-sm">
+                    <div className="flex items-center gap-3">
+                      <span className="w-6 h-6 rounded-full bg-gray-200 text-gray-600 text-xs font-black flex items-center justify-center">{idx + 1}</span>
+                      <div>
+                        <p className="font-semibold text-gray-800">{h.category || h.complaint_type}</p>
+                        <p className="text-xs text-gray-400">{h.ref_no} · {new Date(h.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                      </div>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      h.status === 'Resolved' ? 'bg-green-100 text-green-700' :
+                      h.status === 'On-Going' ? 'bg-blue-100 text-blue-700' :
+                      'bg-yellow-100 text-yellow-700'
+                    }`}>{h.status}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button onClick={() => setShowOffenseModal(false)}
+              className="mt-5 w-full bg-[#0056b3] text-white py-2.5 rounded-lg font-bold text-sm hover:bg-blue-800 transition-colors">
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* The exact Card layout */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
         
         {/* Header & Status Dropdown */}
@@ -135,6 +221,25 @@ export default function ComplaintView({ params }) {
                   {complaint.urgency_level}
                 </span>
               </div>
+            </div>
+            {/* Accused Person */}
+            <div>
+              <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Accused Person</span>
+              {complaint.accused_name ? (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[14px] font-bold text-gray-900">{complaint.accused_name}</span>
+                  <button
+                    onClick={fetchOffenseHistory}
+                    disabled={offenseLoading}
+                    className="text-[11px] font-bold text-orange-600 bg-orange-50 border border-orange-200 px-2.5 py-1 rounded-lg hover:bg-orange-100 transition-colors flex items-center gap-1 disabled:opacity-50"
+                  >
+                    <i className={`fas ${offenseLoading ? 'fa-spinner fa-spin' : 'fa-search'} text-[10px]`}></i>
+                    {offenseLoading ? 'Checking...' : 'Check History'}
+                  </button>
+                </div>
+              ) : (
+                <span className="text-[14px] text-gray-400 italic">N/A (Legacy Data)</span>
+              )}
             </div>
           </div>
 

@@ -129,11 +129,11 @@ Respond in this EXACT JSON format only, no other text:
 router.post('/', ipFilterMiddleware, upload.single('photo'), async (req, res) => {
     try {
         const {
-            full_name, address, contact_number, complaint_type, message,
+            full_name, accused_name, address, contact_number, complaint_type, message,
             captchaToken, latitude, longitude,
         } = req.body;
 
-        if (!full_name || !address || !contact_number || !complaint_type || !message) {
+        if (!full_name || !accused_name || !address || !contact_number || !complaint_type || !message) {
             return res.status(400).json({ error: 'All required fields must be filled.' });
         }
 
@@ -183,9 +183,9 @@ router.post('/', ipFilterMiddleware, upload.single('photo'), async (req, res) =>
         const classification = await classifyComplaint(message);
 
         await req.db.query(
-            `INSERT INTO complaints (ref_no, full_name, address, contact_number, complaint_type, category, urgency_level, message, photo_url)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [ref_no, full_name, address, contact_number, complaint_type, classification.category, classification.urgency_level, message, photo_url]
+            `INSERT INTO complaints (ref_no, full_name, accused_name, address, contact_number, complaint_type, category, urgency_level, message, photo_url)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [ref_no, full_name, accused_name, address, contact_number, complaint_type, classification.category, classification.urgency_level, message, photo_url]
         );
 
         // Create notification for admins
@@ -330,6 +330,34 @@ router.put('/admin/:id', verifyToken, async (req, res) => {
         res.json({ message: 'Complaint updated successfully.' });
     } catch (error) {
         console.error('Update complaint error:', error);
+        res.status(500).json({ error: 'Server error.' });
+    }
+});
+
+// GET /api/complaints/admin/offense-history/:name — Offense history for accused
+router.get('/admin/offense-history/:name', verifyToken, async (req, res) => {
+    try {
+        const name = decodeURIComponent(req.params.name).trim();
+        if (!name) return res.status(400).json({ error: 'Name is required.' });
+
+        const [rows] = await req.db.query(
+            `SELECT id, ref_no, category, complaint_type, urgency_level, status, submitted_at 
+             FROM complaints 
+             WHERE LOWER(TRIM(accused_name)) = LOWER(?) 
+             ORDER BY submitted_at DESC`,
+            [name]
+        );
+
+        const categories = rows.map(r => r.category || r.complaint_type).filter(Boolean);
+
+        res.json({
+            accused_name: name,
+            total_offenses: rows.length,
+            categories: [...new Set(categories)],
+            history: rows,
+        });
+    } catch (error) {
+        console.error('Offense history error:', error);
         res.status(500).json({ error: 'Server error.' });
     }
 });
