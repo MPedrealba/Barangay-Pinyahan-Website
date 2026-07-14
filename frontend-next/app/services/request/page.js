@@ -38,16 +38,22 @@ const S = {
 export default function ServiceRequestPage() {
   const [residentName,  setResidentName]  = useState('');
   const [serviceType,   setServiceType]   = useState('');
+  const [address,       setAddress]       = useState('');
+  const [age,           setAge]           = useState('');
+  const [civilStatus,   setCivilStatus]   = useState('');
   const [purpose,       setPurpose]       = useState('');
   const [submitting,    setSubmitting]    = useState(false);
   const [error,         setError]         = useState('');
-  const [successData,   setSuccessData]   = useState(null); // { tracking_no, service_type }
+  const [successData,   setSuccessData]   = useState(null);
 
   const selectedService = SERVICE_TYPES.find(s => s.value === serviceType);
 
   const reset = () => {
     setResidentName('');
     setServiceType('');
+    setAddress('');
+    setAge('');
+    setCivilStatus('');
     setPurpose('');
     setError('');
     setSuccessData(null);
@@ -57,7 +63,7 @@ export default function ServiceRequestPage() {
     e.preventDefault();
     setError('');
 
-    if (!residentName.trim() || !serviceType || !purpose.trim()) {
+    if (!residentName.trim() || !serviceType || !address.trim() || !age || !civilStatus || !purpose.trim()) {
       setError('Please fill in all required fields before submitting.');
       return;
     }
@@ -70,6 +76,9 @@ export default function ServiceRequestPage() {
         body:    JSON.stringify({
           resident_name: residentName.trim(),
           service_type:  serviceType,
+          address:       address.trim(),
+          age:           parseInt(age),
+          civil_status:  civilStatus,
           purpose:       purpose.trim(),
         }),
       });
@@ -217,6 +226,65 @@ export default function ServiceRequestPage() {
                     {selectedService.desc}
                   </p>
                 )}
+              </div>
+
+              {/* Address */}
+              <div style={S.field}>
+                <label style={S.label}>
+                  <i className="fas fa-map-marker-alt" style={{ marginRight: 6, color: '#1565c0' }}></i>Complete Address <span style={{ color: '#e53935' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="House No., Street, Barangay Pinyahan, Quezon City"
+                  value={address}
+                  onChange={e => setAddress(e.target.value)}
+                  required
+                  style={S.input}
+                  onFocus={e  => e.target.style.borderColor = '#1565c0'}
+                  onBlur={e   => e.target.style.borderColor = '#dce1e7'}
+                />
+              </div>
+
+              {/* Age + Civil Status — side by side */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 22 }}>
+                <div>
+                  <label style={S.label}>
+                    <i className="fas fa-birthday-cake" style={{ marginRight: 6, color: '#1565c0' }}></i>Age <span style={{ color: '#e53935' }}>*</span>
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 35"
+                    min="1" max="120"
+                    value={age}
+                    onChange={e => setAge(e.target.value)}
+                    required
+                    style={S.input}
+                    onFocus={e  => e.target.style.borderColor = '#1565c0'}
+                    onBlur={e   => e.target.style.borderColor = '#dce1e7'}
+                  />
+                </div>
+                <div>
+                  <label style={S.label}>
+                    <i className="fas fa-heart" style={{ marginRight: 6, color: '#1565c0' }}></i>Civil Status <span style={{ color: '#e53935' }}>*</span>
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <select
+                      value={civilStatus}
+                      onChange={e => setCivilStatus(e.target.value)}
+                      required
+                      style={S.select}
+                      onFocus={e  => e.target.style.borderColor = '#1565c0'}
+                      onBlur={e   => e.target.style.borderColor = '#dce1e7'}
+                    >
+                      <option value="" disabled>— Select —</option>
+                      <option value="Single">Single</option>
+                      <option value="Married">Married</option>
+                      <option value="Widowed">Widowed</option>
+                      <option value="Legally Separated">Legally Separated</option>
+                    </select>
+                    <i className="fas fa-caret-down" style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', color: '#546e7a', pointerEvents: 'none' }}></i>
+                  </div>
+                </div>
               </div>
 
               {/* Purpose */}
