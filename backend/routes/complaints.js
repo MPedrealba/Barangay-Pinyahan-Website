@@ -195,20 +195,13 @@ router.post('/', ipFilterMiddleware, upload.single('photo'), async (req, res) =>
         // Upload complaint photo to Supabase Storage (returns full public URL or null)
         const photo_url = await uploadToSupabase(req.file);
 
-        // ── Category: look up broad_category from complaint_categories first ──
-        // This is authoritative — matches what admins defined, no AI guesswork.
-        let assignedCategory = 'Others';
-        const [catBroad] = await req.db.query(
-            'SELECT broad_category FROM complaint_categories WHERE LOWER(name) = LOWER(?)',
-            [complaint_type]
-        );
-        if (catBroad.length > 0 && catBroad[0].broad_category) {
-            assignedCategory = catBroad[0].broad_category;
-        }
-
         // ── Urgency: AI classification (best effort, fallback to Medium) ──────
         const classification = await classifyComplaint(message);
         const assignedUrgency = classification.urgency_level || 'Medium';
+
+        // category = the exact complaint_type the user selected (e.g. 'Noise Complaint')
+        // This matches the dynamic categories managed by admins — no mapping needed.
+        const assignedCategory = complaint_type;
 
         console.info(`[Complaint] type="${complaint_type}" → category="${assignedCategory}" urgency="${assignedUrgency}"`);
 
