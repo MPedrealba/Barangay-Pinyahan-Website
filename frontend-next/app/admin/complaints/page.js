@@ -198,6 +198,14 @@ export default function ComplaintsPage() {
         >
           <i className="fas fa-history"></i> COMPLAINT HISTORY
         </Link>
+
+        {/* Manage Categories shortcut */}
+        <Link
+          href="/admin/categories"
+          className="bg-white text-[#0056b3] px-4 py-2 rounded-lg border border-[#0056b3] font-bold text-sm hover:bg-blue-50 transition-colors flex items-center gap-2 no-underline shrink-0"
+        >
+          <i className="fas fa-tags"></i> MANAGE CATEGORIES
+        </Link>
       </div>
 
       {/* ── Active Complaints Table ── */}
