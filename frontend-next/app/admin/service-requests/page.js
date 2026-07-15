@@ -70,7 +70,12 @@ export default function ServiceRequestsAdminPage() {
         }
       );
       if (res.ok) {
-        setRequests(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r));
+        const data = await res.json();
+        setRequests(prev => prev.map(r =>
+          r.id === id
+            ? { ...r, status: newStatus, processed_by: data.processed_by ?? r.processed_by }
+            : r
+        ));
       }
     } catch (err) {
       console.error('Status update error:', err);
@@ -186,6 +191,7 @@ export default function ServiceRequestsAdminPage() {
               <th className="px-5 py-3.5 text-left font-bold">Service Type</th>
               <th className="px-5 py-3.5 text-left font-bold">Date</th>
               <th className="px-5 py-3.5 text-left font-bold">Status</th>
+              <th className="px-5 py-3.5 text-left font-bold">Processed By</th>
               <th className="px-5 py-3.5 text-center font-bold">Actions</th>
             </tr>
           </thead>
@@ -193,7 +199,7 @@ export default function ServiceRequestsAdminPage() {
             {loading ? (
               [...Array(5)].map((_, i) => (
                 <tr key={i}>
-                  {[...Array(6)].map((_, j) => (
+            {[...Array(7)].map((_, j) => (
                     <td key={j} className="px-5 py-4">
                       <div className="h-4 bg-gray-100 rounded animate-pulse"></div>
                     </td>
@@ -202,7 +208,7 @@ export default function ServiceRequestsAdminPage() {
               ))
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan="6" className="px-5 py-16 text-center text-gray-400">
+                <td colSpan="7" className="px-5 py-16 text-center text-gray-400">
                   <i className="fas fa-inbox text-4xl block mb-3 opacity-40"></i>
                   <p className="font-semibold">No service requests found.</p>
                 </td>
@@ -238,6 +244,16 @@ export default function ServiceRequestsAdminPage() {
                     <i className="fas fa-caret-down absolute right-2 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none"
                        style={{ color: STATUS_STYLE[r.status]?.text || '#333' }}></i>
                   </div>
+                </td>
+                {/* Processed By */}
+                <td className="px-5 py-3.5">
+                  {r.processed_by
+                    ? <span className="text-[12px] font-semibold text-gray-700 flex items-center gap-1.5">
+                        <i className="fas fa-user-check text-green-500 text-[10px]"></i>
+                        {r.processed_by}
+                      </span>
+                    : <span className="text-[12px] text-gray-300 font-medium">—</span>
+                  }
                 </td>
                 <td className="px-5 py-3.5">
                   <div className="flex items-center justify-center gap-2">

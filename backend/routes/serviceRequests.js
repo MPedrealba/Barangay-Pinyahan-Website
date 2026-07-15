@@ -182,9 +182,14 @@ router.patch('/:id/status', verifyToken, async (req, res) => {
             });
         }
 
+        // Build the admin display name for the audit trail
+        const adminLabel = req.admin.full_name
+            ? `${req.admin.full_name} (Admin)`
+            : `${req.admin.username} (Admin)`;
+
         const [result] = await req.db.query(
-            'UPDATE service_requests SET status = ? WHERE id = ?',
-            [status, req.params.id]
+            'UPDATE service_requests SET status = ?, processed_by = ? WHERE id = ?',
+            [status, adminLabel, req.params.id]
         );
 
         if (result.affectedRows === 0) {
@@ -197,11 +202,11 @@ router.patch('/:id/status', verifyToken, async (req, res) => {
             [
                 req.admin.id,
                 'Service Request',
-                `Updated service request #${req.params.id} status to "${status}" by ${req.admin.full_name || req.admin.username}`,
+                `Updated service request #${req.params.id} status to "${status}" by ${adminLabel}`,
             ]
         ).catch(() => {}); // non-blocking
 
-        res.json({ message: `Status updated to "${status}" successfully.`, status });
+        res.json({ message: `Status updated to "${status}" successfully.`, status, processed_by: adminLabel });
     } catch (error) {
         console.error('Update service request status error:', error);
         res.status(500).json({ error: 'Server error.' });
