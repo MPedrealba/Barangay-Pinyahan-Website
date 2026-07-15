@@ -29,7 +29,7 @@ CREATE TABLE complaints (
     full_name VARCHAR(100) NOT NULL,
     address VARCHAR(255) NOT NULL,
     contact_number VARCHAR(20) NOT NULL,
-    complaint_type ENUM('noise', 'trash', 'security', 'other') NOT NULL,
+    complaint_type VARCHAR(100) NOT NULL,
     category VARCHAR(50) DEFAULT NULL,
     message TEXT NOT NULL,
     photo_url VARCHAR(255) DEFAULT NULL,
