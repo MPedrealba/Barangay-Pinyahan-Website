@@ -195,8 +195,22 @@ router.post('/', ipFilterMiddleware, upload.single('photo'), async (req, res) =>
         // Upload complaint photo to Supabase Storage (returns full public URL or null)
         const photo_url = await uploadToSupabase(req.file);
 
-        // AI Classification
+        // ── Category: look up broad_category from complaint_categories first ──
+        // This is authoritative — matches what admins defined, no AI guesswork.
+        let assignedCategory = 'Others';
+        const [catBroad] = await req.db.query(
+            'SELECT broad_category FROM complaint_categories WHERE LOWER(name) = LOWER(?)',
+            [complaint_type]
+        );
+        if (catBroad.length > 0 && catBroad[0].broad_category) {
+            assignedCategory = catBroad[0].broad_category;
+        }
+
+        // ── Urgency: AI classification (best effort, fallback to Medium) ──────
         const classification = await classifyComplaint(message);
+        const assignedUrgency = classification.urgency_level || 'Medium';
+
+        console.info(`[Complaint] type="${complaint_type}" → category="${assignedCategory}" urgency="${assignedUrgency}"`);
 
         // Force alter the column to accept longer strings and bypass ENUM restrictions
         try {
@@ -209,7 +223,7 @@ router.post('/', ipFilterMiddleware, upload.single('photo'), async (req, res) =>
         await req.db.query(
             `INSERT INTO complaints (ref_no, full_name, accused_name, address, contact_number, complaint_type, category, urgency_level, message, photo_url)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [ref_no, full_name, finalAccusedName, address, contact_number, complaint_type, classification.category, classification.urgency_level, message, photo_url]
+            [ref_no, full_name, finalAccusedName, address, contact_number, complaint_type, assignedCategory, assignedUrgency, message, photo_url]
         );
 
         // Create notification for admins
@@ -221,8 +235,8 @@ router.post('/', ipFilterMiddleware, upload.single('photo'), async (req, res) =>
         res.status(201).json({
             message: 'Complaint submitted successfully!',
             ref_no: ref_no,
-            category: classification.category,
-            urgency_level: classification.urgency_level
+            category: assignedCategory,
+            urgency_level: assignedUrgency
         });
     } catch (error) {
         console.error('Submit complaint error:', error);

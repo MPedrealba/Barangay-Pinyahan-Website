@@ -9,7 +9,7 @@ const verifyToken = require('../middleware/auth');
 router.get('/public', async (req, res) => {
     try {
         const [rows] = await req.db.query(
-            'SELECT id, name, accused_rule FROM complaint_categories ORDER BY name ASC'
+            'SELECT id, name, accused_rule, broad_category FROM complaint_categories ORDER BY name ASC'
         );
         res.json({ categories: rows });
     } catch (error) {
@@ -34,7 +34,7 @@ router.get('/', verifyToken, async (req, res) => {
 // POST /api/admin/categories — Create a new category (admin)
 router.post('/', verifyToken, async (req, res) => {
     try {
-        const { name, accused_rule } = req.body;
+        const { name, accused_rule, broad_category } = req.body;
 
         if (!name || !name.trim()) {
             return res.status(400).json({ error: 'Category name is required.' });
@@ -42,6 +42,9 @@ router.post('/', verifyToken, async (req, res) => {
 
         const validRules = ['MANDATORY', 'OPTIONAL', 'HIDDEN'];
         const rule = validRules.includes(accused_rule) ? accused_rule : 'OPTIONAL';
+
+        const validBroad = ['Peace & Order', 'Sanitation', 'Infrastructure', 'Health', 'Environmental', 'Others'];
+        const broad = validBroad.includes(broad_category) ? broad_category : 'Others';
 
         // Check for duplicate
         const [existing] = await req.db.query(
@@ -53,13 +56,13 @@ router.post('/', verifyToken, async (req, res) => {
         }
 
         const [result] = await req.db.query(
-            'INSERT INTO complaint_categories (name, accused_rule) VALUES (?, ?)',
-            [name.trim(), rule]
+            'INSERT INTO complaint_categories (name, accused_rule, broad_category) VALUES (?, ?, ?)',
+            [name.trim(), rule, broad]
         );
 
         res.status(201).json({
             message: 'Category created successfully.',
-            category: { id: result.insertId, name: name.trim(), accused_rule: rule }
+            category: { id: result.insertId, name: name.trim(), accused_rule: rule, broad_category: broad }
         });
     } catch (error) {
         console.error('Create category error:', error);
@@ -70,16 +73,22 @@ router.post('/', verifyToken, async (req, res) => {
 // PUT /api/admin/categories/:id — Update a category (admin)
 router.put('/:id', verifyToken, async (req, res) => {
     try {
-        const { name, accused_rule } = req.body;
+        const { name, accused_rule, broad_category } = req.body;
         const fields = [];
         const values = [];
 
         if (name && name.trim()) { fields.push('name = ?'); values.push(name.trim()); }
-        
+
         const validRules = ['MANDATORY', 'OPTIONAL', 'HIDDEN'];
         if (accused_rule && validRules.includes(accused_rule)) {
             fields.push('accused_rule = ?');
             values.push(accused_rule);
+        }
+
+        const validBroad = ['Peace & Order', 'Sanitation', 'Infrastructure', 'Health', 'Environmental', 'Others'];
+        if (broad_category && validBroad.includes(broad_category)) {
+            fields.push('broad_category = ?');
+            values.push(broad_category);
         }
 
         if (fields.length === 0) {
