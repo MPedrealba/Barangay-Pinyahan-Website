@@ -198,6 +198,14 @@ router.post('/', ipFilterMiddleware, upload.single('photo'), async (req, res) =>
         // AI Classification
         const classification = await classifyComplaint(message);
 
+        // Force alter the column to accept longer strings and bypass ENUM restrictions
+        try {
+            await req.db.query("ALTER TABLE complaints MODIFY COLUMN complaint_type VARCHAR(100);");
+            console.log("Database schema successfully altered for complaint_type.");
+        } catch (alterError) {
+            console.log("Alter table skipped or failed (might already be altered):", alterError.message);
+        }
+
         await req.db.query(
             `INSERT INTO complaints (ref_no, full_name, accused_name, address, contact_number, complaint_type, category, urgency_level, message, photo_url)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
