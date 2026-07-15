@@ -148,6 +148,55 @@ app.use('/api/services', serviceRequestRoutes);        // public: /request, /tra
 app.use('/api/admin/service-requests', serviceRequestRoutes); // admin: GET, PATCH, DELETE
 
 // ------------------------------------------
+// ONE-SHOT DB FIX: complaint_type ENUM → VARCHAR(100)
+// Hit GET /api/admin/fix-db ONCE after deploying to Render.
+// Safe to call multiple times — checks current type first.
+// REMOVE this route after the fix has been confirmed.
+// ------------------------------------------
+app.get('/api/admin/fix-db', async (req, res) => {
+  try {
+    // 1. Check current column type
+    const [cols] = await db.query(`
+      SELECT COLUMN_TYPE
+      FROM INFORMATION_SCHEMA.COLUMNS
+      WHERE TABLE_NAME   = 'complaints'
+        AND COLUMN_NAME  = 'complaint_type'
+      LIMIT 1
+    `);
+    const currentType = cols[0]?.COLUMN_TYPE || 'unknown';
+
+    if (currentType.toLowerCase().startsWith('varchar')) {
+      return res.json({
+        status:  'already_fixed',
+        message: `complaint_type is already ${currentType}. No change needed.`,
+      });
+    }
+
+    // 2. Apply the fix
+    await db.query(`ALTER TABLE complaints MODIFY COLUMN complaint_type VARCHAR(100) NOT NULL`);
+
+    // 3. Verify
+    const [after] = await db.query(`
+      SELECT COLUMN_TYPE
+      FROM INFORMATION_SCHEMA.COLUMNS
+      WHERE TABLE_NAME  = 'complaints'
+        AND COLUMN_NAME = 'complaint_type'
+      LIMIT 1
+    `);
+
+    res.json({
+      status:   'success',
+      message:  'complaint_type column altered successfully.',
+      before:   currentType,
+      after:    after[0]?.COLUMN_TYPE || 'unknown',
+    });
+  } catch (err) {
+    console.error('[fix-db] Error:', err);
+    res.status(500).json({ status: 'error', error: err.message });
+  }
+});
+
+// ------------------------------------------
 // STEP 10: Start the server
 // ------------------------------------------
 const PORT = process.env.PORT || 3000;
