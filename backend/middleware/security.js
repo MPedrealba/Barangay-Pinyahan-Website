@@ -46,6 +46,16 @@ const SUSPICIOUS_HEADERS = [
  *   router.post('/', ipFilterMiddleware, upload.single('photo'), ...)
  */
 async function ipFilterMiddleware(req, res, next) {
+    // ── BYPASS FLAG ─────────────────────────────────────────────────────────
+    // Set to true to re-enable proxy/VPN blocking (e.g. after capstone testing).
+    const PROXY_CHECK_ENABLED = false;
+
+    if (!PROXY_CHECK_ENABLED) {
+        req.clientIP = getRealIP(req);
+        return next();
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     const clientIP = getRealIP(req);
 
     // ── 1. Header-based proxy / VPN detection ──────────────────────
