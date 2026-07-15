@@ -59,7 +59,6 @@ export default function AdminLayout({ children }) {
   const navItems = [
     { name: 'HOME',             icon: 'fa-home',               path: '/admin/dashboard'         },
     { name: 'COMPLAINTS',       icon: 'fa-exclamation-circle', path: '/admin/complaints'        },
-    { name: 'CATEGORIES',       icon: 'fa-tags',               path: '/admin/categories'        },
     { name: 'SERVICES',         icon: 'fa-hands-helping',      path: '/admin/services'          },
     { name: 'SERVICE REQUESTS', icon: 'fa-file-alt',           path: '/admin/service-requests'  },
     { name: 'NEWS',             icon: 'fa-newspaper',          path: '/admin/news'              },
