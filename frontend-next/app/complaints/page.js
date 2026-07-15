@@ -4,10 +4,13 @@ import { useRouter } from 'next/navigation';
 import { GoogleReCaptchaProvider, useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import PublicShell from '@/components/PublicShell';
 
-// ─── Barangay Pinyahan approximate center coordinates ────────────
-const BRGY_LAT  = 14.6400;
-const BRGY_LNG  = 121.0460;
-const RADIUS_KM = 2.0; // 2-kilometre radius
+// ─── Allowed testing locations (within MAX_RADIUS_KM of ANY = allowed) ──────
+const ALLOWED_LOCATIONS = [
+  { lat: 14.6433, lng: 121.0465, name: 'Barangay Pinyahan'      }, // Main Target
+  { lat: 14.6006, lng: 121.0034, name: 'EARIST Manila'          }, // Testing Location 1
+  { lat: 14.6506, lng: 120.9744, name: 'Brgy 12, South Caloocan'}, // Testing Location 2
+];
+const MAX_RADIUS_KM = 2; // 2 kilometres
 
 /**
  * Haversine formula — returns the great-circle distance in kilometres
@@ -200,13 +203,19 @@ function ComplaintForm() {
       latitude  = position.coords.latitude;
       longitude = position.coords.longitude;
 
-      const distanceKm = haversineDistanceKm(latitude, longitude, BRGY_LAT, BRGY_LNG);
+      // Check against ALL allowed locations — pass if within radius of any one
+      const distances = ALLOWED_LOCATIONS.map(loc => ({
+        name: loc.name,
+        km:   haversineDistanceKm(latitude, longitude, loc.lat, loc.lng),
+      }));
+      const withinAny = distances.some(d => d.km <= MAX_RADIUS_KM);
+      const closest   = distances.reduce((a, b) => a.km < b.km ? a : b);
 
-      if (distanceKm > RADIUS_KM) {
+      if (!withinAny) {
         setGeoStatus('outside');
         setPopup({
-          title: 'Outside Barangay Limits',
-          text:  `You must be within the barangay limits to submit a complaint.\n\nYour location is approximately ${distanceKm.toFixed(1)} km from Barangay Pinyahan (limit: ${RADIUS_KM} km).`,
+          title: 'Outside Allowed Locations',
+          text:  `You must be within ${MAX_RADIUS_KM} km of an allowed location to submit a complaint.\n\nClosest allowed point: ${closest.name} (${closest.km.toFixed(2)} km away).`,
           type:  'error',
         });
         setSubmitting(false);
