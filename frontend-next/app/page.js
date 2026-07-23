@@ -97,7 +97,7 @@ export default function PublicHomePage() {
           <h1 style={{ color: '#007bff', fontSize: '2.5rem', fontWeight: 800, textAlign: 'center', flex: 1, lineHeight: 1.2 }}>
             Barangay Pinyahan
           </h1>
-          <img src="/images/Brgy._Pinyahan_Seal.png" alt="Barangay Pinyahan Official Seal" style={{ height: 80, width: 'auto', flexShrink: 0 }} />
+          <img src="/images/brgypinyahanseal.jpg" alt="Barangay Pinyahan Official Seal" style={{ height: 80, width: 'auto', flexShrink: 0 }} />
         </div>
       </header>
 
@@ -385,7 +385,7 @@ export default function PublicHomePage() {
             <div style={{ display: 'flex', gap: 12, marginTop: 18, alignItems: 'center' }}>
               {[
                 { src: '/images/Quezon_City_logo.svg', alt: 'Quezon City Official Seal' },
-                { src: '/images/Brgy._Pinyahan_Seal.png', alt: 'Barangay Pinyahan Official Seal' },
+                { src: '/images/brgypinyahanseal.jpg', alt: 'Barangay Pinyahan Official Seal' },
               ].map(seal => (
                 <img key={seal.alt} src={seal.src} alt={seal.alt}
                   style={{ width: 44, height: 44, objectFit: 'contain', borderRadius: '50%', background: '#fff', padding: 2, boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }} />

@@ -47,7 +47,7 @@ export function PublicFooter() {
             </ul>
             <div style={{ display: 'flex', gap: 12, marginTop: 18, alignItems: 'center' }}>
               <img src="/images/Quezon_City_logo.svg" alt="Quezon City Official Seal" style={{ width: 44, height: 44, objectFit: 'contain', borderRadius: '50%', background: '#fff', padding: 2, boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }} />
-              <img src="/images/Brgy._Pinyahan_Seal.png" alt="Barangay Pinyahan Official Seal" style={{ width: 44, height: 44, objectFit: 'contain', borderRadius: '50%', background: '#fff', padding: 2, boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }} />
+              <img src="/images/brgypinyahanseal.jpg" alt="Barangay Pinyahan Official Seal" style={{ width: 44, height: 44, objectFit: 'contain', borderRadius: '50%', background: '#fff', padding: 2, boxShadow: '0 1px 4px rgba(0,0,0,0.15)' }} />
             </div>
           </div>
           {/* Map */}
@@ -120,7 +120,7 @@ export default function PublicShell({ children, activeHref }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 5%', maxWidth: 1200, margin: '0 auto', gap: 16 }}>
           <img src="/images/Quezon_City_logo.svg" alt="Quezon City Official Seal" style={{ height: 80, width: 'auto', flexShrink: 0 }} />
           <h1 style={{ color: '#007bff', fontSize: '2.5rem', fontWeight: 800, textAlign: 'center', flex: 1, lineHeight: 1.2, margin: 0 }}>Barangay Pinyahan</h1>
-          <img src="/images/Brgy._Pinyahan_Seal.png" alt="Barangay Pinyahan Official Seal" style={{ height: 80, width: 'auto', flexShrink: 0 }} />
+          <img src="/images/brgypinyahanseal.jpg" alt="Barangay Pinyahan Official Seal" style={{ height: 80, width: 'auto', flexShrink: 0 }} />
         </div>
       </header>
 

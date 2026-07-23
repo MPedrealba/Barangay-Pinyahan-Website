@@ -23,7 +23,7 @@ export default function AboutPage() {
               <p>To this day, Barangay Pinyahan carries its colorful history and continues to nurture its identity as a community built on unity, hard work, and compassion.</p>
             </div>
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <img src="/images/Brgy._Pinyahan_Seal.png" alt="Official Seal"
+              <img src="/images/brgypinyahanseal.jpg" alt="Official Seal"
                 style={{ maxWidth: '100%', height: 'auto', borderRadius: 8, boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }} />
             </div>
           </div>
