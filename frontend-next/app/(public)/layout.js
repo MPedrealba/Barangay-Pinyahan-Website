@@ -11,7 +11,7 @@ export default function PublicLayout({ children }) {
       <footer className="bg-[#0056b3] text-white py-8 mt-12">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <img src="/images/Brgy._Pinyahan_Seal.png" alt="Seal" className="w-9 h-9 object-contain opacity-90" />
+            <img src="/images/brgypinyahanseal.jpg" alt="Seal" className="w-9 h-9 object-contain opacity-90" />
             <div>
               <p className="font-bold text-sm">Barangay Pinyahan</p>
               <p className="text-xs text-white/70">Quezon City, Philippines</p>

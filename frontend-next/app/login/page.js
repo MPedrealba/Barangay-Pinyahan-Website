@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -52,7 +52,7 @@ export default function LoginPage() {
   return (
     <main 
       className="min-h-screen w-full bg-cover bg-center flex items-center justify-start px-8 md:px-16 lg:px-32"
-      style={{ backgroundImage: "url('/images/Admin Login.png')" }}
+      style={{ backgroundImage: "url('/images/barangay_pinyahan_admin_seal.png')" }}
     >
       <div className="w-full max-w-sm bg-white p-10 rounded-[2.5rem] shadow-2xl">
         <h2 className="text-2xl font-black text-gray-900 mb-8 text-left">

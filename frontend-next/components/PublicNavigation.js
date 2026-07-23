@@ -33,7 +33,7 @@ export default function PublicNavigation() {
         {/* Brand */}
         <Link href="/" className="flex items-center gap-3 no-underline group">
           <img
-            src="/images/Brgy._Pinyahan_Seal.png"
+            src="/images/brgypinyahanseal.jpg"
             alt="Barangay Pinyahan Seal"
             className="w-10 h-10 object-contain"
           />

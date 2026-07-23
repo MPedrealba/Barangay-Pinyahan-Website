@@ -90,7 +90,7 @@ export default function AdminLayout({ children }) {
       {!isNewAccount && (
         <aside className="w-[260px] bg-[#0056b3] text-white flex flex-col shadow-xl z-20 shrink-0">
           <div className="p-5 flex items-center gap-4 border-b border-white/10">
-            <img src="/images/Brgy._Pinyahan_Seal.png" alt="Seal" className="w-12 h-12 object-contain" />
+            <img src="/images/brgypinyahanseal.jpg" alt="Seal" className="w-12 h-12 object-contain" />
             <h2 className="text-lg font-bold leading-tight">Barangay<br />Pinyahan</h2>
           </div>
 
