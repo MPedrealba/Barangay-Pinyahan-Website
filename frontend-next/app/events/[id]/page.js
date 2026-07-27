@@ -37,70 +37,81 @@ export default function EventDetailPage() {
   return (
     <PublicShell activeHref="/news">
       {/* Hero */}
-      <section style={{ backgroundColor: '#003366', backgroundImage: "url('/images/newly_elected_officials.jpg')", backgroundSize: 'cover', backgroundPosition: 'center top', height: 350, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,33,71,0.62)', zIndex: 1 }}></div>
-        <div style={{ position: 'relative', zIndex: 2, padding: '15px 30px', borderRadius: 4, border: '2px solid rgba(255,255,255,0.25)' }}>
-          <h1 style={{ color: 'white', fontSize: '2.2rem', fontWeight: 800, textTransform: 'uppercase', margin: 0, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>BARANGAY NEWS &amp; EVENTS</h1>
+      <section
+        className="bg-[#003366] bg-cover bg-center bg-no-repeat h-[200px] sm:h-[280px] md:h-[350px] flex items-center justify-center relative overflow-hidden"
+        style={{ backgroundImage: "url('/images/newly_elected_officials.jpg')" }}
+      >
+        <div className="absolute inset-0 bg-[rgba(0,33,71,0.62)] z-[1]" />
+        <div className="relative z-[2] px-5 py-3 md:px-8 md:py-4 rounded border-2 border-white/25">
+          <h1 className="text-white text-lg sm:text-xl md:text-[2.2rem] font-extrabold uppercase m-0 drop-shadow-lg">BARANGAY NEWS &amp; EVENTS</h1>
         </div>
       </section>
 
       {/* Advisory Bar */}
-      <div style={{ backgroundColor: '#0056b3', color: 'white', width: '100%', padding: '10px 0', marginBottom: 20 }}>
-        <div style={{ width: '90%', maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 15 }}>
-          <span style={{ backgroundColor: '#5dace0', padding: '2px 10px', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.9rem' }}>EVENT</span>
-          <span style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>OFFICIAL BARANGAY PINYAHAN COMMUNITY EVENT</span>
+      <div className="bg-[#0056b3] text-white w-full py-2.5 mb-5">
+        <div className="w-[90%] max-w-[1200px] mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+          <span className="bg-[#5dace0] px-2.5 py-0.5 font-bold uppercase text-[0.9rem] shrink-0">EVENT</span>
+          <span className="text-xs sm:text-[0.9rem] uppercase tracking-wide">OFFICIAL BARANGAY PINYAHAN COMMUNITY EVENT</span>
         </div>
       </div>
 
       {/* Event Content */}
-      <section style={{ maxWidth: 800, margin: '0 auto', padding: '30px 20px' }}>
+      <section className="max-w-[800px] mx-auto px-5 py-8">
         {/* Back Button */}
         <Link href="/news"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: '#0056b3', textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem', marginBottom: 20, padding: '6px 14px', border: '1px solid #0056b3', borderRadius: 5, transition: 'all 0.2s' }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#0056b3'; e.currentTarget.style.color = 'white'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#0056b3'; }}>
-          <i className="fas fa-arrow-left"></i> Back to News &amp; Events
+          className="inline-flex items-center gap-2 text-[#0056b3] no-underline font-semibold text-[0.9rem] mb-5 px-3.5 py-1.5 border border-[#0056b3] rounded-md hover:bg-[#0056b3] hover:text-white transition-all"
+        >
+          <i className="fas fa-arrow-left" /> Back to News &amp; Events
         </Link>
 
         {loading && (
           <div>
-            <div style={{ height: 28, background: 'linear-gradient(90deg,#d0d0d0 25%,#e8e8e8 50%,#d0d0d0 75%)', backgroundSize: '600px 100%', animation: 'shimmer 1.4s infinite linear', borderRadius: 4, marginBottom: 10, width: '70%' }} />
-            <div style={{ height: 350, background: 'linear-gradient(90deg,#d0d0d0 25%,#e8e8e8 50%,#d0d0d0 75%)', backgroundSize: '600px 100%', animation: 'shimmer 1.4s infinite linear', borderRadius: 6 }} />
+            <div className="h-7 animate-shimmer rounded mb-2.5 w-[70%]" />
+            <div className="h-[250px] md:h-[350px] animate-shimmer rounded-md" />
           </div>
         )}
 
         {!loading && (error || !event) && (
-          <p style={{ color: '#c62828', fontWeight: 700, textAlign: 'center', marginTop: 40 }}>Unable to load event details.</p>
+          <p className="text-red-700 font-bold text-center mt-10">Unable to load event details.</p>
         )}
 
         {!loading && event && (
           <>
             {/* Event Badge */}
-            <div style={{ display: 'inline-block', backgroundColor: '#e8f5e9', color: '#2e7d32', padding: '4px 14px', borderRadius: 20, fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', marginBottom: 12, letterSpacing: '0.5px' }}>
-              <i className="fas fa-calendar-alt" style={{ marginRight: 6 }}></i> Community Event
+            <div className="inline-block bg-green-50 text-green-700 px-3.5 py-1 rounded-full font-bold text-[0.8rem] uppercase mb-3 tracking-wide">
+              <i className="fas fa-calendar-alt mr-1.5" />Community Event
             </div>
 
-            <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#333', marginBottom: 5 }}>
+            <h1 className="text-xl md:text-2xl font-extrabold text-gray-800 mb-1.5">
               {event.name}
             </h1>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, marginBottom: 20, fontSize: '0.85rem', color: '#666' }}>
-              <span><i className="fas fa-calendar" style={{ marginRight: 6, color: '#0056b3' }}></i>{formatDate(event.date)}</span>
-              {event.time && <span><i className="fas fa-clock" style={{ marginRight: 6, color: '#0056b3' }}></i>{event.time}</span>}
-              {event.location && <span><i className="fas fa-map-marker-alt" style={{ marginRight: 6, color: '#0056b3' }}></i>{event.location}</span>}
+            <div className="flex flex-wrap gap-4 md:gap-5 mb-5 text-[0.85rem] text-gray-500">
+              <span><i className="fas fa-calendar mr-1.5 text-[#0056b3]" />{formatDate(event.date)}</span>
+              {event.time && <span><i className="fas fa-clock mr-1.5 text-[#0056b3]" />{event.time}</span>}
+              {event.location && <span><i className="fas fa-map-marker-alt mr-1.5 text-[#0056b3]" />{event.location}</span>}
             </div>
 
             <img src={imgSrc} alt={event.name}
               onError={e => { e.currentTarget.src = `https://placehold.co/800x350/003366/ffffff?text=Event`; }}
-              style={{ width: '100%', maxHeight: 400, objectFit: 'cover', borderRadius: 6, display: 'block', marginBottom: 25 }} />
+              className="w-full max-h-[400px] object-cover rounded-md block mb-6" />
 
-            <div style={{ fontSize: '0.95rem', color: '#444', lineHeight: 1.8, textAlign: 'justify' }}>
+            <div className="text-sm md:text-[0.95rem] text-gray-600 leading-relaxed md:leading-loose text-justify">
               {event.description || 'No description available for this event.'}
             </div>
           </>
         )}
       </section>
-      <style>{`@keyframes shimmer { 0% { background-position: -600px 0; } 100% { background-position: 600px 0; } }`}</style>
+
+      {/* Shimmer animation */}
+      <style>{`
+        @keyframes shimmer { 0% { background-position: -600px 0; } 100% { background-position: 600px 0; } }
+        .animate-shimmer {
+          background: linear-gradient(90deg, #d0d0d0 25%, #e8e8e8 50%, #d0d0d0 75%);
+          background-size: 600px 100%;
+          animation: shimmer 1.4s infinite linear;
+        }
+      `}</style>
     </PublicShell>
   );
 }

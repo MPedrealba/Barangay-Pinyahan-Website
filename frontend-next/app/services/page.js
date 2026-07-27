@@ -181,64 +181,59 @@ export default function ServicesPage() {
       {!activeDetail && (
         <>
           {/* Hero */}
-          <section style={{
-            backgroundImage: "url('https://placehold.co/1200x400?text=Community+Park+Image')",
-            backgroundSize: 'cover', backgroundPosition: 'center',
-            height: 350, display: 'flex', alignItems: 'center', justifyContent: 'flex-start',
-            position: 'relative', paddingLeft: '5%', paddingRight: '5%',
-          }}>
-            <div style={{ backgroundColor: 'rgba(0,51,102,0.6)', padding: '20px 40px', borderRadius: 5, textAlign: 'center', margin: '0 auto' }}>
-              <h1 style={{ color: 'white', fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', textAlign: 'center', textShadow: '2px 2px 4px rgba(0,0,0,0.5)', margin: 0 }}>
+          <section
+            className="bg-cover bg-center h-[200px] sm:h-[280px] md:h-[350px] flex items-center justify-center relative px-[5%]"
+            style={{ backgroundImage: "url('https://placehold.co/1200x400?text=Community+Park+Image')" }}
+          >
+            <div className="bg-[rgba(0,51,102,0.6)] px-6 py-4 md:px-10 md:py-5 rounded-md text-center mx-auto">
+              <h1 className="text-white text-xl sm:text-2xl md:text-[2.5rem] font-extrabold uppercase text-center drop-shadow-lg m-0">
                 BARANGAY COMMUNITY SERVICES
               </h1>
             </div>
           </section>
 
           {/* Online Service Request CTA */}
-          <section style={{ background: 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)', padding: '30px 5%' }}>
-            <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-              <div>
-                <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
-                  <i className="fas fa-bolt" style={{ marginRight: 6 }}></i>New — Online Service Request
+          <section className="bg-gradient-to-br from-[#1565c0] to-[#0d47a1] py-6 md:py-8 px-[5%]">
+            <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-center sm:text-left">
+                <p className="text-white/80 text-xs font-bold uppercase tracking-wider mb-1">
+                  <i className="fas fa-bolt mr-1.5" />New — Online Service Request
                 </p>
-                <h2 style={{ color: 'white', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>
+                <h2 className="text-white font-extrabold text-lg md:text-xl m-0">
                   Skip the queue. Request your documents online!
                 </h2>
-                <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem', marginTop: 4 }}>
+                <p className="text-white/75 text-sm mt-1">
                   Submit requests for Barangay Clearance, Certificates, and more — get a tracking number instantly.
                 </p>
               </div>
-              <Link href="/services/request" style={{
-                backgroundColor: 'white', color: '#1565c0', padding: '12px 28px',
-                borderRadius: 30, fontWeight: 800, fontSize: '0.92rem', textDecoration: 'none',
-                display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
-              }}>
-                <i className="fas fa-file-alt"></i> Request a Service
+              <Link href="/services/request"
+                className="bg-white text-[#1565c0] px-7 py-3 rounded-full font-extrabold text-[0.92rem] no-underline flex items-center gap-2 whitespace-nowrap shadow-lg hover:bg-gray-50 transition-colors shrink-0"
+              >
+                <i className="fas fa-file-alt" /> Request a Service
               </Link>
             </div>
           </section>
 
           {/* Service Listing */}
-          <section style={{ width: '90%', maxWidth: 1200, margin: '0 auto', padding: '20px 0 60px' }}>
-            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#333', textTransform: 'uppercase', marginBottom: 25, textAlign: 'center' }}>
+          <section className="w-[90%] max-w-[1200px] mx-auto py-8 md:py-12">
+            <h3 className="text-xl md:text-[1.8rem] font-extrabold text-gray-800 uppercase mb-6 text-center">
               SERVICE LISTING
             </h3>
 
             {loading ? (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 30, justifyContent: 'flex-start', marginTop: 40 }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
                 {[...Array(4)].map((_, i) => (
-                  <div key={i} style={{ width: 'calc(50% - 30px)', height: 120, borderRadius: 15, background: 'linear-gradient(90deg,#d0d0d0 25%,#e8e8e8 50%,#d0d0d0 75%)', backgroundSize: '600px 100%', animation: 'shimmer 1.4s infinite linear' }} />
+                  <div key={i} className="h-[120px] rounded-2xl animate-shimmer" />
                 ))}
               </div>
             ) : cards.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#888' }}>
-                <i className="fas fa-tools" style={{ fontSize: '3rem', color: '#ccc', display: 'block', marginBottom: 14 }}></i>
-                <p style={{ fontSize: '1rem', fontWeight: 600 }}>There are currently no active services listed.</p>
-                <p style={{ fontSize: '0.88rem', marginTop: 6 }}>Please check back later or visit the Barangay Hall for assistance.</p>
+              <div className="text-center py-16 px-5 text-gray-400">
+                <i className="fas fa-tools text-5xl text-gray-300 block mb-3.5" />
+                <p className="text-base font-semibold">There are currently no active services listed.</p>
+                <p className="text-[0.88rem] mt-1.5">Please check back later or visit the Barangay Hall for assistance.</p>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-start', gap: 30, marginTop: 40 }} className="services-grid-resp">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
                 {cards.map(card => (
                   <ServiceCard key={card.id} card={card} onLearnMore={() => showDetail(card)} />
                 ))}
@@ -252,50 +247,44 @@ export default function ServicesPage() {
       {activeDetail && (
         <>
           {/* Title Banner with Back Button */}
-          <div style={{ width: '90%', maxWidth: 1200, margin: '32px auto 0' }}>
-            <div style={{
-              backgroundColor: '#006eb3', color: 'white', padding: '16px 24px',
-              border: '3px solid #003d80', borderRadius: 6, width: '100%',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              boxShadow: '0 4px 12px rgba(0,78,150,0.25)', boxSizing: 'border-box',
-            }}>
+          <div className="w-[90%] max-w-[1200px] mx-auto mt-8">
+            <div className="bg-[#006eb3] text-white px-5 py-4 border-[3px] border-[#003d80] rounded-md w-full flex items-center justify-between shadow-lg">
               <button onClick={showListing}
-                style={{ color: 'white', fontSize: '1.5rem', fontWeight: 'bold', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '6px 18px', flexShrink: 0, cursor: 'pointer', border: 'none', transition: 'background-color 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.3)'}
-                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'}>
+                className="text-white text-2xl font-bold bg-white/15 hover:bg-white/30 rounded-lg px-4 py-1.5 shrink-0 cursor-pointer border-0 transition-colors flex items-center justify-center"
+              >
                 &#8592;
               </button>
-              <h2 style={{ flex: 1, textAlign: 'center', fontSize: '1.8rem', fontWeight: 800, textTransform: 'uppercase', margin: 0, letterSpacing: 2, color: 'white', padding: '0 12px' }}>
+              <h2 className="flex-1 text-center text-lg sm:text-xl md:text-[1.8rem] font-extrabold uppercase m-0 tracking-wider text-white px-3">
                 {activeDetail.title}
               </h2>
               {/* Invisible spacer to keep title centered */}
-              <span style={{ visibility: 'hidden', fontSize: '1.5rem', fontWeight: 'bold', padding: '6px 18px', flexShrink: 0 }}>&#8592;</span>
+              <span className="invisible text-2xl font-bold px-4 py-1.5 shrink-0">&#8592;</span>
             </div>
           </div>
 
           {/* Process Section */}
-          <section style={{ width: '90%', maxWidth: 1200, margin: '0 auto', paddingTop: 36, paddingBottom: 36 }}>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#222', textTransform: 'uppercase', marginBottom: 24, letterSpacing: 1 }}>PROCESS</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28 }} className="process-grid-resp">
+          <section className="w-[90%] max-w-[1200px] mx-auto pt-9 pb-9">
+            <h3 className="text-xl md:text-2xl font-extrabold text-gray-800 uppercase mb-6 tracking-wide">PROCESS</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
               {/* Requirements */}
-              <div style={{ border: '2px solid #006eb3', borderRadius: 10, padding: '32px 36px', background: '#fff', minHeight: 260, boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#006eb3', textTransform: 'uppercase', marginBottom: 18, letterSpacing: '0.8px', borderBottom: '2px solid #e3eef8', paddingBottom: 10 }}>
+              <div className="border-2 border-[#006eb3] rounded-xl p-6 md:p-8 bg-white min-h-[260px] shadow-sm">
+                <h4 className="text-[1.05rem] font-extrabold text-[#006eb3] uppercase mb-4 tracking-wide border-b-2 border-blue-100 pb-2.5">
                   REQUIREMENTS:
                 </h4>
-                <ul style={{ paddingLeft: 22, color: '#444', listStyle: 'disc' }}>
+                <ul className="list-disc pl-5 text-gray-600 space-y-3 text-sm md:text-base leading-relaxed">
                   {activeDetail.requirements.map((r, i) => (
-                    <li key={i} style={{ marginBottom: 12, fontSize: '1rem', lineHeight: 1.6 }}>{r}</li>
+                    <li key={i}>{r}</li>
                   ))}
                 </ul>
               </div>
               {/* Procedure */}
-              <div style={{ border: '2px solid #006eb3', borderRadius: 10, padding: '32px 36px', background: '#fff', minHeight: 260, boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#006eb3', textTransform: 'uppercase', marginBottom: 18, letterSpacing: '0.8px', borderBottom: '2px solid #e3eef8', paddingBottom: 10 }}>
+              <div className="border-2 border-[#006eb3] rounded-xl p-6 md:p-8 bg-white min-h-[260px] shadow-sm">
+                <h4 className="text-[1.05rem] font-extrabold text-[#006eb3] uppercase mb-4 tracking-wide border-b-2 border-blue-100 pb-2.5">
                   PROCEDURE:
                 </h4>
-                <ol style={{ paddingLeft: 22, color: '#444', listStyle: 'decimal' }}>
+                <ol className="list-decimal pl-5 text-gray-600 space-y-3 text-sm md:text-base leading-relaxed">
                   {activeDetail.procedure.map((p, i) => (
-                    <li key={i} style={{ marginBottom: 12, fontSize: '1rem', lineHeight: 1.6 }}>{p}</li>
+                    <li key={i}>{p}</li>
                   ))}
                 </ol>
               </div>
@@ -304,9 +293,9 @@ export default function ServicesPage() {
 
           {/* Other Services */}
           {otherCards.length > 0 && (
-            <section style={{ width: '90%', maxWidth: 1200, margin: '0 auto', paddingTop: 10, paddingBottom: 50 }}>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#222', textTransform: 'uppercase', marginBottom: 24, letterSpacing: 1 }}>OTHER SERVICES:</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, width: '100%' }} className="other-grid-resp">
+            <section className="w-[90%] max-w-[1200px] mx-auto pt-2.5 pb-12">
+              <h3 className="text-lg md:text-xl font-extrabold text-gray-800 uppercase mb-6 tracking-wide">OTHER SERVICES:</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                 {otherCards.map(card => (
                   <ServiceCard key={card.id} card={card} compact onLearnMore={() => showDetail(card)} />
                 ))}
@@ -316,12 +305,13 @@ export default function ServicesPage() {
         </>
       )}
 
+      {/* Shimmer animation */}
       <style>{`
         @keyframes shimmer { 0% { background-position: -600px 0; } 100% { background-position: 600px 0; } }
-        @media (max-width: 900px) {
-          .services-grid-resp > * { width: 100% !important; }
-          .process-grid-resp      { grid-template-columns: 1fr !important; }
-          .other-grid-resp        { grid-template-columns: 1fr !important; }
+        .animate-shimmer {
+          background: linear-gradient(90deg, #d0d0d0 25%, #e8e8e8 50%, #d0d0d0 75%);
+          background-size: 600px 100%;
+          animation: shimmer 1.4s infinite linear;
         }
       `}</style>
     </PublicShell>
@@ -331,40 +321,27 @@ export default function ServicesPage() {
 // ── Service Card Component ───────────────────────────────────────
 function ServiceCard({ card, onLearnMore, compact }) {
   return (
-    <div
-      style={{
-        backgroundColor: 'white', borderRadius: 15, boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        padding: compact ? '28px 32px' : 30,
-        display: 'flex', alignItems: 'center', gap: 25,
-        width: compact ? '100%' : 'calc(50% - 30px)',
-        boxSizing: 'border-box', minWidth: 0,
-        transition: 'transform 0.3s ease',
-      }}
-      onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-5px)'}
-      onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-    >
+    <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 flex items-center gap-5 md:gap-6 transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-lg">
       {/* Icon or image */}
       {card.image ? (
         <img src={card.image} alt={card.title}
-          style={{ width: 70, height: 70, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }} />
+          className="w-16 h-16 md:w-[70px] md:h-[70px] object-cover rounded-lg shrink-0" />
       ) : (
-        <div style={{ fontSize: '3.5rem', color: '#006eb3', minWidth: 70, textAlign: 'center', flexShrink: 0 }}>
-          <i className={card.icon} aria-hidden="true"></i>
+        <div className="text-5xl md:text-[3.5rem] text-[#006eb3] min-w-[70px] text-center shrink-0">
+          <i className={card.icon} aria-hidden="true" />
         </div>
       )}
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 15 }}>
-        <h4 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#333', margin: 0 }}>{card.title}</h4>
+      <div className="flex-1 flex flex-col gap-3 md:gap-4 min-w-0">
+        <h4 className="text-base md:text-xl font-bold text-gray-800 m-0">{card.title}</h4>
         {card.description && !compact && (
-          <p style={{ fontSize: '0.88rem', color: '#666', margin: 0, lineHeight: 1.5 }}>
+          <p className="text-[0.88rem] text-gray-500 m-0 leading-snug">
             {card.description.length > 100 ? card.description.substring(0, 100) + '…' : card.description}
           </p>
         )}
         <Link
           href={`/services/${card.id}`}
-          style={{ display: 'inline-block', backgroundColor: '#006eb3', color: 'white', padding: '10px 25px', borderRadius: 5, fontWeight: 700, fontSize: '0.9rem', textAlign: 'center', alignSelf: 'flex-start', whiteSpace: 'nowrap', textDecoration: 'none', transition: 'background-color 0.3s' }}
-          onMouseEnter={e => e.currentTarget.style.backgroundColor = '#004a80'}
-          onMouseLeave={e => e.currentTarget.style.backgroundColor = '#006eb3'}
+          className="inline-block bg-[#006eb3] hover:bg-[#004a80] text-white px-5 md:px-6 py-2.5 rounded-md font-bold text-[0.9rem] text-center self-start whitespace-nowrap no-underline transition-colors"
         >
           LEARN MORE
         </Link>
