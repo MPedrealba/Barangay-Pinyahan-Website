@@ -57,8 +57,8 @@ export default function ServiceDetailPage() {
   if (loading) {
     return (
       <PublicShell activeHref="/services">
-        <div style={{ width: '90%', maxWidth: 1200, margin: '60px auto', textAlign: 'center', color: '#888' }}>
-          <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: 12, display: 'block' }}></i>
+        <div className="w-[90%] max-w-[1200px] mx-auto my-16 text-center text-gray-400">
+          <i className="fas fa-spinner fa-spin text-3xl block mb-3" />
           Loading service details…
         </div>
       </PublicShell>
@@ -69,11 +69,11 @@ export default function ServiceDetailPage() {
   if (notFound || !service) {
     return (
       <PublicShell activeHref="/services">
-        <div style={{ width: '90%', maxWidth: 1200, margin: '60px auto', textAlign: 'center', color: '#888' }}>
-          <i className="fas fa-exclamation-circle" style={{ fontSize: '3rem', color: '#ccc', display: 'block', marginBottom: 16 }}></i>
-          <h2 style={{ fontWeight: 800, color: '#333' }}>Service Not Found</h2>
-          <p style={{ marginTop: 8 }}>The service you are looking for does not exist or is no longer active.</p>
-          <Link href="/services" style={{ display: 'inline-block', marginTop: 20, backgroundColor: '#006eb3', color: 'white', padding: '10px 28px', borderRadius: 5, fontWeight: 700, textDecoration: 'none' }}>
+        <div className="w-[90%] max-w-[1200px] mx-auto my-16 text-center text-gray-400">
+          <i className="fas fa-exclamation-circle text-5xl text-gray-300 block mb-4" />
+          <h2 className="font-extrabold text-gray-800">Service Not Found</h2>
+          <p className="mt-2">The service you are looking for does not exist or is no longer active.</p>
+          <Link href="/services" className="inline-block mt-5 bg-[#006eb3] hover:bg-[#004a80] text-white px-7 py-2.5 rounded-md font-bold no-underline transition-colors">
             ← Back to Services
           </Link>
         </div>
@@ -89,71 +89,63 @@ export default function ServiceDetailPage() {
     <PublicShell activeHref="/services">
 
       {/* ── Title Banner ──────────────────────────────────────────── */}
-      <div style={{ width: '90%', maxWidth: 1200, margin: '32px auto 0' }}>
-        <div style={{
-          backgroundColor: '#006eb3', color: 'white', padding: '16px 24px',
-          border: '3px solid #003d80', borderRadius: 6, width: '100%',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          boxShadow: '0 4px 12px rgba(0,78,150,0.25)', boxSizing: 'border-box',
-        }}>
+      <div className="w-[90%] max-w-[1200px] mx-auto mt-8">
+        <div className="bg-[#006eb3] text-white px-5 py-4 border-[3px] border-[#003d80] rounded-md w-full flex items-center justify-between shadow-lg">
           <Link href="/services"
-            style={{ color: 'white', fontSize: '1.5rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '6px 18px', flexShrink: 0, textDecoration: 'none', transition: 'background-color 0.2s' }}
-            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.3)'}
-            onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'}
+            className="text-white text-2xl font-bold bg-white/15 hover:bg-white/30 rounded-lg px-4 py-1.5 shrink-0 no-underline transition-colors flex items-center justify-center"
           >
             &#8592;
           </Link>
-          <h1 style={{ flex: 1, textAlign: 'center', fontSize: '1.8rem', fontWeight: 800, textTransform: 'uppercase', margin: 0, letterSpacing: 2, color: 'white', padding: '0 12px' }}>
+          <h1 className="flex-1 text-center text-lg sm:text-xl md:text-[1.8rem] font-extrabold uppercase m-0 tracking-wider text-white px-3">
             {service.name}
           </h1>
           {/* Invisible spacer keeps title centred */}
-          <span style={{ visibility: 'hidden', fontSize: '1.5rem', fontWeight: 'bold', padding: '6px 18px', flexShrink: 0 }}>&#8592;</span>
+          <span className="invisible text-2xl font-bold px-4 py-1.5 shrink-0">&#8592;</span>
         </div>
       </div>
 
       {/* ── Description (if any) ──────────────────────────────────── */}
       {service.description && (
-        <div style={{ width: '90%', maxWidth: 1200, margin: '20px auto 0' }}>
-          <p style={{ color: '#555', fontSize: '1rem', lineHeight: 1.7 }}>{service.description}</p>
+        <div className="w-[90%] max-w-[1200px] mx-auto mt-5">
+          <p className="text-gray-500 text-sm md:text-base leading-relaxed">{service.description}</p>
         </div>
       )}
 
       {/* ── Process Section ───────────────────────────────────────── */}
-      <section style={{ width: '90%', maxWidth: 1200, margin: '0 auto', paddingTop: 32, paddingBottom: 36 }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#222', textTransform: 'uppercase', marginBottom: 24, letterSpacing: 1 }}>
+      <section className="w-[90%] max-w-[1200px] mx-auto pt-8 pb-9">
+        <h2 className="text-xl md:text-2xl font-extrabold text-gray-800 uppercase mb-6 tracking-wide">
           PROCESS
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28 }} className="svc-process-grid">
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
           {/* Requirements */}
-          <div style={{ border: '2px solid #006eb3', borderRadius: 10, padding: '32px 36px', background: '#fff', minHeight: 260, boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#006eb3', textTransform: 'uppercase', marginBottom: 18, letterSpacing: '0.8px', borderBottom: '2px solid #e3eef8', paddingBottom: 10 }}>
+          <div className="border-2 border-[#006eb3] rounded-xl p-6 md:p-8 bg-white min-h-[260px] shadow-sm">
+            <h3 className="text-[1.05rem] font-extrabold text-[#006eb3] uppercase mb-4 tracking-wide border-b-2 border-blue-100 pb-2.5">
               REQUIREMENTS:
             </h3>
             {requirements.length > 0 ? (
-              <ul style={{ paddingLeft: 22, color: '#444', listStyle: 'disc' }}>
+              <ul className="list-disc pl-5 text-gray-600 space-y-3 text-sm md:text-base leading-relaxed">
                 {requirements.map((r, i) => (
-                  <li key={i} style={{ marginBottom: 12, fontSize: '1rem', lineHeight: 1.6 }}>{r}</li>
+                  <li key={i}>{r}</li>
                 ))}
               </ul>
             ) : (
-              <p style={{ color: '#888', fontSize: '0.9rem' }}>Please visit the Barangay Hall for requirements.</p>
+              <p className="text-gray-400 text-[0.9rem]">Please visit the Barangay Hall for requirements.</p>
             )}
           </div>
 
           {/* Procedure */}
-          <div style={{ border: '2px solid #006eb3', borderRadius: 10, padding: '32px 36px', background: '#fff', minHeight: 260, boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#006eb3', textTransform: 'uppercase', marginBottom: 18, letterSpacing: '0.8px', borderBottom: '2px solid #e3eef8', paddingBottom: 10 }}>
+          <div className="border-2 border-[#006eb3] rounded-xl p-6 md:p-8 bg-white min-h-[260px] shadow-sm">
+            <h3 className="text-[1.05rem] font-extrabold text-[#006eb3] uppercase mb-4 tracking-wide border-b-2 border-blue-100 pb-2.5">
               PROCEDURE:
             </h3>
             {procedures.length > 0 ? (
-              <ol style={{ paddingLeft: 22, color: '#444', listStyle: 'decimal' }}>
+              <ol className="list-decimal pl-5 text-gray-600 space-y-3 text-sm md:text-base leading-relaxed">
                 {procedures.map((p, i) => (
-                  <li key={i} style={{ marginBottom: 12, fontSize: '1rem', lineHeight: 1.6 }}>{p}</li>
+                  <li key={i}>{p}</li>
                 ))}
               </ol>
             ) : (
-              <p style={{ color: '#888', fontSize: '0.9rem' }}>Please visit the Barangay Hall for procedures.</p>
+              <p className="text-gray-400 text-[0.9rem]">Please visit the Barangay Hall for procedures.</p>
             )}
           </div>
         </div>
@@ -161,26 +153,22 @@ export default function ServiceDetailPage() {
 
       {/* ── Other Services ─────────────────────────────────────────── */}
       {others.length > 0 && (
-        <section style={{ width: '90%', maxWidth: 1200, margin: '0 auto', paddingTop: 10, paddingBottom: 50 }}>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#222', textTransform: 'uppercase', marginBottom: 24, letterSpacing: 1 }}>
+        <section className="w-[90%] max-w-[1200px] mx-auto pt-2.5 pb-12">
+          <h2 className="text-lg md:text-xl font-extrabold text-gray-800 uppercase mb-6 tracking-wide">
             OTHER SERVICES:
           </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }} className="svc-other-grid">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {others.map(svc => (
               <div key={svc.id}
-                style={{ backgroundColor: 'white', borderRadius: 15, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', padding: '28px 32px', display: 'flex', alignItems: 'center', gap: 25, boxSizing: 'border-box', minWidth: 0, transition: 'transform 0.3s ease' }}
-                onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-5px)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                className="bg-white rounded-2xl shadow-md p-6 md:p-8 flex items-center gap-5 md:gap-6 transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-lg"
               >
-                <div style={{ fontSize: '3rem', color: '#006eb3', minWidth: 60, textAlign: 'center', flexShrink: 0 }}>
-                  <i className={getIcon(svc.name, svc.icon_class)} aria-hidden="true"></i>
+                <div className="text-4xl md:text-5xl text-[#006eb3] min-w-[60px] text-center shrink-0">
+                  <i className={getIcon(svc.name, svc.icon_class)} aria-hidden="true" />
                 </div>
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  <h4 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#333', margin: 0 }}>{svc.name}</h4>
+                <div className="flex-1 flex flex-col gap-3 min-w-0">
+                  <h4 className="text-base md:text-lg font-bold text-gray-800 m-0">{svc.name}</h4>
                   <Link href={`/services/${svc.id}`}
-                    style={{ display: 'inline-block', backgroundColor: '#006eb3', color: 'white', padding: '10px 25px', borderRadius: 5, fontWeight: 700, fontSize: '0.9rem', alignSelf: 'flex-start', whiteSpace: 'nowrap', textDecoration: 'none', transition: 'background-color 0.3s' }}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#004a80'}
-                    onMouseLeave={e => e.currentTarget.style.backgroundColor = '#006eb3'}
+                    className="inline-block bg-[#006eb3] hover:bg-[#004a80] text-white px-5 md:px-6 py-2.5 rounded-md font-bold text-[0.9rem] self-start whitespace-nowrap no-underline transition-colors"
                   >
                     LEARN MORE
                   </Link>
@@ -190,14 +178,6 @@ export default function ServiceDetailPage() {
           </div>
         </section>
       )}
-
-      <style>{`
-        @media (max-width: 768px) {
-          .svc-process-grid { grid-template-columns: 1fr !important; }
-          .svc-other-grid   { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
-
     </PublicShell>
   );
 }
