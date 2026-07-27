@@ -47,18 +47,10 @@ function getUserPosition() {
 }
 
 // ─── Area detection — parse free-text address into Barangay Area ─
-/**
- * Returns the detected area string (e.g. "Area 4", "Area 1/Area 2")
- * or null if no known Pinyahan street is found.
- *
- * Rules are checked most-specific first to avoid false matches:
- *   Area 4  must be checked before Area 3 ("malakas lane" before plain "malakas")
- *   Area 3  must be checked before the generic malakas overlap
- */
 function detectAreaFromAddress(addressString) {
   const s = (addressString || '').toLowerCase();
 
-  // Area 4 — check before Area 3 to catch specific sub-streets first
+  // Area 4
   if (
     s.includes('malakas lane')     ||
     s.includes('malakas upper')    ||
@@ -67,7 +59,7 @@ function detectAreaFromAddress(addressString) {
     s.includes('matapang')
   ) return 'Area 4';
 
-  // Area 3 — check before generic malakas overlap
+  // Area 3
   if (
     s.includes('matatag lower')    ||
     s.includes('matatag')          ||
@@ -116,11 +108,15 @@ function detectAreaFromAddress(addressString) {
     s.includes('matipuno')
   ) return 'Area 2';
 
-  // Area 1/Area 2 overlap — plain "malakas" with no further qualifier
+  // Area 1/Area 2 overlap
   if (s.includes('malakas')) return 'Area 1/Area 2';
 
-  return null; // no recognised street found
+  return null;
 }
+
+// ─── Shared input classes ────────────────────────────────────────
+const inputCls = 'w-full px-5 py-3 border border-gray-300 rounded-full text-base outline-none focus:ring-2 focus:ring-[#006eb3] focus:border-[#006eb3] transition-all';
+const selectCls = 'w-full px-5 py-3 border border-gray-300 rounded-full text-base outline-none appearance-none bg-white cursor-pointer focus:ring-2 focus:ring-[#006eb3] focus:border-[#006eb3] transition-all';
 
 // ─── Inner form component (needs reCAPTCHA context) ──────────────
 function ComplaintForm() {
@@ -203,7 +199,6 @@ function ComplaintForm() {
       latitude  = position.coords.latitude;
       longitude = position.coords.longitude;
 
-      // Check against ALL allowed locations — pass if within radius of any one
       const distances = ALLOWED_LOCATIONS.map(loc => ({
         name: loc.name,
         km:   haversineDistanceKm(latitude, longitude, loc.lat, loc.lng),
@@ -224,7 +219,6 @@ function ComplaintForm() {
 
       setGeoStatus('ok');
     } catch (geoErr) {
-      // Permission denied or timeout → block submission
       setGeoStatus('denied');
       setPopup({
         title: 'Location Required',
@@ -242,7 +236,7 @@ function ComplaintForm() {
         captchaToken = await executeRecaptcha('submit_complaint');
       }
     } catch (captchaErr) {
-      // Non-blocking — submission continues even if token fails
+      // Non-blocking
     }
 
     // ── Step 3: Submit to backend ──────────────────────────────────
@@ -256,7 +250,7 @@ function ComplaintForm() {
       formData.append('contact_number', contactNumber);
       formData.append('complaint_type', complaintType);
       formData.append('message',        message);
-      formData.append('area',           detectedArea);  // injected from detectAreaFromAddress
+      formData.append('area',           detectedArea);
       if (latitude  !== null) formData.append('latitude',     latitude);
       if (longitude !== null) formData.append('longitude',    longitude);
       if (captchaToken)       formData.append('captchaToken', captchaToken);
@@ -266,7 +260,6 @@ function ComplaintForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        // Surface specific server-side rejection reasons
         const msg = data.error || data.message || 'Submission failed.';
         if (data.code === 'PROXY_DETECTED' || data.code === 'VPN_DETECTED') {
           throw new Error('Proxy/VPN connections are not allowed. Please connect from a direct internet connection.');
@@ -293,121 +286,117 @@ function ComplaintForm() {
   // ── Geo status indicator label ─────────────────────────────────
   const geoLabel = {
     idle:     null,
-    checking: { text: '📍 Verifying your location…',                         color: '#0056b3' },
-    ok:       { text: '✅ Location verified — within Barangay Pinyahan.',     color: '#2e7d32' },
-    outside:  { text: '❌ Outside barangay limits.',                          color: '#c62828' },
-    denied:   { text: '❌ Location access denied — required to submit.',      color: '#c62828' },
+    checking: { text: '📍 Verifying your location…',                         color: 'text-[#0056b3]' },
+    ok:       { text: '✅ Location verified — within Barangay Pinyahan.',     color: 'text-green-700' },
+    outside:  { text: '❌ Outside barangay limits.',                          color: 'text-red-700' },
+    denied:   { text: '❌ Location access denied — required to submit.',      color: 'text-red-700' },
   }[geoStatus];
 
   return (
     <>
-      {/* Popup modal */}
+      {/* ═══ Popup Modal ═══ */}
       {popup && (
         <div onClick={() => { popup.onClose?.(); setPopup(null); }}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-4">
           <div onClick={e => e.stopPropagation()}
-            style={{ background: 'white', borderRadius: 14, padding: '32px 28px', width: '94%', maxWidth: 460, boxShadow: '0 10px 40px rgba(0,0,0,0.2)', textAlign: 'center' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>
+            className="bg-white rounded-2xl px-6 py-8 md:px-7 md:py-8 w-full max-w-[460px] shadow-2xl text-center animate-modalIn">
+            <div className="text-[2.5rem] mb-3">
               {popup.type === 'success' ? '✅' : '❌'}
             </div>
-            <h3 style={{ color: popup.type === 'success' ? '#2e7d32' : '#c62828', fontWeight: 800, marginBottom: 12, fontSize: '1.2rem' }}>{popup.title}</h3>
-            <p style={{ color: '#444', fontSize: '0.95rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{popup.text}</p>
+            <h3 className={`font-extrabold mb-3 text-lg ${popup.type === 'success' ? 'text-green-700' : 'text-red-700'}`}>{popup.title}</h3>
+            <p className="text-gray-600 text-[0.95rem] leading-relaxed whitespace-pre-wrap">{popup.text}</p>
             <button onClick={() => { popup.onClose?.(); setPopup(null); }}
-              style={{ marginTop: 20, background: '#1565c0', color: 'white', border: 'none', borderRadius: 25, padding: '10px 32px', fontWeight: 700, fontSize: '1rem', cursor: 'pointer' }}>
+              className="mt-5 bg-[#1565c0] hover:bg-[#0d47a1] text-white border-0 rounded-full px-8 py-2.5 font-bold text-base cursor-pointer transition-colors">
               OK
             </button>
           </div>
         </div>
       )}
 
-      {/* Complaint Section */}
-      <section style={{ backgroundColor: '#f0f2f5', padding: '60px 20px', display: 'flex', justifyContent: 'center' }}>
-        <div style={{ backgroundColor: 'white', width: '100%', maxWidth: 600, padding: 40, borderRadius: 15, boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
-          <h2 style={{ color: '#006eb3', textAlign: 'center', fontWeight: 800, fontSize: '1.8rem', marginBottom: 8, textTransform: 'uppercase' }}>
+      {/* ═══ Complaint Form ═══ */}
+      <section className="bg-[#f0f2f5] py-12 md:py-16 px-5 flex justify-center">
+        <div className="bg-white w-full max-w-[600px] p-8 md:p-10 rounded-2xl shadow-lg">
+          <h2 className="text-[#006eb3] text-center font-extrabold text-xl md:text-[1.8rem] mb-2 uppercase">
             SUBMIT A COMPLAINT
           </h2>
 
           {/* Geofencing notice */}
-          <p style={{ textAlign: 'center', color: '#888', fontSize: '0.82rem', marginBottom: 24 }}>
-            <i className="fas fa-map-marker-alt" style={{ color: '#006eb3', marginRight: 4 }}></i>
+          <p className="text-center text-gray-400 text-[0.82rem] mb-6">
+            <i className="fas fa-map-marker-alt text-[#006eb3] mr-1" />
             Location verification required. You must be within 2 km of Barangay Pinyahan.
           </p>
 
           <form onSubmit={handleSubmit}>
             {/* Full Name */}
-            <div style={{ marginBottom: 20 }}>
+            <div className="mb-5">
               <input type="text" placeholder="Full Name (Pangalan ng nagrereklamo)" value={fullName} onChange={e => setFullName(e.target.value)} required
-                style={{ width: '100%', padding: '12px 20px', border: '1px solid #ccc', borderRadius: 25, fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }} />
+                className={inputCls} />
             </div>
             {/* Address */}
-            <div style={{ marginBottom: 4 }}>
+            <div className="mb-1">
               <input type="text" placeholder="Address" value={address} onChange={handleAddressChange} required
-                style={{ width: '100%', padding: '12px 20px', border: `1px solid ${areaHint === null && address.trim() ? '#e53935' : '#ccc'}`, borderRadius: 25, fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }} />
+                className={`${inputCls} ${areaHint === null && address.trim() ? '!border-red-500 focus:!ring-red-400' : ''}`} />
             </div>
             {/* Live area hint */}
             {address.trim() && (
-              <div style={{ marginBottom: 16, paddingLeft: 20, fontSize: '0.8rem', fontWeight: 700,
-                color: areaHint ? '#2e7d32' : '#c62828',
-                display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div className={`mb-4 pl-5 text-[0.8rem] font-bold flex items-center gap-1.5 ${areaHint ? 'text-green-700' : 'text-red-700'}`}>
                 {areaHint
-                  ? <><i className="fas fa-map-pin"></i> Detected: {areaHint}</>  
-                  : <><i className="fas fa-exclamation-triangle"></i> No valid Pinyahan street detected</>}
+                  ? <><i className="fas fa-map-pin" /> Detected: {areaHint}</>
+                  : <><i className="fas fa-exclamation-triangle" /> No valid Pinyahan street detected</>}
               </div>
             )}
             {/* Contact */}
-            <div style={{ marginBottom: 20 }}>
+            <div className="mb-5">
               <input type="tel" placeholder="Contact Number" value={contactNumber} onChange={e => setContactNumber(e.target.value)} required
-                style={{ width: '100%', padding: '12px 20px', border: '1px solid #ccc', borderRadius: 25, fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }} />
+                className={inputCls} />
             </div>
             {/* Complaint Type — Dynamic Categories */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ position: 'relative' }}>
+            <div className="mb-5">
+              <div className="relative">
                 <select value={complaintType} onChange={e => { setComplaintType(e.target.value); setAccusedName(''); }} required
-                  style={{ width: '100%', padding: '12px 20px', border: '1px solid #ccc', borderRadius: 25, fontSize: '1rem', outline: 'none', appearance: 'none', background: 'white', cursor: 'pointer', boxSizing: 'border-box' }}>
+                  className={selectCls}>
                   <option value="" disabled>Type of Complaint</option>
                   {categories.map(cat => (
                     <option key={cat.id} value={cat.name}>{cat.name}</option>
                   ))}
                 </select>
-                <i className="fas fa-caret-down" style={{ position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', color: '#333', pointerEvents: 'none' }}></i>
+                <i className="fas fa-caret-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
               </div>
             </div>
             {/* Conditional Accused Name Field */}
             {complaintType && accusedRule !== 'HIDDEN' && (
-              <div style={{ marginBottom: 20 }}>
+              <div className="mb-5">
                 <input
                   type="text"
                   placeholder={accusedRule === 'MANDATORY' ? 'Name of Accused (Required — Sino ang inirereklamo?)' : 'Name of Accused (Optional — Sino ang inirereklamo?)'}
                   value={accusedName}
                   onChange={e => setAccusedName(e.target.value)}
                   required={accusedRule === 'MANDATORY'}
-                  style={{ width: '100%', padding: '12px 20px', border: `1px solid ${accusedRule === 'MANDATORY' ? '#e57373' : '#ccc'}`, borderRadius: 25, fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }}
+                  className={`${inputCls} ${accusedRule === 'MANDATORY' ? '!border-red-300' : ''}`}
                 />
                 {accusedRule === 'MANDATORY' && (
-                  <p style={{ fontSize: '0.75rem', color: '#c62828', marginTop: 4, paddingLeft: 20, fontWeight: 600 }}>
-                    <i className="fas fa-exclamation-circle" style={{ marginRight: 4 }}></i> Required for this complaint type
+                  <p className="text-xs text-red-700 mt-1 pl-5 font-semibold">
+                    <i className="fas fa-exclamation-circle mr-1" /> Required for this complaint type
                   </p>
                 )}
               </div>
             )}
             {/* Message */}
-            <div style={{ marginBottom: 20 }}>
+            <div className="mb-5">
               <textarea placeholder="Message" value={message} onChange={e => setMessage(e.target.value)} rows={5} required
-                style={{ width: '100%', padding: '12px 20px', border: '1px solid #ccc', borderRadius: 15, fontSize: '1rem', outline: 'none', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+                className="w-full px-5 py-3 border border-gray-300 rounded-2xl text-base outline-none resize-y focus:ring-2 focus:ring-[#006eb3] focus:border-[#006eb3] transition-all min-h-[120px]" />
             </div>
             {/* Photo Upload */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', backgroundColor: '#cfd8dc', border: '2px dashed #90a4ae', borderRadius: 10, padding: 40, textAlign: 'center', cursor: 'pointer', transition: 'background-color 0.3s' }}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#b0bec5'}
-                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#cfd8dc'}>
+            <div className="mb-5">
+              <label className="block bg-[#cfd8dc] hover:bg-[#b0bec5] border-2 border-dashed border-gray-400 rounded-xl p-8 md:p-10 text-center cursor-pointer transition-colors">
                 <input type="file" accept="image/*" hidden onChange={handlePhotoChange} />
                 {photoPreview ? (
-                  <img src={photoPreview} alt="Preview" style={{ maxHeight: 120, borderRadius: 8, objectFit: 'cover' }} />
+                  <img src={photoPreview} alt="Preview" className="max-h-[120px] rounded-lg object-cover mx-auto" />
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#555' }}>
-                    <i className="fas fa-plus" style={{ fontSize: '2.5rem', marginBottom: 10, color: '#455a64' }}></i>
-                    <span style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>ADD PHOTO</span>
-                    <span style={{ fontWeight: 'normal', fontSize: '0.8rem', marginTop: 5 }}>(Optional)</span>
+                  <div className="flex flex-col items-center text-gray-600">
+                    <i className="fas fa-plus text-4xl mb-2.5 text-gray-500" />
+                    <span className="font-bold text-[0.9rem]">ADD PHOTO</span>
+                    <span className="font-normal text-[0.8rem] mt-1">(Optional)</span>
                   </div>
                 )}
               </label>
@@ -415,14 +404,15 @@ function ComplaintForm() {
 
             {/* Geo status indicator */}
             {geoLabel && (
-              <p style={{ textAlign: 'center', color: geoLabel.color, fontSize: '0.85rem', marginBottom: 12, fontWeight: 600 }}>
+              <p className={`text-center text-[0.85rem] mb-3 font-semibold ${geoLabel.color}`}>
                 {geoLabel.text}
               </p>
             )}
 
             {/* Submit */}
             <button type="submit" disabled={submitting}
-              style={{ width: '100%', backgroundColor: submitting ? '#90a4ae' : '#1565c0', color: 'white', padding: 15, border: 'none', borderRadius: 25, fontSize: '1.1rem', fontWeight: 700, textTransform: 'uppercase', cursor: submitting ? 'not-allowed' : 'pointer', marginTop: 10, transition: 'background-color 0.3s' }}>
+              className={`w-full py-4 border-0 rounded-full text-base md:text-lg font-bold uppercase tracking-wide text-white transition-all mt-2.5
+                ${submitting ? 'bg-gray-400 cursor-not-allowed opacity-60' : 'bg-[#1565c0] hover:bg-[#0d47a1] active:scale-[0.98] cursor-pointer'}`}>
               {submitting
                 ? geoStatus === 'checking'
                   ? '📍 Verifying location…'
@@ -431,11 +421,11 @@ function ComplaintForm() {
             </button>
 
             {/* reCAPTCHA branding (required by Google ToS) */}
-            <p style={{ textAlign: 'center', fontSize: '0.72rem', color: '#aaa', marginTop: 12 }}>
+            <p className="text-center text-[0.72rem] text-gray-400 mt-3">
               Protected by reCAPTCHA —{' '}
-              <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" style={{ color: '#aaa' }}>Privacy</a>{' '}
+              <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" className="text-gray-400 hover:text-gray-600">Privacy</a>{' '}
               &amp;{' '}
-              <a href="https://policies.google.com/terms" target="_blank" rel="noopener" style={{ color: '#aaa' }}>Terms</a>
+              <a href="https://policies.google.com/terms" target="_blank" rel="noopener" className="text-gray-400 hover:text-gray-600">Terms</a>
             </p>
           </form>
         </div>
@@ -453,6 +443,11 @@ export default function FileComplaintPage() {
       <PublicShell activeHref="/complaints">
         <ComplaintForm />
       </PublicShell>
+      {/* Modal animation */}
+      <style>{`
+        @keyframes modalIn { from { opacity:0; transform:translateY(-15px); } to { opacity:1; transform:translateY(0); } }
+        .animate-modalIn { animation: modalIn 0.25s ease; }
+      `}</style>
     </GoogleReCaptchaProvider>
   );
 }
