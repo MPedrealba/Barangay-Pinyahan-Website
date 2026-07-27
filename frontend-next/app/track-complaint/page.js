@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import PublicShell from '@/components/PublicShell';
 
@@ -48,29 +48,36 @@ export default function TrackComplaintPage() {
   const escalated   = c && daysPending >= 7 && c.status !== 'Resolved';
   const photoSrc    = c?.photo_url ? (c.photo_url.startsWith('http') ? c.photo_url : `${process.env.NEXT_PUBLIC_API_URL}${c.photo_url}`) : null;
 
+  const statusStyle = c ? (() => {
+    const s = STATUS_CLASS[c.status];
+    if (s === 'pending')  return 'bg-orange-50 text-orange-700';
+    if (s === 'on-going') return 'bg-blue-50 text-blue-800';
+    return 'bg-green-50 text-green-700';
+  })() : '';
+
   return (
     <PublicShell activeHref="/track-complaint">
 
-      {/* Complaint Detail Modal */}
+      {/* ═══ Complaint Detail Modal ═══ */}
       {modalOpen && c && (
         <div onClick={() => setModalOpen(false)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-4">
           <div onClick={e => e.stopPropagation()}
-            style={{ background: 'white', borderRadius: 14, padding: '32px 28px', width: '94%', maxWidth: 560, maxHeight: '85vh', overflowY: 'auto', position: 'relative', boxShadow: '0 10px 40px rgba(0,0,0,0.2)', animation: 'modalIn 0.25s ease' }}>
+            className="bg-white rounded-2xl px-6 py-8 md:px-7 md:py-8 w-full max-w-[560px] max-h-[85vh] overflow-y-auto relative shadow-2xl animate-modalIn">
             <button onClick={() => setModalOpen(false)}
-              style={{ position: 'absolute', top: 12, right: 16, background: 'none', border: 'none', fontSize: '1.6rem', cursor: 'pointer', color: '#888' }}>
+              className="absolute top-3 right-4 bg-transparent border-0 text-2xl cursor-pointer text-gray-400 hover:text-gray-700 transition-colors">
               &times;
             </button>
 
             {/* Escalation warning */}
             {escalated && (
-              <div style={{ background: '#d9534f', color: 'white', padding: '12px 16px', borderRadius: 6, marginBottom: 18, textAlign: 'center', fontWeight: 700 }}>
-                <i className="fas fa-exclamation-triangle"></i>{' '}
+              <div className="bg-red-500 text-white px-4 py-3 rounded-md mb-5 text-center font-bold text-sm">
+                <i className="fas fa-exclamation-triangle mr-1" />
                 This complaint has been unresolved for {daysPending} day{daysPending > 1 ? 's' : ''}. It has been escalated to HIGH urgency.
               </div>
             )}
 
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#003366', textAlign: 'center', marginBottom: 20 }}>COMPLAINT DETAILS</h2>
+            <h2 className="text-[1.15rem] font-extrabold text-[#003366] text-center mb-5">COMPLAINT DETAILS</h2>
 
             {[
               ['Reference No:', c.ref_no],
@@ -78,47 +85,44 @@ export default function TrackComplaintPage() {
               ['Category:',     c.category || c.complaint_type],
               ['Date Filed:',   formatDate(c.submitted_at)],
             ].map(([label, val]) => (
-              <div key={label} style={{ display: 'flex', marginBottom: 10, fontSize: '0.92rem' }}>
-                <strong style={{ minWidth: 130, color: '#222' }}>{label}</strong>
-                <span style={{ color: '#444' }}>{val}</span>
+              <div key={label} className="flex mb-2.5 text-[0.92rem]">
+                <strong className="min-w-[120px] md:min-w-[130px] text-gray-800 shrink-0">{label}</strong>
+                <span className="text-gray-600">{val}</span>
               </div>
             ))}
 
             {/* Status badge */}
-            <div style={{ display: 'flex', marginBottom: 10, fontSize: '0.92rem' }}>
-              <strong style={{ minWidth: 130, color: '#222' }}>Status:</strong>
-              <span style={{
-                display: 'inline-block', padding: '3px 12px', borderRadius: 4, fontSize: '0.78rem', fontWeight: 700,
-                background: STATUS_CLASS[c.status] === 'pending' ? '#fff3e0' : STATUS_CLASS[c.status] === 'on-going' ? '#e3f2fd' : '#e8f5e9',
-                color:      STATUS_CLASS[c.status] === 'pending' ? '#e65100' : STATUS_CLASS[c.status] === 'on-going' ? '#0d47a1' : '#2e7d32',
-              }}>{c.status}</span>
+            <div className="flex mb-2.5 text-[0.92rem] items-center">
+              <strong className="min-w-[120px] md:min-w-[130px] text-gray-800 shrink-0">Status:</strong>
+              <span className={`inline-block px-3 py-0.5 rounded text-xs font-bold ${statusStyle}`}>{c.status}</span>
             </div>
 
             {/* Urgency badge */}
-            <div style={{ display: 'flex', marginBottom: 10, fontSize: '0.92rem' }}>
-              <strong style={{ minWidth: 130, color: '#222' }}>Urgency Level:</strong>
-              <span style={{ display: 'inline-block', padding: '3px 12px', borderRadius: 4, fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', border: '1px solid currentColor',
-                background: URGENCY_BG[c.urgency_level?.toLowerCase()] || '#f5f5f5',
-                color:      URGENCY_CLR[c.urgency_level?.toLowerCase()] || '#333',
-              }}>{c.urgency_level?.toUpperCase()}</span>
+            <div className="flex mb-2.5 text-[0.92rem] items-center">
+              <strong className="min-w-[120px] md:min-w-[130px] text-gray-800 shrink-0">Urgency Level:</strong>
+              <span className="inline-block px-3 py-0.5 rounded text-xs font-extrabold uppercase border border-current"
+                style={{
+                  background: URGENCY_BG[c.urgency_level?.toLowerCase()] || '#f5f5f5',
+                  color:      URGENCY_CLR[c.urgency_level?.toLowerCase()] || '#333',
+                }}>{c.urgency_level?.toUpperCase()}</span>
             </div>
 
-            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#003366', textTransform: 'uppercase', margin: '18px 0 8px', borderBottom: '2px solid #003366', display: 'inline-block', paddingBottom: 2 }}>Complaint Message</div>
-            <div style={{ background: '#f5f7fa', border: '1px solid #e0e0e0', borderRadius: 6, padding: 14, fontSize: '0.9rem', color: '#444', lineHeight: 1.6 }}>{c.message || 'No message provided.'}</div>
+            <div className="text-[0.85rem] font-extrabold text-[#003366] uppercase mt-5 mb-2 border-b-2 border-[#003366] inline-block pb-0.5">Complaint Message</div>
+            <div className="bg-gray-50 border border-gray-200 rounded-md p-3.5 text-[0.9rem] text-gray-600 leading-relaxed">{c.message || 'No message provided.'}</div>
 
-            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#003366', textTransform: 'uppercase', margin: '18px 0 8px', borderBottom: '2px solid #003366', display: 'inline-block', paddingBottom: 2 }}>Admin Notes</div>
-            <div style={{ background: '#f5f7fa', border: '1px solid #e0e0e0', borderRadius: 6, padding: 14, fontSize: '0.9rem', color: '#444', lineHeight: 1.6 }}>{c.admin_notes || 'Your complaint is currently under review.'}</div>
+            <div className="text-[0.85rem] font-extrabold text-[#003366] uppercase mt-5 mb-2 border-b-2 border-[#003366] inline-block pb-0.5">Admin Notes</div>
+            <div className="bg-gray-50 border border-gray-200 rounded-md p-3.5 text-[0.9rem] text-gray-600 leading-relaxed">{c.admin_notes || 'Your complaint is currently under review.'}</div>
 
             {photoSrc && (
               <>
-                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#003366', textTransform: 'uppercase', margin: '18px 0 8px', display: 'block' }}>Evidence Photo</div>
-                <img src={photoSrc} alt="Complaint Photo" style={{ width: '100%', maxHeight: 280, objectFit: 'cover', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }} />
+                <div className="text-[0.85rem] font-extrabold text-[#003366] uppercase mt-5 mb-2 block">Evidence Photo</div>
+                <img src={photoSrc} alt="Complaint Photo" className="w-full max-h-[280px] object-cover rounded-lg shadow-sm" />
               </>
             )}
 
-            <div style={{ textAlign: 'center', marginTop: 24 }}>
+            <div className="text-center mt-6">
               <button onClick={() => setModalOpen(false)}
-                style={{ background: '#5d9ccb', color: 'white', padding: '12px 40px', border: 'none', borderRadius: 25, fontSize: '1.1rem', fontWeight: 700, cursor: 'pointer' }}>
+                className="bg-[#5d9ccb] hover:bg-[#4a8ab8] text-white px-10 py-3 border-0 rounded-full text-lg font-bold cursor-pointer transition-colors">
                 Close
               </button>
             </div>
@@ -126,35 +130,36 @@ export default function TrackComplaintPage() {
         </div>
       )}
 
-      {/* Track Section */}
-      <section style={{ padding: '80px 20px', backgroundColor: 'white', display: 'flex', justifyContent: 'center', minHeight: '60vh' }}>
-        <div style={{ width: '100%', maxWidth: 700 }}>
+      {/* ═══ Track Section ═══ */}
+      <section className="bg-white py-16 md:py-20 px-5 flex justify-center min-h-[60vh]">
+        <div className="w-full max-w-[700px]">
 
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 15, marginBottom: 25 }}>
-            <i className="fas fa-map-marker-alt" style={{ fontSize: '2.5rem', color: '#0056b3' }}></i>
-            <h2 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#0056b3', margin: 0 }}>Track Your Complaint</h2>
+          <div className="flex items-center gap-4 mb-6">
+            <i className="fas fa-map-marker-alt text-4xl md:text-[2.5rem] text-[#0056b3]" />
+            <h2 className="text-2xl md:text-[2.2rem] font-extrabold text-[#0056b3] m-0">Track Your Complaint</h2>
           </div>
 
           {/* Card */}
-          <div style={{ backgroundColor: 'white', borderRadius: 15, boxShadow: '0 5px 20px rgba(0,0,0,0.15)', padding: 40, border: '1px solid #eee' }}>
+          <div className="bg-white rounded-2xl shadow-lg p-8 md:p-10 border border-gray-100">
             <form onSubmit={handleTrack}>
-              <div style={{ marginBottom: 20 }}>
+              <div className="mb-5">
                 <input type="text" placeholder="Complaint Reference Number" value={refNo} onChange={e => setRefNo(e.target.value)} required
-                  style={{ width: '100%', padding: '15px 25px', border: '1px solid #ccc', borderRadius: 25, fontSize: '1.1rem', outline: 'none', boxSizing: 'border-box', marginBottom: 10 }} />
+                  className="w-full px-6 py-4 border border-gray-300 rounded-full text-base md:text-lg outline-none focus:ring-2 focus:ring-[#0056b3] focus:border-[#0056b3] transition-all" />
               </div>
-              <div style={{ marginBottom: 20 }}>
+              <div className="mb-5">
                 <input type="text" placeholder="Full Name" value={fullName} onChange={e => setFullName(e.target.value)} required
-                  style={{ width: '100%', padding: '15px 25px', border: '1px solid #ccc', borderRadius: 25, fontSize: '1.1rem', outline: 'none', boxSizing: 'border-box', marginBottom: 10 }} />
+                  className="w-full px-6 py-4 border border-gray-300 rounded-full text-base md:text-lg outline-none focus:ring-2 focus:ring-[#0056b3] focus:border-[#0056b3] transition-all" />
               </div>
 
               {errMsg && (
-                <p style={{ color: '#c62828', fontSize: '0.9rem', marginBottom: 12, textAlign: 'center' }}>{errMsg}</p>
+                <p className="text-red-700 text-[0.9rem] mb-3 text-center font-semibold">{errMsg}</p>
               )}
 
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
+              <div className="flex justify-center mt-5">
                 <button type="submit" disabled={tracking}
-                  style={{ backgroundColor: tracking ? '#90a4ae' : '#5d9ccb', color: 'white', padding: '12px 40px', border: 'none', borderRadius: 25, fontSize: '1.1rem', fontWeight: 700, cursor: tracking ? 'not-allowed' : 'pointer' }}>
+                  className={`px-10 py-3 border-0 rounded-full text-base md:text-lg font-bold text-white transition-all cursor-pointer
+                    ${tracking ? 'bg-gray-400 cursor-not-allowed opacity-60' : 'bg-[#5d9ccb] hover:bg-[#4a8ab8] active:scale-[0.97]'}`}>
                   {tracking ? 'Tracking...' : 'Track Complaint'}
                 </button>
               </div>
@@ -163,7 +168,11 @@ export default function TrackComplaintPage() {
         </div>
       </section>
 
-      <style>{`@keyframes modalIn { from { opacity:0; transform:translateY(-15px); } to { opacity:1; transform:translateY(0); } }`}</style>
+      {/* Modal animation */}
+      <style>{`
+        @keyframes modalIn { from { opacity:0; transform:translateY(-15px); } to { opacity:1; transform:translateY(0); } }
+        .animate-modalIn { animation: modalIn 0.25s ease; }
+      `}</style>
     </PublicShell>
   );
 }
