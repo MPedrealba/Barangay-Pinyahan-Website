@@ -40,7 +40,12 @@ export default function CertificateOfResidency({
   issueMonth,
 }) {
   return (
-    <PrintableDocumentLayout title="CERTIFICATE OF RESIDENCY">
+    <PrintableDocumentLayout>
+
+      {/* ── Document Title ─────────────────────────────────────────────── */}
+      <h1 className="text-center text-[18px] font-black tracking-[3px] uppercase underline mb-7">
+        CERTIFICATE OF RESIDENCY
+      </h1>
 
       {/* ── Salutation ─────────────────────────────────────────────────── */}
       <p className="text-[12px] mb-5 font-bold">TO WHOM IT MAY CONCERN:</p>

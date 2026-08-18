@@ -36,7 +36,12 @@ export default function AlternativeClearance({
   issueMonth,
 }) {
   return (
-    <PrintableDocumentLayout title="BARANGAY CLEARANCE">
+    <PrintableDocumentLayout>
+
+      {/* ── Document Title ─────────────────────────────────────────────── */}
+      <h1 className="text-center text-[18px] font-black tracking-[3px] uppercase underline mb-7">
+        BARANGAY CLEARANCE
+      </h1>
 
       {/* ── Body Text ──────────────────────────────────────────────────── */}
       <p
