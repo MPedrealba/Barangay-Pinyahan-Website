@@ -41,7 +41,12 @@ export default function CertificateOfIndigency({
   issueMonth,
 }) {
   return (
-    <PrintableDocumentLayout title="CERTIFICATE OF INDIGENCY">
+    <PrintableDocumentLayout>
+
+      {/* ── Document Title ─────────────────────────────────────────────── */}
+      <h1 className="text-center text-[18px] font-black tracking-[3px] uppercase underline mb-7">
+        CERTIFICATE OF INDIGENCY
+      </h1>
 
       {/* ── Body Text ──────────────────────────────────────────────────── */}
       <p
