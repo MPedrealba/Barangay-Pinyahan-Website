@@ -1,6 +1,9 @@
 'use client';
 import { useState, useEffect, useRef, use } from 'react';
 import { useRouter } from 'next/navigation';
+import AlternativeClearance    from '@/components/AlternativeClearance';
+import CertificateOfIndigency  from '@/components/CertificateOfIndigency';
+import CertificateOfResidency  from '@/components/CertificateOfResidency';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 function formatDate(str) {
@@ -92,49 +95,21 @@ export default function ServicePDFPage({ params }) {
   };
 
   // ── Computed values ──────────────────────────────────────────────────────
-  const today         = formatDate(new Date().toISOString());
-  const issuedDate    = formatDate(request?.created_at);
-  const residentName  = request?.resident_name  || '________________';
-  const age           = request?.age            || '__';
-  const civilStatus   = request?.civil_status   || '________________';
-  const address       = request?.address        || '________________';
-  const purpose       = request?.purpose        || '________________';
-  const serviceType   = request?.service_type   || 'BARANGAY CLEARANCE';
-  const trackingNo    = request?.tracking_no    || '—';
+  const residentName      = request?.resident_name      || '________________';
+  const age               = request?.age                || '__';
+  const civilStatus       = request?.civil_status       || '________________';
+  const address           = request?.address            || '________________';
+  const purpose           = request?.purpose            || '________________';
+  const serviceType       = request?.service_type       || 'Barangay Clearance';
+  const trackingNo        = request?.tracking_no        || '—';
+  const birthdate         = request?.birthdate          ? formatDate(request.birthdate) : '________________';
+  const yearsOfResidency  = request?.years_of_residency || '________________';
+  const requestor         = request?.requestor          || residentName;
 
-  // Map service type to document title for the certificate header
-  const DOC_TITLES = {
-    'Barangay Clearance':          'BARANGAY CLEARANCE',
-    'Business Permit Application': 'BARANGAY BUSINESS CLEARANCE',
-    'Certificate of Indigency':    'CERTIFICATE OF INDIGENCY',
-    'Certificate of Residency':    'CERTIFICATE OF RESIDENCY',
-    'Health Services':             'HEALTH ASSISTANCE REFERRAL',
-    'Disaster Response':           'DISASTER RESPONSE ASSISTANCE',
-  };
-  const docTitle = DOC_TITLES[serviceType] || 'BARANGAY CLEARANCE';
-
-  // Body JSX per service type — dynamic variables bolded
-  const bodyJSX = {
-    'Barangay Clearance': (
-      <>This is to certify that <strong>{residentName}</strong>, <strong>{age}</strong> years old, <strong>{civilStatus}</strong>, residing at <strong>{address}</strong>, is a bonafide resident of Barangay Pinyahan, Quezon City and has no derogatory record on file in this office. This certification is being issued upon the request of the above-mentioned person for <strong>{purpose}</strong> purposes.</>
-    ),
-    'Business Permit Application': (
-      <>This is to certify that <strong>{residentName}</strong>, <strong>{age}</strong> years old, <strong>{civilStatus}</strong>, residing at <strong>{address}</strong>, is a bonafide resident of Barangay Pinyahan, Quezon City. This office interposes no objection to the operation of his/her business within this barangay. This certification is issued upon the request of the above-named person for the purpose of <strong>{purpose}</strong>.</>
-    ),
-    'Certificate of Indigency': (
-      <>This is to certify that <strong>{residentName}</strong>, <strong>{age}</strong> years old, <strong>{civilStatus}</strong>, residing at <strong>{address}</strong>, is a bonafide resident of Barangay Pinyahan, Quezon City and is known to belong to an indigent family in this barangay. This certification is being issued upon the request of the above-mentioned person for <strong>{purpose}</strong> purposes.</>
-    ),
-    'Certificate of Residency': (
-      <>This is to certify that <strong>{residentName}</strong>, <strong>{age}</strong> years old, <strong>{civilStatus}</strong>, is a bonafide resident of <strong>{address}</strong>, Barangay Pinyahan, Quezon City. This certification is being issued upon the request of the above-mentioned person for <strong>{purpose}</strong> purposes.</>
-    ),
-    'Health Services': (
-      <>This is to certify that <strong>{residentName}</strong>, <strong>{age}</strong> years old, <strong>{civilStatus}</strong>, residing at <strong>{address}</strong>, has requested health assistance from Barangay Pinyahan, Quezon City for the purpose of <strong>{purpose}</strong>. This referral is issued to facilitate access to appropriate health services.</>
-    ),
-    'Disaster Response': (
-      <>This is to certify that <strong>{residentName}</strong>, <strong>{age}</strong> years old, <strong>{civilStatus}</strong>, residing at <strong>{address}</strong>, is a registered resident of Barangay Pinyahan, Quezon City and is hereby requesting disaster response assistance for <strong>{purpose}</strong>. This certification is issued to support the processing of appropriate aid.</>
-    ),
-  };
-  const certBody = bodyJSX[serviceType] || bodyJSX['Barangay Clearance'];
+  // ── Derive issueDay / issueMonth from the request's created_at (or today) ──
+  const issueDate  = request?.created_at ? new Date(request.created_at) : new Date();
+  const issueDay   = toOrdinal(issueDate.getDate());
+  const issueMonth = issueDate.toLocaleDateString('en-US', { month: 'long' });
 
 
   // ── Render ───────────────────────────────────────────────────────────────
@@ -184,89 +159,43 @@ export default function ServicePDFPage({ params }) {
         </div>
       </div>
 
-      {/* ── A4 Document Template ─────────────────────────────────────────── */}
+      {/* ── Document rendered via reusable certificate components ────────── */}
       {/* The printRef div is what gets captured by html2canvas */}
-      <div
-        ref={printRef}
-        className="max-w-[900px] mx-auto bg-white shadow-xl"
-        style={{
-          width: '210mm',
-          minHeight: '297mm',
-          padding: '20mm 22mm',
-          fontFamily: "'Times New Roman', Times, serif",
-          color: '#000',
-          boxSizing: 'border-box',
-          position: 'relative',
-        }}
-      >
-        {/* ── Republic Header ───────────────────────────────────────── */}
-        <div style={{ textAlign: 'center', marginBottom: 12 }}>
-          <p style={{ fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', margin: 0 }}>Republic of the Philippines</p>
-          <p style={{ fontSize: 10, letterSpacing: 1, margin: '2px 0' }}>City of Quezon</p>
-          <p style={{ fontSize: 10, letterSpacing: 1, margin: '2px 0', fontWeight: 700 }}>OFFICE OF THE BARANGAY CAPTAIN</p>
-          <p style={{ fontSize: 11, fontWeight: 900, letterSpacing: 1, margin: '2px 0', textTransform: 'uppercase' }}>Barangay Pinyahan</p>
-          <p style={{ fontSize: 9, color: '#444', margin: '2px 0' }}>E. Rodriguez Jr. Avenue (Libis), Quezon City</p>
-        </div>
-
-        {/* ── Horizontal rule ───────────────────────────────────────── */}
-        <div style={{ borderTop: '3px double #000', margin: '10px 0 6px' }}></div>
-        <div style={{ borderTop: '1px solid #000', marginBottom: 18 }}></div>
-
-        {/* ── Document Title ────────────────────────────────────────── */}
-        <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <h1 style={{ fontSize: 18, fontWeight: 900, letterSpacing: 3, textTransform: 'uppercase', margin: 0, textDecoration: 'underline' }}>
-            {docTitle}
-          </h1>
-        </div>
-
-        {/* ── Salutation ────────────────────────────────────────────── */}
-        <p style={{ fontSize: 12, marginBottom: 20 }}>To Whom It May Concern:</p>
-
-        {/* ── Body Text ─────────────────────────────────────────────── */}
-        <p style={{ fontSize: 12, lineHeight: 2, textAlign: 'justify', textIndent: '2em', marginBottom: 28 }}>
-          {certBody}
-        </p>
-
-        {/* ── Additional notice ─────────────────────────────────────── */}
-        <p style={{ fontSize: 12, lineHeight: 2, textAlign: 'justify', marginBottom: 40 }}>
-          This certification is issued upon the request of the interested party for whatever legal purpose it may serve and is valid for <strong>ninety (90) days</strong> from the date of issuance.
-        </p>
-
-        {/* ── Date & OR ─────────────────────────────────────────────── */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 48, fontSize: 11 }}>
-          <p style={{ margin: 0 }}>Issued this <strong>{today}</strong> at Barangay Pinyahan, Quezon City.</p>
-          <p style={{ margin: 0 }}>O.R. No.: ______________</p>
-        </div>
-
-        {/* ── Signature Block ───────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
-          {/* Prepared by */}
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: 10, color: '#555', margin: '0 0 40px' }}>Prepared by:</p>
-            <div style={{ borderTop: '1px solid #000', paddingTop: 6 }}>
-              <p style={{ fontSize: 12, fontWeight: 700, margin: 0, letterSpacing: 0.5 }}>________________________________</p>
-              <p style={{ fontSize: 10, margin: '4px 0 0' }}>Barangay Secretary</p>
-            </div>
-          </div>
-          {/* Approved by */}
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: 10, color: '#555', margin: '0 0 40px' }}>Approved by:</p>
-            <div style={{ borderTop: '1px solid #000', paddingTop: 6 }}>
-              <p style={{ fontSize: 12, fontWeight: 900, margin: 0, letterSpacing: 1, textTransform: 'uppercase' }}>HON. ________________________________</p>
-              <p style={{ fontSize: 10, margin: '4px 0 0' }}>Punong Barangay</p>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Footer watermark ──────────────────────────────────────── */}
-        <div style={{ marginTop: 56, borderTop: '1px solid #ccc', paddingTop: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <p style={{ fontSize: 9, color: '#888', margin: 0 }}>
-            Tracking No.: <strong>{trackingNo}</strong> &nbsp;|&nbsp; Issued: {issuedDate}
-          </p>
-          <p style={{ fontSize: 9, color: '#888', margin: 0 }}>
-            Barangay Pinyahan, Quezon City — Official Document
-          </p>
-        </div>
+      <div ref={printRef} className="max-w-[900px] mx-auto">
+        {serviceType === 'Certificate of Indigency' ? (
+          <CertificateOfIndigency
+            residentName={residentName}
+            age={age}
+            birthdate={birthdate}
+            address={address}
+            requestor={requestor}
+            purpose={purpose}
+            issueDay={issueDay}
+            issueMonth={issueMonth}
+          />
+        ) : serviceType === 'Certificate of Residency' ? (
+          <CertificateOfResidency
+            residentName={residentName}
+            civilStatus={civilStatus}
+            birthdate={birthdate}
+            address={address}
+            yearsOfResidency={yearsOfResidency}
+            purpose={purpose}
+            issueDay={issueDay}
+            issueMonth={issueMonth}
+          />
+        ) : (
+          /* Barangay Clearance (default) — also covers Business Permit,
+             Health Services, Disaster Response, and any unknown types */
+          <AlternativeClearance
+            residentName={residentName}
+            address={address}
+            purpose={purpose}
+            yearsOfResidency={yearsOfResidency}
+            issueDay={issueDay}
+            issueMonth={issueMonth}
+          />
+        )}
       </div>
 
       {/* ── Disclaimer below the doc ────────────────────────────────────── */}

@@ -2,21 +2,21 @@
 
 /**
  * PrintableDocumentLayout
- * 
+ *
  * Master layout wrapper for all official Barangay Pinyahan documents.
  * Handles A4 paper sizing, print-specific CSS, the background watermark image,
  * and the Republic of the Philippines / Barangay header block.
  *
  * Usage:
  *   <PrintableDocumentLayout title="CERTIFICATE OF INDIGENCY">
- *     {/* document body content */}
+ *     ... document body content ...
  *   </PrintableDocumentLayout>
  */
 export default function PrintableDocumentLayout({ title, children }) {
   return (
     <>
       {/* ── Print-specific styles ────────────────────────────────────────── */}
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page {
             size: 210mm 297mm;
@@ -28,7 +28,6 @@ export default function PrintableDocumentLayout({ title, children }) {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
-          /* Hide anything outside the document */
           body > *:not(#printable-document-root) {
             display: none !important;
           }
@@ -36,7 +35,7 @@ export default function PrintableDocumentLayout({ title, children }) {
             box-shadow: none !important;
           }
         }
-      `}</style>
+      `}} />
 
       <div
         id="printable-document-root"
