@@ -29,6 +29,7 @@ function formatDate(str) {
 
 export default function ServiceRequestsAdminPage() {
   const router = useRouter();
+  const [error,         setError]         = useState(null);
   const [requests,      setRequests]      = useState([]);
   const [loading,       setLoading]       = useState(true);
   const [filterStatus,  setFilterStatus]  = useState('');
@@ -36,33 +37,49 @@ export default function ServiceRequestsAdminPage() {
   const [updatingId,    setUpdatingId]    = useState(null);
   const [showHistory,   setShowHistory]   = useState(false);
 
-  const fetchRequests = async () => {
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+
+  const fetchRequests = async (signal) => {
     setLoading(true);
+    setError(null);
     try {
       const token = localStorage.getItem('token');
       const qs    = filterStatus ? `?status=${encodeURIComponent(filterStatus)}` : '';
-      const res   = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/service-requests${qs}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const res   = await fetch(`${API_BASE}/api/admin/service-requests${qs}`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal,
       });
       if (res.ok) {
         const data = await res.json();
         setRequests(data.requests || []);
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        setError(errData.error || `Server responded with status ${res.status}`);
       }
     } catch (err) {
-      console.error('Fetch error:', err);
+      if (err.name !== 'AbortError') {
+        console.error('Fetch error:', err);
+        setError('Unable to connect to server. Please check your backend connection.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchRequests(); }, [filterStatus]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchRequests(controller.signal);
+    return () => {
+      controller.abort();
+    };
+  }, [filterStatus]);
 
   const handleStatusChange = async (id, newStatus) => {
     setUpdatingId(id);
     try {
       const token = localStorage.getItem('token');
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/service-requests/${id}/status`,
+        `${API_BASE}/api/admin/service-requests/${id}/status`,
         {
           method:  'PATCH',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -76,9 +93,13 @@ export default function ServiceRequestsAdminPage() {
             ? { ...r, status: newStatus, processed_by: data.processed_by ?? r.processed_by }
             : r
         ));
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert(errData.error || 'Failed to update request status.');
       }
     } catch (err) {
       console.error('Status update error:', err);
+      alert('Network error while updating status.');
     } finally {
       setUpdatingId(null);
     }
@@ -199,13 +220,26 @@ export default function ServiceRequestsAdminPage() {
             {loading ? (
               [...Array(5)].map((_, i) => (
                 <tr key={i}>
-            {[...Array(7)].map((_, j) => (
+                  {[...Array(7)].map((_, j) => (
                     <td key={j} className="px-5 py-4">
                       <div className="h-4 bg-gray-100 rounded animate-pulse"></div>
                     </td>
                   ))}
                 </tr>
               ))
+            ) : error ? (
+              <tr>
+                <td colSpan="7" className="px-5 py-12 text-center text-red-500">
+                  <i className="fas fa-exclamation-circle text-3xl block mb-2 opacity-60"></i>
+                  <p className="font-semibold">{error}</p>
+                  <button
+                    onClick={() => fetchRequests()}
+                    className="mt-3 px-4 py-1.5 bg-red-50 text-red-700 text-xs rounded-lg hover:bg-red-100 font-bold border border-red-200 transition-colors"
+                  >
+                    <i className="fas fa-redo mr-1"></i> Retry
+                  </button>
+                </td>
+              </tr>
             ) : filtered.length === 0 ? (
               <tr>
                 <td colSpan="7" className="px-5 py-16 text-center text-gray-400">

@@ -3,83 +3,121 @@ import { useState } from 'react';
 import Link from 'next/link';
 import PublicShell from '@/components/PublicShell';
 
-// ── Constants ────────────────────────────────────────────────────────────────
-const SERVICE_TYPES = [
-  { value: 'Barangay Clearance',          icon: 'fa-file-invoice',    desc: 'General-purpose clearance document' },
-  { value: 'Business Permit Application', icon: 'fa-store',           desc: 'Barangay endorsement for businesses' },
-  { value: 'Certificate of Indigency',    icon: 'fa-file-lines',      desc: 'Proof of financial need' },
-  { value: 'Certificate of Residency',    icon: 'fa-house-user',      desc: 'Proof of address in the barangay' },
-  { value: 'Health Services',             icon: 'fa-heartbeat',       desc: 'Medical assistance & referrals' },
-  { value: 'Disaster Response',           icon: 'fa-hands-helping',   desc: 'Emergency & calamity assistance' },
+// ── Document types & their conditional fields ────────────────────────────────
+const DOCUMENT_TYPES = [
+  {
+    value:  'Barangay Clearance',
+    icon:   'fa-file-invoice',
+    desc:   'Standard clearance for employment and general requirements.',
+    fields: ['yearsOfResidency'],
+  },
+  {
+    value:  'Barangay Clearance - No Derogatory',
+    icon:   'fa-shield-alt',
+    desc:   'Certification of no derogatory record or pending cases.',
+    fields: ['yearsOfResidency'],
+  },
+  {
+    value:  'Certificate of Indigency',
+    icon:   'fa-file-lines',
+    desc:   'Certification for financial, medical, or educational assistance.',
+    fields: ['age', 'birthdate', 'requestor'],
+  },
+  {
+    value:  'Certificate of Residency',
+    icon:   'fa-house-user',
+    desc:   'Official proof of residency within the barangay.',
+    fields: ['civilStatus', 'birthdate', 'yearsOfResidency'],
+  },
+];
+
+const PURPOSE_OPTIONS = [
+  'Employment / Work Requirement',
+  'Business Permit Application',
+  'School / Scholarship Requirement',
+  'Financial Assistance',
+  'Medical Assistance',
+  'Bank Account Opening',
+  'Other',
 ];
 
 const STATUS_COLORS = {
-  'Pending':           { bg: '#fff8e1', text: '#f57f17', dot: '#fdd835' },
-  'Processing':        { bg: '#e3f2fd', text: '#1565c0', dot: '#42a5f5' },
-  'Ready for Pick-up': { bg: '#e8f5e9', text: '#2e7d32', dot: '#66bb6a' },
-  'Completed/Claimed': { bg: '#f3e5f5', text: '#6a1b9a', dot: '#ab47bc' },
+  'Pending':           { dot: '#fdd835' },
+  'Processing':        { dot: '#42a5f5' },
+  'Ready for Pick-up': { dot: '#66bb6a' },
+  'Completed/Claimed': { dot: '#ab47bc' },
 };
 
-// ── Shared input classes ─────────────────────────────────────────────────────
-const inputCls = 'w-full px-5 py-3.5 border-[1.5px] border-gray-200 rounded-full text-base outline-none text-[#1a237e] transition-all focus:ring-2 focus:ring-[#1565c0] focus:border-[#1565c0]';
+// ── CSS classes ───────────────────────────────────────────────────────────────
+const inputCls  = 'w-full px-5 py-3.5 border-[1.5px] border-gray-200 rounded-full text-base outline-none text-[#1a237e] transition-all focus:ring-2 focus:ring-[#1565c0] focus:border-[#1565c0]';
 const selectCls = 'w-full px-5 py-3.5 border-[1.5px] border-gray-200 rounded-full text-base outline-none appearance-none bg-white cursor-pointer text-[#1a237e] focus:ring-2 focus:ring-[#1565c0] focus:border-[#1565c0] transition-all';
-const labelCls = 'block text-[0.82rem] font-bold text-gray-500 mb-1.5 uppercase tracking-wider';
+const labelCls  = 'block text-[0.82rem] font-bold text-gray-500 mb-1.5 uppercase tracking-wider';
 
-// ── Main Page Component ──────────────────────────────────────────────────────
+// ── Main Component ────────────────────────────────────────────────────────────
 export default function ServiceRequestPage() {
+  // Always-visible fields
   const [residentName,  setResidentName]  = useState('');
-  const [serviceType,   setServiceType]   = useState('');
   const [address,       setAddress]       = useState('');
-  const [age,           setAge]           = useState('');
-  const [civilStatus,   setCivilStatus]   = useState('');
+  const [selectedDoc,   setSelectedDoc]   = useState('');
   const [purpose,       setPurpose]       = useState('');
-  const [submitting,    setSubmitting]    = useState(false);
-  const [error,         setError]         = useState('');
-  const [successData,   setSuccessData]   = useState(null);
 
-  const selectedService = SERVICE_TYPES.find(s => s.value === serviceType);
+  // Clearance / No Derogatory fields
+  const [yearsOfResidency, setYearsOfResidency] = useState('');
+
+  // Indigency fields
+  const [age,       setAge]       = useState('');
+  const [birthdate, setBirthdate] = useState('');
+  const [requestor, setRequestor] = useState('');
+
+  // Residency fields
+  const [civilStatus, setCivilStatus] = useState('');
+  // birthdate & yearsOfResidency shared above
+
+  const [submitting,  setSubmitting]  = useState(false);
+  const [error,       setError]       = useState('');
+  const [successData, setSuccessData] = useState(null);
+
+  const docType = DOCUMENT_TYPES.find(d => d.value === selectedDoc);
+  const showField = (f) => docType?.fields.includes(f);
 
   const reset = () => {
-    setResidentName('');
-    setServiceType('');
-    setAddress('');
-    setAge('');
-    setCivilStatus('');
-    setPurpose('');
-    setError('');
-    setSuccessData(null);
+    setResidentName(''); setAddress(''); setSelectedDoc(''); setPurpose('');
+    setYearsOfResidency(''); setAge(''); setBirthdate(''); setRequestor('');
+    setCivilStatus(''); setError(''); setSuccessData(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!residentName.trim() || !serviceType || !address.trim() || !age || !civilStatus || !purpose.trim()) {
+    if (!residentName.trim() || !selectedDoc || !address.trim() || !purpose) {
       setError('Please fill in all required fields before submitting.');
       return;
     }
 
     setSubmitting(true);
     try {
+      const body = {
+        resident_name: residentName.trim(),
+        service_type:  selectedDoc,
+        address:       address.trim(),
+        purpose,
+        // Conditional fields — only send if relevant to this document type
+        ...(showField('yearsOfResidency') && yearsOfResidency ? { years_of_residency: parseInt(yearsOfResidency) } : {}),
+        ...(showField('age')       && age       ? { age: parseInt(age) }       : {}),
+        ...(showField('birthdate') && birthdate ? { birthdate }                : {}),
+        ...(showField('requestor') && requestor ? { requestor: requestor.trim() } : {}),
+        ...(showField('civilStatus') && civilStatus ? { civil_status: civilStatus } : {}),
+      };
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services/request`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          resident_name: residentName.trim(),
-          service_type:  serviceType,
-          address:       address.trim(),
-          age:           parseInt(age),
-          civil_status:  civilStatus,
-          purpose:       purpose.trim(),
-        }),
+        body:    JSON.stringify(body),
       });
 
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Submission failed. Please try again.');
-      }
-
+      if (!res.ok) throw new Error(data.error || 'Submission failed. Please try again.');
       setSuccessData({ tracking_no: data.tracking_no, service_type: data.service_type });
     } catch (err) {
       setError(err.message);
@@ -95,44 +133,42 @@ export default function ServiceRequestPage() {
         {/* ═══ Success Screen ═══ */}
         {successData ? (
           <div className="bg-white w-full max-w-[580px] mx-auto px-8 py-10 md:px-11 md:py-12 rounded-2xl shadow-lg text-center">
-            {/* Checkmark animation */}
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-700 to-green-500 flex items-center justify-center mx-auto mb-6">
               <i className="fas fa-check text-[2.2rem] text-white" />
             </div>
-
-            <h2 className="text-[#1a237e] font-extrabold text-2xl mb-1.5">
-              Request Submitted!
-            </h2>
+            <h2 className="text-[#1a237e] font-extrabold text-2xl mb-1.5">Request Submitted!</h2>
             <p className="text-gray-500 text-[0.95rem] mb-8">
               Your <strong>{successData.service_type}</strong> request has been received.<br />
               Please save your tracking number below.
             </p>
 
-            {/* Tracking Number Box */}
             <div className="bg-gradient-to-br from-[#1565c0] to-[#0d47a1] rounded-2xl px-6 py-7 mb-5">
-              <p className="text-white/75 text-xs font-bold uppercase tracking-widest mb-2.5">
-                Your Tracking Number
-              </p>
+              <p className="text-white/75 text-xs font-bold uppercase tracking-widest mb-2.5">Your Tracking Number</p>
               <p className="text-white text-3xl md:text-[2.4rem] font-black tracking-[0.18em] font-mono m-0">
                 {successData.tracking_no}
               </p>
             </div>
 
-            {/* Screenshot reminder */}
-            <div className="bg-yellow-50 border border-amber-200 rounded-xl px-4 py-3.5 mb-7 flex items-start gap-2.5 text-left">
+            <div className="bg-yellow-50 border border-amber-200 rounded-xl px-4 py-3.5 mb-4 flex items-start gap-2.5 text-left">
               <i className="fas fa-camera text-amber-700 mt-0.5 shrink-0" />
               <p className="text-amber-900 text-[0.87rem] leading-snug m-0 font-semibold">
                 Please <strong>screenshot or write down</strong> this tracking number. You will need it to follow up or claim your document at the Barangay Hall.
               </p>
             </div>
 
-            {/* Status indicator */}
-            <div className="flex items-center justify-center gap-2 mb-7">
-              <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: STATUS_COLORS['Pending'].dot }} />
-              <span className="text-[0.85rem] font-bold" style={{ color: STATUS_COLORS['Pending'].text }}>Status: Pending</span>
+            {/* 3-Day Retention Policy Warning */}
+            <div className="bg-red-50 border-2 border-red-300 rounded-xl px-4 py-3.5 mb-7 flex items-start gap-2.5 text-left">
+              <i className="fas fa-exclamation-triangle text-red-600 mt-0.5 shrink-0" />
+              <p className="text-red-800 text-[0.87rem] leading-snug m-0 font-semibold">
+                <strong>Important 3-Day Policy:</strong> Requested documents must be claimed at the Barangay Hall within <strong>3 days</strong> of submission. After 3 days, your request and tracking number will be <strong>permanently deleted</strong> from the system.
+              </p>
             </div>
 
-            {/* Actions */}
+            <div className="flex items-center justify-center gap-2 mb-7">
+              <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: STATUS_COLORS['Pending'].dot }} />
+              <span className="text-[0.85rem] font-bold text-amber-700">Status: Pending</span>
+            </div>
+
             <div className="flex flex-col gap-3">
               <button onClick={reset}
                 className="w-full bg-white hover:bg-[#1565c0] text-[#1565c0] hover:text-white px-3.5 py-3.5 border-2 border-[#1565c0] rounded-full text-base font-bold cursor-pointer transition-all tracking-wide">
@@ -145,7 +181,7 @@ export default function ServiceRequestPage() {
           </div>
 
         ) : (
-        /* ═══ Request Form ═══ */
+          /* ═══ Request Form ═══ */
           <div className="bg-white w-full max-w-[640px] mx-auto px-8 py-10 md:px-11 md:py-12 rounded-2xl shadow-lg">
             {/* Header */}
             <div className="text-center mb-9">
@@ -161,104 +197,155 @@ export default function ServiceRequestPage() {
               </p>
             </div>
 
-            {/* Error banner */}
+            {/* Error */}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-700 text-[0.88rem] font-semibold flex items-center gap-2 mb-5">
-                <i className="fas fa-exclamation-circle" />
-                {error}
+                <i className="fas fa-exclamation-circle" />{error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} noValidate>
 
-              {/* Full Name */}
+              {/* ── Full Name ── */}
               <div className="mb-5">
                 <label className={labelCls}>
                   <i className="fas fa-user mr-1.5 text-[#1565c0]" />Full Name <span className="text-red-500">*</span>
                 </label>
-                <input type="text" placeholder="Enter your full name" value={residentName} onChange={e => setResidentName(e.target.value)} required
+                <input type="text" placeholder="Enter your full name"
+                  value={residentName} onChange={e => setResidentName(e.target.value)} required
                   className={inputCls} />
               </div>
 
-              {/* Service Type */}
-              <div className="mb-5">
-                <label className={labelCls}>
-                  <i className="fas fa-concierge-bell mr-1.5 text-[#1565c0]" />Service / Document Type <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <select value={serviceType} onChange={e => setServiceType(e.target.value)} required className={selectCls}>
-                    <option value="" disabled>— Select a service —</option>
-                    {SERVICE_TYPES.map(s => (
-                      <option key={s.value} value={s.value}>{s.value}</option>
-                    ))}
-                  </select>
-                  <i className="fas fa-caret-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
-                </div>
-                {/* Inline service description hint */}
-                {selectedService && (
-                  <p className="text-xs text-gray-400 mt-1.5 pl-5 italic flex items-center gap-1.5">
-                    <i className={`fas ${selectedService.icon} text-[#1565c0]`} />
-                    {selectedService.desc}
-                  </p>
-                )}
-              </div>
-
-              {/* Address */}
+              {/* ── Address ── */}
               <div className="mb-5">
                 <label className={labelCls}>
                   <i className="fas fa-map-marker-alt mr-1.5 text-[#1565c0]" />Complete Address <span className="text-red-500">*</span>
                 </label>
-                <input type="text" placeholder="House No., Street, Barangay Pinyahan, Quezon City" value={address} onChange={e => setAddress(e.target.value)} required
+                <input type="text" placeholder="House No., Street, Barangay Pinyahan, Quezon City"
+                  value={address} onChange={e => setAddress(e.target.value)} required
                   className={inputCls} />
               </div>
 
-              {/* Age + Civil Status — side by side */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-                <div>
+              {/* ── Document Type ── */}
+              <div className="mb-5">
+                <label className={labelCls}>
+                  <i className="fas fa-concierge-bell mr-1.5 text-[#1565c0]" />Document / Service Type <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <select value={selectedDoc} onChange={e => setSelectedDoc(e.target.value)} required className={selectCls}>
+                    <option value="" disabled>— Select a document —</option>
+                    {DOCUMENT_TYPES.map(d => (
+                      <option key={d.value} value={d.value}>{d.value}</option>
+                    ))}
+                  </select>
+                  <i className="fas fa-caret-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                </div>
+                {docType && (
+                  <p className="text-xs text-gray-400 mt-1.5 pl-5 italic flex items-center gap-1.5">
+                    <i className={`fas ${docType.icon} text-[#1565c0]`} />{docType.desc}
+                  </p>
+                )}
+              </div>
+
+              {/* ── Purpose ── */}
+              <div className="mb-5">
+                <label className={labelCls}>
+                  <i className="fas fa-clipboard mr-1.5 text-[#1565c0]" />Purpose <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <select value={purpose} onChange={e => setPurpose(e.target.value)} required className={selectCls}>
+                    <option value="" disabled>— Select a purpose —</option>
+                    {PURPOSE_OPTIONS.map(p => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                  <i className="fas fa-caret-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* ── Conditional: Years of Residency (Clearance types + Residency) ── */}
+              {showField('yearsOfResidency') && (
+                <div className="mb-5">
                   <label className={labelCls}>
-                    <i className="fas fa-birthday-cake mr-1.5 text-[#1565c0]" />Age <span className="text-red-500">*</span>
+                    <i className="fas fa-home mr-1.5 text-[#1565c0]" />Years of Residency
                   </label>
-                  <input type="number" placeholder="e.g. 35" min="1" max="120" value={age} onChange={e => setAge(e.target.value)} required
+                  <input type="number" placeholder="e.g. 5" min="1" max="100"
+                    value={yearsOfResidency} onChange={e => setYearsOfResidency(e.target.value)}
                     className={inputCls} />
                 </div>
-                <div>
+              )}
+
+              {/* ── Conditional: Age (Indigency) ── */}
+              {showField('age') && (
+                <div className="mb-5">
                   <label className={labelCls}>
-                    <i className="fas fa-heart mr-1.5 text-[#1565c0]" />Civil Status <span className="text-red-500">*</span>
+                    <i className="fas fa-birthday-cake mr-1.5 text-[#1565c0]" />Age
+                  </label>
+                  <input type="number" placeholder="e.g. 35" min="1" max="120"
+                    value={age} onChange={e => setAge(e.target.value)}
+                    className={inputCls} />
+                </div>
+              )}
+
+              {/* ── Conditional: Birthdate (Indigency + Residency) ── */}
+              {showField('birthdate') && (
+                <div className="mb-5">
+                  <label className={labelCls}>
+                    <i className="fas fa-calendar mr-1.5 text-[#1565c0]" />Date of Birth
+                  </label>
+                  <input type="date"
+                    value={birthdate} onChange={e => setBirthdate(e.target.value)}
+                    className={inputCls} />
+                </div>
+              )}
+
+              {/* ── Conditional: Requestor Name (Indigency) ── */}
+              {showField('requestor') && (
+                <div className="mb-5">
+                  <label className={labelCls}>
+                    <i className="fas fa-user-tag mr-1.5 text-[#1565c0]" />Requestor Name
+                  </label>
+                  <input type="text" placeholder="Name of person requesting (if different from above)"
+                    value={requestor} onChange={e => setRequestor(e.target.value)}
+                    className={inputCls} />
+                </div>
+              )}
+
+              {/* ── Conditional: Civil Status (Residency) ── */}
+              {showField('civilStatus') && (
+                <div className="mb-5">
+                  <label className={labelCls}>
+                    <i className="fas fa-ring mr-1.5 text-[#1565c0]" />Civil Status
                   </label>
                   <div className="relative">
-                    <select value={civilStatus} onChange={e => setCivilStatus(e.target.value)} required className={selectCls}>
+                    <select value={civilStatus} onChange={e => setCivilStatus(e.target.value)} className={selectCls}>
                       <option value="" disabled>— Select —</option>
                       <option value="Single">Single</option>
                       <option value="Married">Married</option>
                       <option value="Widowed">Widowed</option>
                       <option value="Legally Separated">Legally Separated</option>
                     </select>
-                    <i className="fas fa-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                    <i className="fas fa-caret-down absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
                   </div>
                 </div>
-              </div>
-
-              {/* Purpose */}
-              <div className="mb-5">
-                <label className={labelCls}>
-                  <i className="fas fa-align-left mr-1.5 text-[#1565c0]" />Purpose of Request <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  placeholder="Briefly describe the purpose of your request (e.g., Employment, Scholarship, Travel, etc.)"
-                  value={purpose}
-                  onChange={e => setPurpose(e.target.value)}
-                  required
-                  className="w-full px-5 py-3.5 border-[1.5px] border-gray-200 rounded-2xl text-base outline-none resize-y text-[#1a237e] min-h-[110px] focus:ring-2 focus:ring-[#1565c0] focus:border-[#1565c0] transition-all"
-                />
-              </div>
+              )}
 
               {/* Privacy notice */}
-              <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-6 flex items-start gap-2.5">
+              <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5">
                 <i className="fas fa-shield-alt text-green-700 mt-0.5 shrink-0" />
                 <p className="text-green-900 text-xs leading-snug m-0 font-medium">
                   Your information is handled in accordance with the Data Privacy Act of 2012 and will only be used for processing your barangay service request.
                 </p>
               </div>
+
+              {/* 3-Day Retention Policy Acknowledgment */}
+              <label className="flex items-start gap-3 bg-amber-50 border-2 border-amber-300 rounded-xl px-4 py-3.5 mb-6 cursor-pointer select-none">
+                <input type="checkbox" required
+                  className="mt-0.5 w-5 h-5 shrink-0 accent-[#1565c0] cursor-pointer" />
+                <span className="text-amber-900 text-[0.82rem] leading-snug font-semibold">
+                  I understand that requested documents must be claimed at the Barangay Hall within <strong>3 days</strong>, or the request and tracking number will be <strong>permanently deleted</strong> from the system.
+                </span>
+              </label>
 
               {/* Submit */}
               <button type="submit" disabled={submitting}
@@ -270,7 +357,6 @@ export default function ServiceRequestPage() {
                 }
               </button>
 
-              {/* Back link */}
               <div className="text-center mt-5">
                 <Link href="/services" className="text-gray-400 text-[0.87rem] font-semibold no-underline hover:text-[#1565c0] transition-colors">
                   Back to Services
@@ -279,7 +365,6 @@ export default function ServiceRequestPage() {
             </form>
           </div>
         )}
-
       </div>
     </PublicShell>
   );

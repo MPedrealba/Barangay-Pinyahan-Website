@@ -57,15 +57,15 @@ export default function AdminLayout({ children }) {
   };
 
   const navItems = [
-    { name: 'HOME',             icon: 'fa-home',               path: '/admin/dashboard'         },
-    { name: 'COMPLAINTS',       icon: 'fa-exclamation-circle', path: '/admin/complaints'        },
-    { name: 'SERVICES',         icon: 'fa-hands-helping',      path: '/admin/services'          },
-    { name: 'SERVICE REQUESTS', icon: 'fa-file-alt',           path: '/admin/service-requests'  },
-    { name: 'NEWS',             icon: 'fa-newspaper',          path: '/admin/news'              },
-    { name: 'EVENTS',           icon: 'fa-calendar-alt',       path: '/admin/events'            },
-    { name: 'REPORTS',          icon: 'fa-chart-line',         path: '/admin/reports'           },
-    { name: 'NOTIFICATIONS',    icon: 'fa-bell',               path: '/admin/notifications'     },
-    { name: 'ACCOUNTS SETTING', icon: 'fa-users-cog',          path: '/admin/accounts'          },
+    { name: 'HOME',              icon: 'fa-home',               path: '/admin/dashboard'          },
+    { name: 'COMPLAINTS',        icon: 'fa-exclamation-circle', path: '/admin/complaints'         },
+    { name: 'SERVICES',          icon: 'fa-hands-helping',      path: '/admin/services'           },
+    { name: "CITIZEN'S CHARTER", icon: 'fa-scroll',             path: '/admin/citizens-charter'   },
+    { name: 'NEWS',              icon: 'fa-newspaper',          path: '/admin/news'               },
+    { name: 'EVENTS',            icon: 'fa-calendar-alt',       path: '/admin/events'             },
+    { name: 'REPORTS',           icon: 'fa-chart-line',         path: '/admin/reports'            },
+    { name: 'NOTIFICATIONS',     icon: 'fa-bell',               path: '/admin/notifications'      },
+    { name: 'ACCOUNTS SETTING',  icon: 'fa-users-cog',          path: '/admin/accounts'           },
   ];
 
   // ── Blank loading screen prevents dashboard flash before redirect ────────

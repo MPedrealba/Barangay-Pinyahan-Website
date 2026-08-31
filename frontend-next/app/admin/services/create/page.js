@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -36,17 +36,19 @@ export default function CreateServicePage() {
 
     try {
       const token = localStorage.getItem('token');
-      const formData = new FormData();
-      formData.append('name', name.trim());
-      formData.append('description', description.trim());
-      formData.append('status', status);
-      formData.append('requirements', JSON.stringify(requirements.filter((r) => r.trim())));
-      formData.append('procedure', JSON.stringify(procedure.filter((s) => s.trim())));
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services/admin`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/services`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-        body: formData
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          description: description.trim(),
+          status,
+          requirements: requirements.filter((r) => r.trim()),
+          procedures: procedure.filter((s) => s.trim()),
+        }),
       });
 
       if (res.ok) {
@@ -67,9 +69,17 @@ export default function CreateServicePage() {
   return (
     <div className="p-8 max-w-4xl mx-auto">
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#0056b3]">Service Management</h1>
-        <p className="text-sm text-gray-500 mt-1">Add a New Barangay Service</p>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-[#0056b3]">Service Management</h1>
+          <p className="text-sm text-gray-500 mt-1">Add a New Barangay Service</p>
+        </div>
+        <Link
+          href="/admin/services"
+          className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors no-underline"
+        >
+          <i className="fas fa-arrow-left"></i> Back to Services
+        </Link>
       </div>
 
       {/* Card */}

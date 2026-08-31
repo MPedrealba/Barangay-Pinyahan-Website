@@ -3,21 +3,29 @@ import React from 'react';
 export default function PrintableDocumentLayout({ children }) {
   return (
     <div 
-      className="relative mx-auto shadow-2xl bg-white font-sans text-black overflow-hidden print:shadow-none print:m-0 print:w-[210mm] print:h-[297mm]"
+      className="relative mx-auto bg-white overflow-hidden text-black font-sans shadow-lg"
       style={{
         width: '210mm',
-        height: '297mm', /* Locks it exactly to A4 height */
-        backgroundImage: 'url(/brgy-doc-bg.jpg)',
-        backgroundSize: '100% 100%', /* Forces the image to stretch corner-to-corner */
-        backgroundPosition: 'top center',
-        backgroundRepeat: 'no-repeat'
+        height: '297mm',
+        minHeight: '297mm',
+        boxSizing: 'border-box',
+        fontFamily: "'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
       }}
     >
-      {/* 
-        pt-[220px] pushes the dynamic text down so it doesn't overlap the blue image header.
-        px-[80px] gives it wide, formal margins.
-      */}
-      <div className="relative z-10 px-[80px] pt-[220px]">
+      {/* Background with Barangay header, seal watermark, and gradient footer */}
+      <img 
+        src="/images/brgy-doc-bg.jpg" 
+        alt="Official Background" 
+        className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none"
+        style={{ 
+          objectFit: 'fill',
+          width: '100%',
+          height: '100%',
+        }}
+      />
+
+      {/* The Text Container positioned perfectly below the top banner */}
+      <div className="relative z-10 pt-[190px] px-[65px] pb-[30px] h-full box-border flex flex-col justify-between">
         {children}
       </div>
     </div>
