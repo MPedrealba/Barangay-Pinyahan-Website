@@ -139,27 +139,24 @@ INSERT INTO news (title, date_published, description, photo_url, is_featured) VA
 INSERT INTO events (name, date, time, location, description) VALUES
 ('Barangay Clean-Up Drive 2026', '2026-02-15', '16:00:00', 'Brgy. Court', 'We\'re happy to have you here! This space was created to keep our community informed, connected, and involved. Whether you\'re looking for the latest announcements, ongoing projects, public services, or ways to participate in our programs, everything you need is just a few clicks away.');
 
--- Sample services
+-- Sample services (only services with Word document templates)
+-- Requirements & Procedures from official Barangay Pinyahan Citizen's Charter
 INSERT INTO services (name, description, icon_class, icon_color, requirements, procedures, status) VALUES
-('Barangay Clearance', 'Service Information and Processing Details', 'fas fa-file-alt', 'blue',
- '["Barangay Clearance Application Form", "Valid Government-issued ID", "Proof of Residency", "Cedula (Community Tax Certificate)"]',
- '["Submit requirements to the Barangay Office", "Verification of documents", "Pay clearance fee", "Processing and approval", "Release of Barangay Clearance"]',
+('Barangay Clearance and Certifications', 'This service allows citizens to obtain Barangay Clearance and Certification, documents that certify their compliance with barangay regulations and requirements.', 'fas fa-file-alt', 'blue',
+ '["Accomplished Information Form", "Photocopy of valid ID address in Barangay Pinyahan (e.g Driver''s License, UMID, Postal ID, Senior Citizen''s ID, PWD ID, Voter''s ID)"]',
+ '["Obtain an application form and fill out completely", "Submit the accomplished information form and supporting requirements at Cubicle No. 9 for evaluation"]',
  'Active'),
-('Business Permit Application', 'Accept and process business permit applications.', 'fas fa-building', 'blue',
- '["Barangay Business Permit Application Form", "DTI/SEC Registration", "Valid Government-issued ID", "Cedula", "Proof of Business Address"]',
- '["Submit requirements to the Barangay Office", "Verification of documents", "Pay permit fee", "Inspection (if applicable)", "Processing and approval", "Release of Business Permit"]',
+('Barangay Clearance - No Derogatory', 'Certification that the applicant has no derogatory record or pending cases in the barangay, issued for employment and general requirements.', 'fas fa-shield-alt', 'blue',
+ '["Accomplished Information Form", "Photocopy of valid ID address in Barangay Pinyahan (e.g Driver''s License, UMID, Postal ID, Senior Citizen''s ID, PWD ID, Voter''s ID)"]',
+ '["Obtain an application form and fill out completely", "Submit the accomplished information form and supporting requirements at Cubicle No. 9 for evaluation"]',
  'Active'),
-('Certificate of Indigency', 'Provide certificates of indigency for residents.', 'fas fa-certificate', 'blue',
- '["Certificate of Indigency Request Form", "Valid Government-issued ID", "Proof of Residency"]',
- '["Submit requirements to the Barangay Office", "Verification of documents", "Processing and approval", "Release of Certificate"]',
+('Barangay Certificate of Indigency', 'Issued to residents who require financial assistance for various purposes, such as medical treatment, burial, and other essential needs.', 'fas fa-certificate', 'blue',
+ '["Accomplished Information Form", "Photocopy of valid ID address in Barangay Pinyahan (e.g Driver''s License, UMID, Postal ID, Senior Citizen''s ID, PWD ID, Voter''s ID)"]',
+ '["Obtain an application form and fill out completely", "Submit the accomplished information form and supporting requirements at Cubicle No. 9 for evaluation", "Wait for the request to be processed", "Receive the requested certificate/clearance"]',
  'Active'),
-('Health Services', 'Offer health services and medical assistance.', 'fas fa-heart', 'red',
- '["Valid ID", "Barangay ID or Proof of Residency", "Medical Records (if applicable)"]',
- '["Visit the Barangay Health Center", "Register at the reception", "Consultation with health worker", "Receive prescribed medication or referral"]',
- 'Active'),
-('Disaster Response', 'Coordinate disaster response and relief efforts.', 'fas fa-house-damage', 'yellow',
- '["Valid ID", "Proof of Residency", "Damage Assessment Form (if applicable)"]',
- '["Report to the Barangay Disaster Risk Reduction Office", "Fill out assessment form", "Evaluation of damage/need", "Distribution of relief goods or assistance"]',
+('Certificate of Residency', 'Official proof of residency within the barangay, verifying that the applicant is a bonafide resident of Barangay Pinyahan.', 'fas fa-house-user', 'blue',
+ '["Accomplished Information Form", "Photocopy of valid ID address in Barangay Pinyahan (e.g Driver''s License, UMID, Postal ID, Senior Citizen''s ID, PWD ID, Voter''s ID)"]',
+ '["Obtain an application form and fill out completely", "Submit the accomplished information form and supporting requirements at Cubicle No. 9 for evaluation", "Wait for the request to be processed", "Receive the requested certificate/clearance"]',
  'Active');
 
 -- Sample notifications

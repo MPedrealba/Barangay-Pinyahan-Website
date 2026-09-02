@@ -5,31 +5,8 @@ import PrintableDocumentLayout from './PrintableDocumentLayout';
 /**
  * CertificateOfIndigency
  *
- * Official Barangay Pinyahan Certificate of Indigency document.
- *
- * Props:
- *   residentName  – Full name of the resident
- *   age           – Age of the resident
- *   birthdate     – Date of birth (formatted string)
- *   address       – Residential address within the barangay
- *   requestor     – Name of the person requesting the certificate
- *   purpose       – Purpose for issuing the certificate
- *   issueDay      – Day of issuance (e.g. "15th")
- *   issueMonth    – Month of issuance (e.g. "August")
+ * Official Barangay Pinyahan Certificate of Indigency (Screenshot 2).
  */
-
-/* Reusable inline blank style */
-const blankClasses =
-  'font-bold border-b border-black inline-block text-center px-4 mx-2';
-
-function Blank({ value }) {
-  return (
-    <span className={blankClasses} style={{ minWidth: '8rem' }}>
-      {value}
-    </span>
-  );
-}
-
 export default function CertificateOfIndigency({
   residentName,
   age,
@@ -42,62 +19,73 @@ export default function CertificateOfIndigency({
 }) {
   return (
     <PrintableDocumentLayout>
+      <div className="text-[14px] text-black" style={{ lineHeight: '2.3' }}>
+        {/* Document Title */}
+        <h1 className="text-center text-[21px] font-bold tracking-[3px] uppercase mb-12 text-black">
+          CERTIFICATE OF INDIGENCY
+        </h1>
 
-      {/* ── Document Title ─────────────────────────────────────────────── */}
-      <h1 className="text-center text-[18px] font-black tracking-[3px] uppercase underline mb-7">
-        CERTIFICATE OF INDIGENCY
-      </h1>
+        {/* Paragraph 1 */}
+        <p className="text-justify mb-7" style={{ textIndent: '3rem' }}>
+          This is to certify that{' '}
+          <span className="font-bold underline uppercase px-1">
+            {residentName || '___________________________________'}
+          </span>
+          , Filipino, of legal age,{' '}
+          <span className="font-bold underline px-1">
+            {age || '________'}
+          </span>
+          , born on{' '}
+          <span className="font-bold underline px-1">
+            {birthdate || '__________________________'}
+          </span>
+          , is a resident of{' '}
+          <span className="font-bold underline px-1">
+            {address || '_______________________________'}
+          </span>
+          , Brgy. Pinyahan, Quezon City.
+        </p>
 
-      {/* ── Body Text ──────────────────────────────────────────────────── */}
-      <p
-        className="text-[12px] leading-[2.5rem] text-justify"
-        style={{ textIndent: '2em', marginBottom: '1.5rem' }}
-      >
-        This is to certify that
-        <Blank value={residentName} />, Filipino, of legal age,
-        <Blank value={age} />, born on
-        <Blank value={birthdate} />, is a resident of
-        <Blank value={address} />, Brgy. Pinyahan, Quezon City.
-      </p>
+        {/* Paragraph 2 */}
+        <p className="text-justify mb-7" style={{ textIndent: '3rem' }}>
+          This further certifies the above-mentioned name and his/her family is considered as{' '}
+          <strong className="font-bold">&ldquo;INDIGENT&rdquo;</strong> in this barangay.
+        </p>
 
-      <p
-        className="text-[12px] leading-[2.5rem] text-justify"
-        style={{ textIndent: '2em', marginBottom: '1.5rem' }}
-      >
-        This further certifies the above-mentioned name and his/her family is
-        considered as &ldquo;INDIGENT&rdquo; in this barangay.
-      </p>
+        {/* Paragraph 3 */}
+        <p className="text-justify mb-7" style={{ textIndent: '3rem' }}>
+          This certification is being issued upon the request of{' '}
+          <span className="font-bold underline uppercase px-1">
+            {requestor || residentName || '____________________________________'}
+          </span>
+          .
+        </p>
 
-      <p
-        className="text-[12px] leading-[2.5rem] text-justify"
-        style={{ textIndent: '2em', marginBottom: '1.5rem' }}
-      >
-        This certification is being issued upon the request of
-        <Blank value={requestor} />.
-      </p>
+        {/* Paragraph 4 */}
+        <p className="text-justify mb-7" style={{ textIndent: '3rem' }}>
+          Purpose:{' '}
+          <span className="font-bold underline px-1">
+            {purpose || '________________________________'}
+          </span>
+        </p>
 
-      <p
-        className="text-[12px] leading-[2.5rem] text-justify"
-        style={{ textIndent: '2em', marginBottom: '1.5rem' }}
-      >
-        Purpose: <Blank value={purpose} />.
-      </p>
+        {/* Paragraph 5 */}
+        <p className="text-justify mb-16" style={{ textIndent: '3rem' }}>
+          Issued this{' '}
+          <span className="font-bold underline px-1">{issueDay || '_____'}</span>{' '}
+          day of{' '}
+          <span className="font-bold underline px-1">{issueMonth || '__________________'}</span>{' '}
+          2026, at Barangay Pinyahan, Quezon City.
+        </p>
+      </div>
 
-      <p
-        className="text-[12px] leading-[2.5rem] text-justify"
-        style={{ textIndent: '2em', marginBottom: '2.5rem' }}
-      >
-        Issued this <Blank value={issueDay} /> day of
-        <Blank value={issueMonth} /> 2026, at Barangay Pinyahan, Quezon City.
-      </p>
-
-      {/* ── Signature Block ────────────────────────────────────────────── */}
-      <div className="mt-16 flex justify-end">
-        <div className="text-center">
-          <p className="text-[12px] font-black tracking-[1px] uppercase m-0">
+      {/* Signature Block */}
+      <div className="flex justify-end pb-12">
+        <div className="text-center" style={{ minWidth: '260px' }}>
+          <p className="font-bold text-[14px] tracking-[1px] uppercase m-0 text-black">
             HON. RICARDO A. VILLAFLOR, MPA
           </p>
-          <p className="text-[10px] m-0 mt-1">Punong Barangay</p>
+          <p className="text-[12px] m-0 mt-1 text-gray-800">Punong Barangay</p>
         </div>
       </div>
     </PrintableDocumentLayout>

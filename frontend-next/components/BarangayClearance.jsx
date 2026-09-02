@@ -3,15 +3,14 @@
 import PrintableDocumentLayout from './PrintableDocumentLayout';
 
 /**
- * AlternativeClearance
+ * BarangayClearance
  *
- * Official Barangay Pinyahan Barangay Clearance (Application / Residency Format - Screenshot 3).
+ * Official Barangay Pinyahan Barangay Clearance (Certification Format - Screenshot 1).
  */
-export default function AlternativeClearance({
+export default function BarangayClearance({
   residentName,
   address,
   purpose,
-  yearsOfResidency,
   issueDay,
   issueMonth,
 }) {
@@ -25,41 +24,34 @@ export default function AlternativeClearance({
 
         {/* Paragraph 1 */}
         <p className="text-justify mb-7" style={{ textIndent: '3rem' }}>
-          THIS IS TO CERTIFY THAT,{' '}
+          This is to certify that,{' '}
           <span className="font-bold underline uppercase px-1">
-            {residentName || '_____________________________________'}
+            {residentName || '____________________________________'}
           </span>
           , of legal age, Filipino, and a bonafide resident of{' '}
           <span className="font-bold underline px-1">
-            {address || '___________________________'}
+            {address || '_____________________'}
           </span>
-          , Barangay Pinyahan, Quezon City, Metro Manila, has applied for a Barangay Clearance for the purpose of applying for:{' '}
-          <span className="font-bold underline px-1">
-            {purpose || '____________________________________'}
-          </span>
-          .
+          , Barangay Pinyahan, Quezon City, Metro Manila, has applied for a Barangay Certification and has been verified to have{' '}
+          <strong className="font-bold">no derogatory record</strong> or{' '}
+          <strong className="font-bold">pending cases</strong> in this office.
         </p>
 
         {/* Paragraph 2 */}
         <p className="text-justify mb-7" style={{ textIndent: '3rem' }}>
-          This clearance is issued upon verification that the applicant has no outstanding obligations or pending cases in this barangay, and is in good standing with the community.
+          This certification is issued for{' '}
+          <span className="font-bold underline px-1">
+            {purpose || '____________________________________________________'}
+          </span>{' '}
+          purposes, and is valid for a period of six (6) months from the date of issuance.
         </p>
 
         {/* Paragraph 3 */}
-        <p className="text-justify mb-7" style={{ textIndent: '3rem' }}>
-          The applicant has been a resident of this barangay for{' '}
-          <span className="font-bold underline px-1">
-            {yearsOfResidency || '____________'}
-          </span>{' '}
-          years and has been a law-abiding citizen, adhering to all local ordinances and regulations.
-        </p>
-
-        {/* Paragraph 4 */}
         <p className="text-justify mb-16" style={{ textIndent: '3rem' }}>
           Issued this{' '}
-          <span className="font-bold underline px-1">{issueDay || '_____'}</span>{' '}
+          <span className="font-bold underline px-1">{issueDay || '___'}</span>{' '}
           day of{' '}
-          <span className="font-bold underline px-1">{issueMonth || '____________________'}</span>{' '}
+          <span className="font-bold underline px-1">{issueMonth || '__________________'}</span>{' '}
           2026, at Barangay Pinyahan, Quezon City.
         </p>
       </div>

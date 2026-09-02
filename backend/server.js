@@ -10,6 +10,7 @@ const cors = require("cors"); // Allows frontend to call backend APIs
 const dotenv = require("dotenv"); // Loads variables from .env file
 const mysql = require("mysql2/promise"); // MySQL driver with async/await support
 const path = require("path"); // For resolving file paths
+const { startCleanupCron } = require("./utils/cronJobs"); // Automated 3-day retention cleanup
 
 // ------------------------------------------
 // STEP 2: Load environment variables
@@ -28,10 +29,10 @@ const app = express();
 // ------------------------------------------
 
 // Parse incoming JSON request bodies (for POST/PUT requests)
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // Parse URL-encoded form data (for HTML form submissions)
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Enable CORS so your frontend HTML files can call the API
 // without getting blocked by the browser's same-origin policy
@@ -59,26 +60,37 @@ app.get("/", (req, res) => {
 // ------------------------------------------
 // STEP 5: Create MySQL connection pool
 // ------------------------------------------
-// A pool reuses connections instead of creating a new one
-// for every request — much more efficient
+const DB_NAME = process.env.DB_NAME || 'test';
+
 const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
+  database: DB_NAME,
   port: process.env.DB_PORT,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
   ssl: {
     rejectUnauthorized: true,
   },
 });
 
+// Handle pool errors so connection drops/resets don't crash the server
+db.pool.on('error', (err) => {
+  console.error('⚠️ MySQL Pool Warning (reconnecting):', err.message);
+});
+
 // Automatically select the database on every new pool connection
 // (bypasses TiDB Cloud Serverless handshake rejection for custom DB names)
-const DB_NAME = process.env.DB_NAME || 'barangay_pinyahan';
 db.pool.on('connection', (connection) => {
-  connection.query('USE `' + DB_NAME + '`');
+  connection.query('USE `' + DB_NAME + '`', (err) => {
+    if (err) {
+      console.error('Error selecting database on connection:', err.message);
+    }
+  });
 });
 
 // ------------------------------------------
@@ -132,20 +144,23 @@ const notificationRoutes = require('./routes/notifications');
 const dashboardRoutes = require('./routes/dashboard');
 const reportsRoutes = require('./routes/reports');
 const categoryRoutes = require('./routes/categories');
-const serviceRequestRoutes = require('./routes/serviceRequests');
+const citizensCharterRoutes = require('./routes/citizensCharter');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/admin/news', newsRoutes);
+app.use('/api/news', newsRoutes);
 app.use('/api/admin/events', eventRoutes);
+app.use('/api/events', eventRoutes);
 app.use('/api/admin/services', serviceRoutes);
+app.use('/api/services', serviceRoutes);
 app.use('/api/admin/accounts', accountRoutes);
 app.use('/api/admin/notifications', notificationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/admin/reports', reportsRoutes);
 app.use('/api/admin/categories', categoryRoutes);
-app.use('/api/services', serviceRequestRoutes);        // public: /request, /track
-app.use('/api/admin/service-requests', serviceRequestRoutes); // admin: GET, PATCH, DELETE
+app.use('/api/citizens-charter', citizensCharterRoutes);        // public: /public
+app.use('/api/admin/citizens-charter', citizensCharterRoutes);  // admin: CRUD
 
 // ------------------------------------------
 // ONE-SHOT DB FIX: complaint_type ENUM → VARCHAR(100)
@@ -207,6 +222,7 @@ app.listen(PORT, () => {
   console.log(`📡 API endpoint: http://localhost:${PORT}/api`);
   console.log("==========================================");
   testConnection();
+  startCleanupCron(db); // Start the automated 3-day retention cleanup
 });
 
 module.exports = app;

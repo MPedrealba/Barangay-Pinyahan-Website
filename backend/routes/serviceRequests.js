@@ -8,16 +8,14 @@ const verifyToken = require('../middleware/auth');
 // ── Allowed service types ────────────────────────────────────────────────────
 const VALID_SERVICE_TYPES = [
     'Barangay Clearance',
-    'Business Permit Application',
+    'Barangay Clearance - No Derogatory',
     'Certificate of Indigency',
     'Certificate of Residency',
-    'Health Services',
-    'Disaster Response',
 ];
 
 // ── Tracking number generator ────────────────────────────────────────────────
 function generateTrackingNo() {
-    const chars  = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I to avoid confusion
+    const chars  = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     const random = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
     return `SRV-${random}`;
 }
@@ -29,9 +27,11 @@ function generateTrackingNo() {
 // POST /api/services/request — Submit a new service request (public)
 router.post('/request', async (req, res) => {
     try {
-        const { resident_name, service_type, purpose, address, age, civil_status } = req.body;
+        const {
+            resident_name, service_type, purpose, address,
+            age, civil_status, birthdate, years_of_residency, requestor,
+        } = req.body;
 
-        // Validation
         if (!resident_name?.trim() || !service_type?.trim() || !purpose?.trim()) {
             return res.status(400).json({ error: 'resident_name, service_type, and purpose are required.' });
         }
@@ -41,10 +41,7 @@ router.post('/request', async (req, res) => {
         }
 
         if (!VALID_SERVICE_TYPES.includes(service_type)) {
-            return res.status(400).json({
-                error: 'Invalid service type.',
-                valid_types: VALID_SERVICE_TYPES,
-            });
+            return res.status(400).json({ error: 'Invalid service type.', valid_types: VALID_SERVICE_TYPES });
         }
 
         // Generate unique tracking number
@@ -53,43 +50,43 @@ router.post('/request', async (req, res) => {
         while (!isUnique) {
             tracking_no = generateTrackingNo();
             const [existing] = await req.db.query(
-                'SELECT id FROM service_requests WHERE tracking_no = ?',
-                [tracking_no]
+                'SELECT id FROM service_requests WHERE tracking_no = ?', [tracking_no]
             );
             if (existing.length === 0) isUnique = true;
         }
 
-        // Insert record
         await req.db.query(
-            `INSERT INTO service_requests (tracking_no, resident_name, service_type, purpose, address, age, civil_status, status)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending')`,
+            `INSERT INTO service_requests
+             (tracking_no, resident_name, service_type, purpose, address, age, civil_status, birthdate, years_of_residency, requestor, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')`,
             [
                 tracking_no,
                 resident_name.trim(),
                 service_type.trim(),
                 purpose.trim(),
-                address?.trim() || null,
+                address?.trim()    || null,
                 age ? parseInt(age) : null,
                 civil_status?.trim() || null,
+                birthdate            || null,
+                years_of_residency ? parseInt(years_of_residency) : null,
+                requestor?.trim()    || null,
             ]
         );
 
-        // Notify admins
         await req.db.query(
-            `INSERT INTO notifications (admin_id, title, message, icon_class)
-             VALUES (NULL, ?, ?, ?)`,
+            `INSERT INTO notifications (admin_id, title, message, icon_class) VALUES (NULL, ?, ?, ?)`,
             [
                 'New Service Request',
                 `New ${service_type} request (${tracking_no}) from ${resident_name.trim()}.`,
                 'fas fa-file-alt',
             ]
-        ).catch(() => {}); // non-blocking — ignore if notifications table issues
+        ).catch(() => {});
 
         res.status(201).json({
-            message:     'Service request submitted successfully!',
-            tracking_no: tracking_no,
-            service_type: service_type,
-            status:      'Pending',
+            message: 'Service request submitted successfully!',
+            tracking_no,
+            service_type,
+            status: 'Pending',
         });
     } catch (error) {
         console.error('Service request submission error:', error);
@@ -101,7 +98,6 @@ router.post('/request', async (req, res) => {
 router.post('/track', async (req, res) => {
     try {
         const { tracking_no } = req.body;
-
         if (!tracking_no?.trim()) {
             return res.status(400).json({ error: 'tracking_no is required.' });
         }
@@ -112,10 +108,7 @@ router.post('/track', async (req, res) => {
             [tracking_no.trim().toUpperCase()]
         );
 
-        if (rows.length === 0) {
-            return res.status(404).json({ error: 'Service request not found.' });
-        }
-
+        if (rows.length === 0) return res.status(404).json({ error: 'Service request not found.' });
         res.json({ request: rows[0] });
     } catch (error) {
         console.error('Service request track error:', error);
@@ -131,14 +124,11 @@ router.post('/track', async (req, res) => {
 router.get('/', verifyToken, async (req, res) => {
     try {
         const { status, service_type } = req.query;
-
-        let sql    = 'SELECT * FROM service_requests';
-        const conditions = [];
-        const values     = [];
+        let sql = 'SELECT * FROM service_requests';
+        const conditions = [], values = [];
 
         if (status)       { conditions.push('status = ?');       values.push(status); }
         if (service_type) { conditions.push('service_type = ?'); values.push(service_type); }
-
         if (conditions.length > 0) sql += ' WHERE ' + conditions.join(' AND ');
         sql += ' ORDER BY created_at DESC';
 
@@ -154,17 +144,74 @@ router.get('/', verifyToken, async (req, res) => {
 router.get('/:id', verifyToken, async (req, res) => {
     try {
         const [rows] = await req.db.query(
-            'SELECT * FROM service_requests WHERE id = ?',
-            [req.params.id]
+            'SELECT * FROM service_requests WHERE id = ?', [req.params.id]
         );
-
-        if (rows.length === 0) {
-            return res.status(404).json({ error: 'Service request not found.' });
-        }
-
+        if (rows.length === 0) return res.status(404).json({ error: 'Service request not found.' });
         res.json({ request: rows[0] });
     } catch (error) {
         console.error('Fetch single service request error:', error);
+        res.status(500).json({ error: 'Server error.' });
+    }
+});
+
+// PUT /api/admin/service-requests/:id — Update resident data fields (admin)
+router.put('/:id', verifyToken, async (req, res) => {
+    try {
+        const {
+            resident_name, address, purpose, age, civil_status,
+            birthdate, years_of_residency, requestor, service_type, photo,
+        } = req.body;
+
+        if (!resident_name?.trim()) {
+            return res.status(400).json({ error: 'resident_name is required.' });
+        }
+        if (service_type && !VALID_SERVICE_TYPES.includes(service_type)) {
+            return res.status(400).json({ error: 'Invalid service type.', valid_types: VALID_SERVICE_TYPES });
+        }
+
+        const [result] = await req.db.query(
+            `UPDATE service_requests SET
+                resident_name      = ?,
+                address            = ?,
+                purpose            = ?,
+                age                = ?,
+                civil_status       = ?,
+                birthdate          = ?,
+                years_of_residency = ?,
+                requestor          = ?,
+                service_type       = ?,
+                photo              = ?
+             WHERE id = ? OR tracking_no = ?`,
+            [
+                resident_name.trim(),
+                address?.trim()    || null,
+                purpose?.trim()    || null,
+                age ? parseInt(age) : null,
+                civil_status?.trim() || null,
+                birthdate            || null,
+                years_of_residency ? parseInt(years_of_residency) : null,
+                requestor?.trim()    || null,
+                service_type         || null,
+                photo                || null,
+                req.params.id,
+                req.params.id,
+            ]
+        );
+
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'Service request not found.' });
+
+        const adminLabel = req.admin?.full_name
+            ? `${req.admin.full_name} (Admin)` : (req.admin?.username ? `${req.admin.username} (Admin)` : 'Admin');
+
+        await req.db.query(
+            'INSERT INTO audit_logs (admin_id, action_type, action_details) VALUES (?, ?, ?)',
+            [req.admin?.id || null, 'Service Request', `Updated service request #${req.params.id} data by ${adminLabel}`]
+        ).catch(() => {});
+
+        const [rows] = await req.db.query('SELECT * FROM service_requests WHERE id = ? OR tracking_no = ?', [req.params.id, req.params.id]);
+        res.json({ message: 'Service request updated successfully.', request: rows[0] });
+    } catch (error) {
+        console.error('Update service request error:', error);
         res.status(500).json({ error: 'Server error.' });
     }
 });
@@ -173,38 +220,24 @@ router.get('/:id', verifyToken, async (req, res) => {
 router.patch('/:id/status', verifyToken, async (req, res) => {
     try {
         const { status } = req.body;
-
         const VALID_STATUSES = ['Pending', 'Processing', 'Ready for Pick-up', 'Completed/Claimed'];
         if (!status || !VALID_STATUSES.includes(status)) {
-            return res.status(400).json({
-                error: 'Invalid status value.',
-                valid_statuses: VALID_STATUSES,
-            });
+            return res.status(400).json({ error: 'Invalid status value.', valid_statuses: VALID_STATUSES });
         }
 
-        // Build the admin display name for the audit trail
         const adminLabel = req.admin.full_name
-            ? `${req.admin.full_name} (Admin)`
-            : `${req.admin.username} (Admin)`;
+            ? `${req.admin.full_name} (Admin)` : `${req.admin.username} (Admin)`;
 
         const [result] = await req.db.query(
             'UPDATE service_requests SET status = ?, processed_by = ? WHERE id = ?',
             [status, adminLabel, req.params.id]
         );
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'Service request not found.' });
 
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Service request not found.' });
-        }
-
-        // Audit log
         await req.db.query(
             'INSERT INTO audit_logs (admin_id, action_type, action_details) VALUES (?, ?, ?)',
-            [
-                req.admin.id,
-                'Service Request',
-                `Updated service request #${req.params.id} status to "${status}" by ${adminLabel}`,
-            ]
-        ).catch(() => {}); // non-blocking
+            [req.admin.id, 'Service Request', `Updated service request #${req.params.id} status to "${status}" by ${adminLabel}`]
+        ).catch(() => {});
 
         res.json({ message: `Status updated to "${status}" successfully.`, status, processed_by: adminLabel });
     } catch (error) {
@@ -217,14 +250,9 @@ router.patch('/:id/status', verifyToken, async (req, res) => {
 router.delete('/:id', verifyToken, async (req, res) => {
     try {
         const [result] = await req.db.query(
-            'DELETE FROM service_requests WHERE id = ?',
-            [req.params.id]
+            'DELETE FROM service_requests WHERE id = ?', [req.params.id]
         );
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Service request not found.' });
-        }
-
+        if (result.affectedRows === 0) return res.status(404).json({ error: 'Service request not found.' });
         res.json({ message: 'Service request deleted successfully.' });
     } catch (error) {
         console.error('Delete service request error:', error);
