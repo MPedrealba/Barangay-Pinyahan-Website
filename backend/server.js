@@ -101,6 +101,37 @@ async function testConnection() {
     const connection = await db.getConnection();
     await connection.query('USE `' + DB_NAME + '`');
     console.log("✅ Database connected successfully! Using: " + DB_NAME);
+
+    // Ensure media_files table exists for image BLOB storage
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS media_files (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        filename VARCHAR(255) NOT NULL,
+        mimetype VARCHAR(100) NOT NULL,
+        size INT NOT NULL,
+        data LONGBLOB NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log("✅ Media storage table verified (media_files).");
+
+    // Ensure Citizen's Charter tables and columns exist, and auto-seed defaults if empty
+    try {
+      await connection.query('ALTER TABLE service_requirements ADD COLUMN IF NOT EXISTS name VARCHAR(255) DEFAULT NULL');
+      await connection.query('ALTER TABLE service_requirements ADD COLUMN IF NOT EXISTS requirement_name VARCHAR(255) DEFAULT NULL');
+      await connection.query('ALTER TABLE service_steps ADD COLUMN IF NOT EXISTS agency_action TEXT DEFAULT NULL');
+      await connection.query('ALTER TABLE service_steps ADD COLUMN IF NOT EXISTS action_taken TEXT DEFAULT NULL');
+
+      const [charterCheck] = await connection.query('SELECT COUNT(*) as count FROM barangay_services');
+      if (charterCheck[0].count === 0) {
+        console.log("ℹ️ Auto-seeding Citizen's Charter defaults...");
+        const seedCitizensCharter = require('./scripts/seed-citizens-charter');
+        await seedCitizensCharter();
+      }
+    } catch (charterErr) {
+      console.warn("⚠️ Citizen's Charter verification note:", charterErr.message);
+    }
+
     connection.release(); // Return connection back to the pool
   } catch (error) {
     console.error("❌ Database connection failed:", error.message);
@@ -131,6 +162,11 @@ app.get("/api", (req, res) => {
   });
 });
 
+// Server time endpoint — used by document generation so dates are always server-based
+app.get("/api/server-time", (req, res) => {
+  res.json({ timestamp: new Date().toISOString() });
+});
+
 // ------------------------------------------
 // STEP 9: Import and use route files
 // ------------------------------------------
@@ -145,15 +181,26 @@ const dashboardRoutes = require('./routes/dashboard');
 const reportsRoutes = require('./routes/reports');
 const categoryRoutes = require('./routes/categories');
 const citizensCharterRoutes = require('./routes/citizensCharter');
+const serviceRequestRoutes = require('./routes/serviceRequests');
+const mediaRoutes = require('./routes/media');
 
+app.use('/api/media', mediaRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/admin/news', newsRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/admin/events', eventRoutes);
 app.use('/api/events', eventRoutes);
+
+// Services catalog (public list, single view, and admin CRUD)
 app.use('/api/admin/services', serviceRoutes);
 app.use('/api/services', serviceRoutes);
+
+// Public citizen service request endpoints (/api/services/request, /api/services/track)
+app.use('/api/services', serviceRequestRoutes.publicRouter || serviceRequestRoutes);
+
+// Admin service requests management (/api/admin/service-requests: GET, PUT, PATCH, DELETE)
+app.use('/api/admin/service-requests', serviceRequestRoutes);
 app.use('/api/admin/accounts', accountRoutes);
 app.use('/api/admin/notifications', notificationRoutes);
 app.use('/api/dashboard', dashboardRoutes);

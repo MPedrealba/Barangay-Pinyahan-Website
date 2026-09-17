@@ -5,7 +5,7 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../config/multer');
 const verifyToken = require('../middleware/auth');
-const uploadToSupabase = require('../config/uploadToSupabase');
+const uploadToDatabase = require('../config/uploadToDatabase');
 const { ipFilterMiddleware } = require('../middleware/security');
 
 // ------------------------------------------
@@ -192,8 +192,8 @@ router.post('/', ipFilterMiddleware, upload.single('photo'), async (req, res) =>
             else ref_no = generateRefNo();
         }
 
-        // Upload complaint photo to Supabase Storage (returns full public URL or null)
-        const photo_url = await uploadToSupabase(req.file);
+        // Upload complaint photo directly to MySQL media_files (returns /api/media/:id or null)
+        const photo_url = await uploadToDatabase(req.file, req.db);
 
         // ── Urgency: AI classification (best effort, fallback to Medium) ──────
         const classification = await classifyComplaint(message);

@@ -5,7 +5,7 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../config/multer');
 const verifyToken = require('../middleware/auth');
-const uploadToSupabase = require('../config/uploadToSupabase');
+const uploadToDatabase = require('../config/uploadToDatabase');
 
 // Helper to query with automatic retry on idle socket drop (TiDB Cloud Serverless)
 async function safeQuery(db, sql, params = []) {
@@ -92,8 +92,8 @@ router.post('/', verifyToken, upload.single('photo'), async (req, res) => {
             return res.status(400).json({ error: 'Name, date, time, location, and description are required.' });
         }
 
-        // Upload to Supabase Storage (returns full public URL or null)
-        const photo_url = await uploadToSupabase(req.file);
+        // Upload directly to MySQL media_files (returns /api/media/:id or null)
+        const photo_url = await uploadToDatabase(req.file, req.db);
 
         const [result] = await safeQuery(
             req.db,
@@ -122,8 +122,8 @@ router.put('/:id', verifyToken, upload.single('photo'), async (req, res) => {
         if (location) { fields.push('location = ?'); values.push(location); }
         if (description) { fields.push('description = ?'); values.push(description); }
         if (req.file) {
-            // Upload new photo to Supabase, store full public URL
-            const newPhotoUrl = await uploadToSupabase(req.file);
+            // Upload new photo directly to MySQL media_files
+            const newPhotoUrl = await uploadToDatabase(req.file, req.db);
             fields.push('photo_url = ?');
             values.push(newPhotoUrl);
         }

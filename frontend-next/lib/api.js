@@ -101,7 +101,8 @@ export async function apiDelete(endpoint) {
 export function getPhotoUrl(photoUrl) {
   if (!photoUrl) return null;
   if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
-    return photoUrl; // Already a full URL (Supabase)
+    return photoUrl; // Already a full URL (Supabase or external)
   }
-  return API_BASE + photoUrl; // Legacy local path
+  const cleanPath = photoUrl.startsWith('/') ? photoUrl : `/${photoUrl}`;
+  return `${API_BASE}${cleanPath}`;
 }

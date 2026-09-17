@@ -3,6 +3,7 @@
 // ============================================
 const express = require('express');
 const router  = express.Router();
+const publicRouter = express.Router();
 const verifyToken = require('../middleware/auth');
 
 // ── Allowed service types ────────────────────────────────────────────────────
@@ -24,8 +25,8 @@ function generateTrackingNo() {
 // PUBLIC ROUTES
 // ────────────────────────────────────────────────────────────────────────────
 
-// POST /api/services/request — Submit a new service request (public)
-router.post('/request', async (req, res) => {
+// Handler for submitting a new service request
+const handleServiceRequest = async (req, res) => {
     try {
         const {
             resident_name, service_type, purpose, address,
@@ -92,10 +93,13 @@ router.post('/request', async (req, res) => {
         console.error('Service request submission error:', error);
         res.status(500).json({ error: 'Server error while submitting service request.' });
     }
-});
+};
 
-// POST /api/services/track — Track a service request by tracking_no (public)
-router.post('/track', async (req, res) => {
+router.post('/request', handleServiceRequest);
+publicRouter.post('/request', handleServiceRequest);
+
+// Handler for tracking a service request by tracking_no
+const handleTrackRequest = async (req, res) => {
     try {
         const { tracking_no } = req.body;
         if (!tracking_no?.trim()) {
@@ -114,7 +118,10 @@ router.post('/track', async (req, res) => {
         console.error('Service request track error:', error);
         res.status(500).json({ error: 'Server error.' });
     }
-});
+};
+
+router.post('/track', handleTrackRequest);
+publicRouter.post('/track', handleTrackRequest);
 
 // ────────────────────────────────────────────────────────────────────────────
 // ADMIN ROUTES (JWT protected)
@@ -260,4 +267,5 @@ router.delete('/:id', verifyToken, async (req, res) => {
     }
 });
 
+router.publicRouter = publicRouter;
 module.exports = router;

@@ -6,7 +6,7 @@ export default function AboutPage() {
     <PublicShell activeHref="/about">
       {/* Hero Full */}
       <section className="overflow-hidden bg-[#003366]">
-        <img src="https://placehold.co/1200x500?text=Barangay+Multi-Purpose+Hall" alt="Barangay Hall"
+        <img src="/images/barangay-hall-pinyahan.jpg" alt="Barangay Pinyahan Hall"
           className="w-full h-auto block max-h-[520px] object-cover" />
       </section>
 

@@ -2,13 +2,13 @@
 // config/multer.js — File Upload Configuration
 // ============================================
 // Uses memoryStorage so the file buffer is available in req.file.buffer
-// for direct upload to Supabase Storage (no local disk writing).
+// for processing with sharp and storage in the MySQL media_files table.
 // ============================================
 
 const multer = require('multer');
 
 // Memory storage — file stays in RAM as req.file.buffer
-// This is required for cloud uploads (Supabase, S3, etc.)
+// This is required for server-side optimization and database BLOB storage
 const storage = multer.memoryStorage();
 
 // Filter to only allow image files
