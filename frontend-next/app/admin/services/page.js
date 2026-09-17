@@ -101,13 +101,22 @@ export default function ServicesPage() {
             Manage Barangay Services, Requirements, and Procedures
           </p>
         </div>
-        <Link
-          href="/admin/services/create"
-          className="inline-flex items-center gap-2 bg-[#0056b3] text-white rounded-xl px-4 py-2.5 font-bold text-sm hover:bg-blue-800 transition-all shadow-sm hover:shadow-md no-underline"
-        >
-          <i className="fas fa-plus text-xs" />
-          <span>Add Service Information</span>
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/service-requests"
+            className="inline-flex items-center gap-2 bg-white text-[#0056b3] border border-[#0056b3] rounded-xl px-4 py-2.5 font-bold text-sm hover:bg-blue-50 transition-all shadow-sm no-underline"
+          >
+            <i className="fas fa-file-alt text-xs" />
+            <span>View Service Requests</span>
+          </Link>
+          <Link
+            href="/admin/services/create"
+            className="inline-flex items-center gap-2 bg-[#0056b3] text-white rounded-xl px-4 py-2.5 font-bold text-sm hover:bg-blue-800 transition-all shadow-sm hover:shadow-md no-underline"
+          >
+            <i className="fas fa-plus text-xs" />
+            <span>Add Service Information</span>
+          </Link>
+        </div>
       </div>
 
       {/* ── Loading State ──────────────────────────────────────── */}

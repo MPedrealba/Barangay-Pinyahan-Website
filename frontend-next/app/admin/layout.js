@@ -60,6 +60,7 @@ export default function AdminLayout({ children }) {
     { name: 'HOME',              icon: 'fa-home',               path: '/admin/dashboard'          },
     { name: 'COMPLAINTS',        icon: 'fa-exclamation-circle', path: '/admin/complaints'         },
     { name: 'SERVICES',          icon: 'fa-hands-helping',      path: '/admin/services'           },
+    { name: 'SERVICE REQUESTS',  icon: 'fa-file-alt',           path: '/admin/service-requests'   },
     { name: "CITIZEN'S CHARTER", icon: 'fa-scroll',             path: '/admin/citizens-charter'   },
     { name: 'NEWS',              icon: 'fa-newspaper',          path: '/admin/news'               },
     { name: 'EVENTS',            icon: 'fa-calendar-alt',       path: '/admin/events'             },

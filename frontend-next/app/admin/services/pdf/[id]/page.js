@@ -60,8 +60,9 @@ const selectCls = 'w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm 
 const labelCls  = 'block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider';
 
 // ── Live Preview Component ───────────────────────────────────────────────────
-function LiveDocumentPreview({ formData, createdAt }) {
-  const issueDate  = createdAt ? new Date(createdAt) : new Date();
+function LiveDocumentPreview({ formData, createdAt, serverTime }) {
+  // Always use server time — never rely on client desktop clock
+  const issueDate  = createdAt ? new Date(createdAt) : (serverTime ? new Date(serverTime) : new Date());
   const issueDay   = toOrdinal(issueDate.getDate());
   const issueMonth = issueDate.toLocaleDateString('en-US', { month: 'long' });
 
@@ -139,6 +140,7 @@ export default function ServicePDFPage({ params }) {
   const [downloading, setDownloading] = useState(false);
   const [error,       setError]       = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [serverTime,  setServerTime]  = useState(null);
 
   // Edit state
   const [isEditing, setIsEditing] = useState(false);
@@ -153,6 +155,16 @@ export default function ServicePDFPage({ params }) {
     const fetchRequest = async () => {
       try {
         const token = localStorage.getItem('token');
+
+        // Fetch server time so document dates are always server-based
+        try {
+          const timeRes = await fetch(`${API_BASE}/api/server-time`);
+          if (timeRes.ok) {
+            const timeData = await timeRes.json();
+            setServerTime(timeData.timestamp);
+          }
+        } catch { /* fallback handled in LiveDocumentPreview */ }
+
         const res = await fetch(
           `${API_BASE}/api/admin/service-requests/${id}`,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -676,7 +688,7 @@ export default function ServicePDFPage({ params }) {
               style={{ height: 'calc(297mm * 0.52 + 16px)' }}>
               <div className="p-2">
                 <div className="origin-top" style={{ transform: 'scale(0.52)', width: '210mm' }}>
-                  <LiveDocumentPreview formData={formData} createdAt={request?.created_at} />
+                  <LiveDocumentPreview formData={formData} createdAt={request?.created_at} serverTime={serverTime} />
                 </div>
               </div>
             </div>
