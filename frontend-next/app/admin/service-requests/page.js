@@ -44,6 +44,10 @@ export default function ServiceRequestsAdminPage() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        router.replace('/login');
+        return;
+      }
       const qs    = filterStatus ? `?status=${encodeURIComponent(filterStatus)}` : '';
       const res   = await fetch(`${API_BASE}/api/admin/service-requests${qs}`, {
         headers: { 'Authorization': `Bearer ${token}` },
@@ -52,6 +56,12 @@ export default function ServiceRequestsAdminPage() {
       if (res.ok) {
         const data = await res.json();
         setRequests(data.requests || []);
+      } else if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('admin');
+        localStorage.removeItem('isNewAccount');
+        router.replace('/login?expired=true');
+        return;
       } else {
         const errData = await res.json().catch(() => ({}));
         setError(errData.error || `Server responded with status ${res.status}`);
@@ -78,6 +88,10 @@ export default function ServiceRequestsAdminPage() {
     setUpdatingId(id);
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        router.replace('/login');
+        return;
+      }
       const res = await fetch(
         `${API_BASE}/api/admin/service-requests/${id}/status`,
         {
@@ -93,6 +107,12 @@ export default function ServiceRequestsAdminPage() {
             ? { ...r, status: newStatus, processed_by: data.processed_by ?? r.processed_by }
             : r
         ));
+      } else if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('admin');
+        localStorage.removeItem('isNewAccount');
+        router.replace('/login?expired=true');
+        return;
       } else {
         const errData = await res.json().catch(() => ({}));
         alert(errData.error || 'Failed to update request status.');

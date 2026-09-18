@@ -54,7 +54,7 @@ export async function apiCall(endpoint, options = {}) {
   if (response.status === 401 || response.status === 403) {
     clearAuth();
     if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-      window.location.href = '/login';
+      window.location.href = '/login?expired=true';
       return null;
     }
   }

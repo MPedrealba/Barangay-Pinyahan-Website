@@ -115,6 +115,32 @@ async function testConnection() {
     `);
     console.log("✅ Media storage table verified (media_files).");
 
+    // Ensure admins table has avatar_url column
+    try {
+      await connection.query('ALTER TABLE admins ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(255) DEFAULT NULL');
+    } catch (adminColErr) {
+      console.warn("⚠️ Admins column verification note:", adminColErr.message);
+    }
+
+    // Ensure password_resets table exists for forgot password verification
+    try {
+      await connection.query(`
+        CREATE TABLE IF NOT EXISTS password_resets (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          admin_id INT NOT NULL,
+          email VARCHAR(255) NOT NULL,
+          token_hash VARCHAR(255) NOT NULL,
+          otp_code VARCHAR(10) NOT NULL,
+          expires_at DATETIME NOT NULL,
+          used TINYINT(1) DEFAULT 0,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      console.log("✅ Password reset table verified (password_resets).");
+    } catch (resetTableErr) {
+      console.warn("⚠️ Password reset table note:", resetTableErr.message);
+    }
+
     // Ensure Citizen's Charter tables and columns exist, and auto-seed defaults if empty
     try {
       await connection.query('ALTER TABLE service_requirements ADD COLUMN IF NOT EXISTS name VARCHAR(255) DEFAULT NULL');
@@ -183,6 +209,7 @@ const categoryRoutes = require('./routes/categories');
 const citizensCharterRoutes = require('./routes/citizensCharter');
 const serviceRequestRoutes = require('./routes/serviceRequests');
 const mediaRoutes = require('./routes/media');
+const profileRoutes = require('./routes/profile');
 
 app.use('/api/media', mediaRoutes);
 app.use('/api/auth', authRoutes);
@@ -202,6 +229,7 @@ app.use('/api/services', serviceRequestRoutes.publicRouter || serviceRequestRout
 // Admin service requests management (/api/admin/service-requests: GET, PUT, PATCH, DELETE)
 app.use('/api/admin/service-requests', serviceRequestRoutes);
 app.use('/api/admin/accounts', accountRoutes);
+app.use('/api/admin/profile', profileRoutes);
 app.use('/api/admin/notifications', notificationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/admin/reports', reportsRoutes);

@@ -169,6 +169,13 @@ export default function ServicePDFPage({ params }) {
           `${API_BASE}/api/admin/service-requests/${id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('admin');
+          localStorage.removeItem('isNewAccount');
+          router.replace('/login?expired=true');
+          return;
+        }
         if (!res.ok) throw new Error('Request not found.');
         const data = await res.json();
         setRequest(data.request);
@@ -262,6 +269,14 @@ export default function ServicePDFPage({ params }) {
           }),
         }
       );
+
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('admin');
+        localStorage.removeItem('isNewAccount');
+        router.replace('/login?expired=true');
+        return;
+      }
 
       if (!res.ok) {
         // Read body as text ONCE, then try to parse as JSON
