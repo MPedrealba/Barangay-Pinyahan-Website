@@ -2,32 +2,75 @@
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { getPhotoUrl } from '@/lib/api';
 
 const SETUP_PATH = '/admin/setup-password';
+
+function isTokenExpired(token) {
+  if (!token) return true;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return true;
+    const payload = JSON.parse(atob(parts[1]));
+    if (payload.exp && payload.exp * 1000 <= Date.now()) {
+      return true;
+    }
+    return false;
+  } catch {
+    return true;
+  }
+}
 
 export default function AdminLayout({ children }) {
   const router   = useRouter();
   const pathname = usePathname();
 
   const [adminName,    setAdminName]    = useState('Loading...');
+  const [adminRole,    setAdminRole]    = useState('Administrator');
+  const [adminAvatar,  setAdminAvatar]  = useState(null);
   const [isNewAccount, setIsNewAccount] = useState(false);
   const [isLoading,    setIsLoading]    = useState(true);
+
+  // ── Periodic & Focus-based Expiration Listener ────────────────────────────
+  useEffect(() => {
+    const checkToken = () => {
+      const token = localStorage.getItem('token');
+      if (!token || isTokenExpired(token)) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('admin');
+        localStorage.removeItem('isNewAccount');
+        router.replace('/login?expired=true');
+      }
+    };
+
+    const interval = setInterval(checkToken, 30000);
+    window.addEventListener('focus', checkToken);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', checkToken);
+    };
+  }, [router]);
 
   // ── Security + First-Login Enforcement ──────────────────────────────────
   useEffect(() => {
     const token      = localStorage.getItem('token');
     const newAccount = localStorage.getItem('isNewAccount') === 'true';
 
-    // 1. No token → back to login
-    if (!token) {
-      router.replace('/login');
+    // 1. No token or expired token → clear and redirect to login
+    if (!token || isTokenExpired(token)) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('admin');
+      localStorage.removeItem('isNewAccount');
+      router.replace('/login?expired=true');
       setIsLoading(false);
       return;
     }
 
-    // 2. Load display name
+    // 2. Load display name & profile
     const adminData = JSON.parse(localStorage.getItem('admin') || '{}');
-    setAdminName(adminData.full_name || 'Admin');
+    setAdminName(adminData.full_name || adminData.username || 'Admin');
+    setAdminRole(adminData.role || 'Administrator');
+    setAdminAvatar(adminData.avatar_url || null);
 
     // 3. Enforce first-login gate
     setIsNewAccount(newAccount);
@@ -115,17 +158,46 @@ export default function AdminLayout({ children }) {
             })}
           </ul>
 
-          <div className="p-4 border-t border-white/10 bg-black/10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                <i className="fas fa-user text-white"></i>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold truncate">{adminName}</p>
-                <p className="text-xs text-white/70">Administrator</p>
-              </div>
-              <button onClick={handleLogout} className="text-white/70 hover:text-white p-2 transition-colors">
-                <i className="fas fa-sign-out-alt"></i>
+          <div className="p-3.5 border-t border-white/10 bg-black/20">
+            <div className="flex items-center justify-between gap-2">
+              <Link
+                href="/admin/profile"
+                className={`flex items-center gap-3 flex-1 min-w-0 p-1.5 rounded-xl transition-all group ${
+                  pathname === '/admin/profile'
+                    ? 'bg-white/20 ring-1 ring-white/30'
+                    : 'hover:bg-white/10'
+                }`}
+                title="View Personal Profile Dashboard"
+              >
+                <div className="w-9 h-9 rounded-xl bg-white/20 overflow-hidden flex items-center justify-center shrink-0 border border-white/20 shadow-sm">
+                  {adminAvatar ? (
+                    <img
+                      src={getPhotoUrl(adminAvatar)}
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-white font-black text-sm">
+                      {adminName.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-white truncate group-hover:text-amber-300 transition-colors">
+                    {adminName}
+                  </p>
+                  <p className="text-[11px] text-white/70 truncate flex items-center gap-1">
+                    <span>{adminRole}</span>
+                    <i className="fas fa-chevron-right text-[8px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                  </p>
+                </div>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="w-8 h-8 rounded-lg text-white/70 hover:text-white hover:bg-white/10 flex items-center justify-center transition-colors shrink-0"
+                title="Sign Out"
+              >
+                <i className="fas fa-sign-out-alt text-sm"></i>
               </button>
             </div>
           </div>

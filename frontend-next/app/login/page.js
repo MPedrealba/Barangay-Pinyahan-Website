@@ -1,12 +1,27 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('expired') === 'true') {
+        setNotice('Your session has expired. Please log in again.');
+      }
+      if (params.get('reset') === 'success') {
+        setSuccessMsg('Your password has been reset successfully. Please log in with your new password.');
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,6 +74,20 @@ export default function LoginPage() {
           Admin Login
         </h2>
 
+        {successMsg && (
+          <div className="p-3 mb-6 text-sm text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl text-center font-medium flex items-center justify-center gap-2">
+            <i className="fas fa-check-circle text-emerald-600"></i>
+            <span>{successMsg}</span>
+          </div>
+        )}
+
+        {notice && (
+          <div className="p-3 mb-6 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl text-center font-medium flex items-center justify-center gap-2">
+            <i className="fas fa-clock text-amber-600"></i>
+            <span>{notice}</span>
+          </div>
+        )}
+
         {error && (
           <div className="p-3 mb-6 text-sm text-red-700 bg-red-100 rounded-lg text-center font-semibold">
             {error}
@@ -78,16 +107,26 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="relative">
-             <i className="fas fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-             <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full pl-12 pr-5 py-3 border border-gray-200 rounded-full bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#0056b3] focus:bg-white transition-all"
-              required
-            />
+          <div>
+            <div className="relative">
+               <i className="fas fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+               <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full pl-12 pr-5 py-3 border border-gray-200 rounded-full bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#0056b3] focus:bg-white transition-all"
+                required
+              />
+            </div>
+            <div className="flex justify-end pr-3 mt-2">
+              <Link
+                href="/forgot-password"
+                className="text-xs font-semibold text-[#0056b3] hover:underline transition-colors"
+              >
+                Forgot Password?
+              </Link>
+            </div>
           </div>
 
           <button

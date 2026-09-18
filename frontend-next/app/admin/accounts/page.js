@@ -1,5 +1,7 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import AdminProfilePage from '../profile/page';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // API helper
@@ -208,8 +210,35 @@ function SuperAdminUI() {
         </div>
       )}
 
+      {/* Top Header / View Switcher */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '25px 35px 0' }}>
+        <div>
+          <h1 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1a2b45', margin: 0 }}>
+            Admin Accounts Management
+          </h1>
+          <p style={{ fontSize: '0.82rem', color: '#8a9ab0', margin: '4px 0 0' }}>
+            Manage administrative staff privileges and view system administrators.
+          </p>
+        </div>
+        <Link
+          href="/admin/profile"
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            background: 'white', color: '#0056b3', border: '1.5px solid #0056b3',
+            padding: '9px 18px', borderRadius: '10px', fontWeight: 700, fontSize: '0.85rem',
+            textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,86,179,0.08)',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = '#0056b3'; e.currentTarget.style.color = 'white'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; e.currentTarget.style.color = '#0056b3'; }}
+        >
+          <i className="fas fa-user-circle" style={{ fontSize: '1.1rem' }} />
+          <span>My Profile Dashboard</span>
+        </Link>
+      </div>
+
       {/* Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px', padding: '30px 35px 0' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px', padding: '20px 35px 0' }}>
         {[{ label: 'TOTAL ADMINS', value: totalAdmins }, { label: 'ACTIVE ADMINS', value: activeAdmins }].map(({ label, value }) => (
           <div key={label} style={{ background: 'white', borderRadius: '12px', padding: '30px', textAlign: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.06)', border: '1px solid #e8e8e8' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#222', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>{label}</h3>
@@ -618,9 +647,9 @@ export default function AccountsPage() {
         <SuperAdminUI />
       )}
 
-      {/* Regular Admin sees their personal profile + change password */}
+      {/* Regular Admin sees their personal profile dashboard */}
       {currentUserRole === 'Admin' && (
-        <PersonalProfileUI currentUser={currentUser} />
+        <AdminProfilePage />
       )}
 
       {/* Fallback — unknown role */}
