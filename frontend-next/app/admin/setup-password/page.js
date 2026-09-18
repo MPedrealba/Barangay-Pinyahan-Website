@@ -17,7 +17,7 @@ export default function SetupPasswordPage() {
     const token = localStorage.getItem('token');
     if (!token) {
       router.replace('/login');
-    } else if (!admin.requires_password_change) {
+    } else if (!Boolean(admin.requires_password_change)) {
       router.replace('/admin/dashboard');
     }
   }, [router]);
