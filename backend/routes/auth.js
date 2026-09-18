@@ -49,7 +49,7 @@ router.post('/login', async (req, res) => {
                 full_name: admin.full_name,
                 email: admin.email,
                 role: admin.role,
-                requires_password_change: admin.requires_password_change
+                requires_password_change: Boolean(admin.requires_password_change)
             }
         });
     } catch (error) {

@@ -30,7 +30,7 @@ export default function LoginPage() {
 
         // Persist first-login flag so the layout enforcer can lock the sidebar
         // requires_password_change comes directly from the backend DB field
-        const isNew = data.admin?.requires_password_change === true;
+        const isNew = Boolean(data.admin?.requires_password_change);
         localStorage.setItem('isNewAccount', isNew ? 'true' : 'false');
 
         // New accounts registered by a Super Admin have requires_password_change = true.
