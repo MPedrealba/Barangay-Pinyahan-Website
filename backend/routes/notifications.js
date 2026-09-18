@@ -9,13 +9,35 @@ const verifyToken = require('../middleware/auth');
 router.get('/', verifyToken, async (req, res) => {
     try {
         const [rows] = await req.db.query(
-            `SELECT id, title, message, icon_class, is_read, created_at
+            `SELECT id, title, message, icon_class, is_read, link, created_at
              FROM notifications
              WHERE admin_id IS NULL OR admin_id = ?
              ORDER BY created_at DESC`,
             [req.admin.id]
         );
-        res.json({ notifications: rows || [] });
+
+        const notifications = (rows || []).map(row => {
+            let link = row.link;
+            if (!link && row.message) {
+                const brgyMatch = row.message.match(/\b(BRGY-[A-Za-z0-9]+)\b/);
+                const srvMatch = row.message.match(/\b(SRV-[A-Za-z0-9]+)\b/);
+                if (brgyMatch) {
+                    link = `/admin/complaints/view/${brgyMatch[1]}`;
+                } else if (srvMatch) {
+                    link = `/admin/service-requests?search=${srvMatch[1]}`;
+                } else if ((row.title || '').toLowerCase().includes('news')) {
+                    link = '/admin/news';
+                } else if ((row.title || '').toLowerCase().includes('event')) {
+                    link = '/admin/events';
+                }
+            }
+            return {
+                ...row,
+                link: link || null
+            };
+        });
+
+        res.json({ notifications });
     } catch (error) {
         console.error('List notifications error:', error);
         res.json({ notifications: [] });

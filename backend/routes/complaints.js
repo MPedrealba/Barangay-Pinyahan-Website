@@ -221,8 +221,8 @@ router.post('/', ipFilterMiddleware, upload.single('photo'), async (req, res) =>
 
         // Create notification for admins
         await req.db.query(
-            `INSERT INTO notifications (admin_id, title, message, icon_class) VALUES (NULL, ?, ?, ?)`,
-            ['New Complaint', `New complaint (${ref_no}) from ${full_name}. Category: ${classification.category} | Urgency: ${classification.urgency_level}`, 'fas fa-bell']
+            `INSERT INTO notifications (admin_id, title, message, icon_class, link) VALUES (NULL, ?, ?, ?, ?)`,
+            ['New Complaint', `New complaint (${ref_no}) from ${full_name}. Category: ${classification.category} | Urgency: ${classification.urgency_level}`, 'fas fa-bell', `/admin/complaints/view/${ref_no}`]
         );
 
         res.status(201).json({
@@ -307,7 +307,10 @@ router.get('/admin/history', verifyToken, async (req, res) => {
 // GET /api/complaints/admin/:id — Get single complaint (admin)
 router.get('/admin/:id', verifyToken, async (req, res) => {
     try {
-        const [rows] = await req.db.query('SELECT * FROM complaints WHERE id = ?', [req.params.id]);
+        const [rows] = await req.db.query(
+            'SELECT * FROM complaints WHERE id = ? OR ref_no = ?',
+            [req.params.id, req.params.id]
+        );
 
         if (rows.length === 0) {
             return res.status(404).json({ error: 'Complaint not found.' });
@@ -323,6 +326,16 @@ router.get('/admin/:id', verifyToken, async (req, res) => {
 // PUT /api/complaints/admin/:id — Update complaint status & notes (admin)
 router.put('/admin/:id', verifyToken, async (req, res) => {
     try {
+        const [existing] = await req.db.query(
+            'SELECT id, ref_no FROM complaints WHERE id = ? OR ref_no = ?',
+            [req.params.id, req.params.id]
+        );
+
+        if (existing.length === 0) {
+            return res.status(404).json({ error: 'Complaint not found.' });
+        }
+
+        const complaint = existing[0];
         const { status, urgency_level, admin_notes, category } = req.body;
 
         const fields = [];
@@ -349,13 +362,13 @@ router.put('/admin/:id', verifyToken, async (req, res) => {
             return res.status(400).json({ error: 'No fields to update.' });
         }
 
-        values.push(req.params.id);
+        values.push(complaint.id);
         await req.db.query(`UPDATE complaints SET ${fields.join(', ')} WHERE id = ?`, values);
 
         // Audit Trail
         await req.db.query(
             `INSERT INTO audit_logs (admin_id, action_type, action_details) VALUES (?, ?, ?)`,
-            [req.admin.id, 'Complaint', `Updated details/status for Complaint #${req.params.id}`]
+            [req.admin.id, 'Complaint', `Updated details/status for Complaint #${complaint.ref_no || complaint.id}`]
         );
 
         res.json({ message: 'Complaint updated successfully.' });

@@ -1,5 +1,6 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 // ── Time ago helper ──────────────────────────────────────────────
 function timeAgo(dateStr) {
@@ -59,6 +60,7 @@ function SkeletonRow() {
 
 // ── Main Component ───────────────────────────────────────────────
 export default function NotificationsPage() {
+  const router                            = useRouter();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading]             = useState(true);
   const [error, setError]                 = useState('');
@@ -103,6 +105,16 @@ export default function NotificationsPage() {
       );
     } catch (err) {
       console.error('Mark read error:', err);
+    }
+  };
+
+  // ── Click to route to target item ──
+  const handleNotificationClick = async (notif) => {
+    if (!notif.is_read) {
+      handleMarkRead(notif.id);
+    }
+    if (notif.link) {
+      router.push(notif.link);
     }
   };
 
@@ -210,40 +222,52 @@ export default function NotificationsPage() {
               return (
                 <li
                   key={notif.id}
-                  className={`flex items-start gap-4 p-5 transition-colors
+                  onClick={() => handleNotificationClick(notif)}
+                  className={`group flex items-start gap-4 p-5 transition-all
                     ${isLast ? '' : 'border-b border-gray-100'}
-                    ${isUnread ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-50'}
+                    ${isUnread ? 'bg-blue-50/70 hover:bg-blue-100/70' : 'hover:bg-gray-50'}
+                    ${notif.link ? 'cursor-pointer' : ''}
                   `}
                 >
                   {/* Icon */}
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${colors.ring}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${colors.ring} group-hover:scale-105 transition-transform`}>
                     <i className={`${icon} text-sm ${colors.icon}`}></i>
                   </div>
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <p className={`text-sm font-bold text-gray-900 truncate ${isUnread ? 'text-gray-900' : 'text-gray-700'}`}>
+                      <p className={`text-sm font-bold truncate ${isUnread ? 'text-gray-900 group-hover:text-blue-900' : 'text-gray-700 group-hover:text-gray-900'}`}>
                         {notif.title || 'Notification'}
                       </p>
                       {isUnread && (
                         <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-600 line-clamp-2 leading-snug">
+                    <p className="text-sm text-gray-600 line-clamp-2 leading-snug group-hover:text-gray-800">
                       {notif.message || ''}
                     </p>
-                    <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
-                      <i className="fas fa-clock text-gray-300"></i>
-                      {timeAgo(notif.created_at)}
-                    </p>
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <p className="text-xs text-gray-400 flex items-center gap-1">
+                        <i className="fas fa-clock text-gray-300"></i>
+                        {timeAgo(notif.created_at)}
+                      </p>
+                      {notif.link && (
+                        <span className="text-[11px] font-semibold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                          View details <i className="fas fa-arrow-right text-[9px]"></i>
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Mark as Read button */}
-                  <div className="flex-shrink-0 mt-0.5">
+                  <div className="flex-shrink-0 mt-0.5 flex items-center gap-2">
                     {isUnread ? (
                       <button
-                        onClick={() => handleMarkRead(notif.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMarkRead(notif.id);
+                        }}
                         title="Mark as read"
                         className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition-colors shadow-sm"
                       >
@@ -256,6 +280,9 @@ export default function NotificationsPage() {
                       >
                         <i className="fas fa-check text-xs text-green-500"></i>
                       </div>
+                    )}
+                    {notif.link && (
+                      <i className="fas fa-chevron-right text-xs text-gray-300 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all"></i>
                     )}
                   </div>
                 </li>

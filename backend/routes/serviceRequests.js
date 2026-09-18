@@ -75,11 +75,12 @@ const handleServiceRequest = async (req, res) => {
         );
 
         await req.db.query(
-            `INSERT INTO notifications (admin_id, title, message, icon_class) VALUES (NULL, ?, ?, ?)`,
+            `INSERT INTO notifications (admin_id, title, message, icon_class, link) VALUES (NULL, ?, ?, ?, ?)`,
             [
                 'New Service Request',
                 `New ${service_type} request (${tracking_no}) from ${resident_name.trim()}.`,
                 'fas fa-file-alt',
+                `/admin/service-requests?search=${encodeURIComponent(tracking_no)}`
             ]
         ).catch(() => {});
 
