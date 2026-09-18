@@ -211,10 +211,14 @@ export default function AdminLayout({ children }) {
           <h1 className="text-2xl font-bold text-gray-800 tracking-tight">
             Welcome, {adminName.split(' ')[0]}!
           </h1>
-          <div className="relative cursor-pointer w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-100 transition-colors">
+          <Link
+            href="/admin/notifications"
+            title="View Notifications"
+            className="relative cursor-pointer w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-100 transition-colors"
+          >
             <i className="fas fa-bell text-gray-600 text-xl"></i>
             <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
-          </div>
+          </Link>
         </header>
 
         {/* Dynamic Page Content */}

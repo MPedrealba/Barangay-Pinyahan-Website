@@ -1,6 +1,6 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 const STATUS_OPTS = ['Pending', 'Processing', 'Ready for Pick-up', 'Completed/Claimed'];
@@ -27,15 +27,23 @@ function formatDate(str) {
   return new Date(str).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-export default function ServiceRequestsAdminPage() {
+function ServiceRequestsContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error,         setError]         = useState(null);
   const [requests,      setRequests]      = useState([]);
   const [loading,       setLoading]       = useState(true);
   const [filterStatus,  setFilterStatus]  = useState('');
-  const [searchQuery,   setSearchQuery]   = useState('');
+  const [searchQuery,   setSearchQuery]   = useState(searchParams.get('search') || '');
   const [updatingId,    setUpdatingId]    = useState(null);
   const [showHistory,   setShowHistory]   = useState(false);
+
+  useEffect(() => {
+    const urlQuery = searchParams.get('search');
+    if (urlQuery) {
+      setSearchQuery(urlQuery);
+    }
+  }, [searchParams]);
 
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -338,5 +346,18 @@ export default function ServiceRequestsAdminPage() {
       </div>
 
     </div>
+  );
+}
+
+export default function ServiceRequestsAdminPage() {
+  return (
+    <Suspense fallback={
+      <div className="p-12 flex flex-col items-center justify-center min-h-[400px]">
+        <i className="fas fa-spinner fa-spin text-3xl text-[#0056b3] mb-3"></i>
+        <p className="text-sm font-semibold text-gray-500">Loading service requests...</p>
+      </div>
+    }>
+      <ServiceRequestsContent />
+    </Suspense>
   );
 }
