@@ -7,6 +7,8 @@ const nodemailer = require('nodemailer');
  * Creates and returns a Nodemailer transport using Gmail.
  * Expects GMAIL_USER and GMAIL_APP_PASSWORD in environment.
  */
+let cachedTransporter = null;
+
 function getTransporter() {
     const user = process.env.GMAIL_USER;
     const pass = process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_PASS;
@@ -15,13 +17,20 @@ function getTransporter() {
         return null;
     }
 
-    return nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user,
-            pass
-        }
-    });
+    if (!cachedTransporter) {
+        cachedTransporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user,
+                pass
+            },
+            pool: true,
+            maxConnections: 3,
+            maxMessages: 50
+        });
+    }
+
+    return cachedTransporter;
 }
 
 /**
