@@ -16,12 +16,15 @@ export default function ForgotPasswordPage() {
   const [showNewPw, setShowNewPw] = useState(false);
   const [showConfirmPw, setShowConfirmPw] = useState(false);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [requestLoading, setRequestLoading] = useState(false);
+  const [resendLoading, setResendLoading]   = useState(false);
+  const [resetLoading, setResetLoading]     = useState(false);
+  const [error, setError]                   = useState('');
+  const [success, setSuccess]               = useState('');
 
   // Resend countdown timer
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [isSlowRequest, setIsSlowRequest]   = useState(false);
 
   const API_BASE = process.env.NEXT_PUBLIC_API_URL ||
     (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')
@@ -38,6 +41,18 @@ export default function ForgotPasswordPage() {
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
+  useEffect(() => {
+    let timer;
+    if (requestLoading || resendLoading) {
+      timer = setTimeout(() => {
+        setIsSlowRequest(true);
+      }, 4000);
+    } else {
+      setIsSlowRequest(false);
+    }
+    return () => clearTimeout(timer);
+  }, [requestLoading, resendLoading]);
+
   // ── Step 1: Request Password Reset ──────────────────────────────────────
   const handleRequestReset = async (e) => {
     e?.preventDefault?.();
@@ -50,7 +65,7 @@ export default function ForgotPasswordPage() {
     }
 
     try {
-      setLoading(true);
+      setRequestLoading(true);
       const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,7 +89,7 @@ export default function ForgotPasswordPage() {
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
-      setLoading(false);
+      setRequestLoading(false);
     }
   };
 
@@ -98,7 +113,7 @@ export default function ForgotPasswordPage() {
     }
 
     try {
-      setLoading(true);
+      setResetLoading(true);
       const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -125,15 +140,45 @@ export default function ForgotPasswordPage() {
     } catch (err) {
       setError(err.message || 'Failed to reset password.');
     } finally {
-      setLoading(false);
+      setResetLoading(false);
     }
   };
 
   // ── Resend Code Handler ──────────────────────────────────────────────────
   const handleResendCode = async () => {
-    if (resendCooldown > 0 || loading) return;
-    await handleRequestReset();
+    if (resendCooldown > 0 || resendLoading || resetLoading) return;
+    setError('');
+    setSuccess('');
+
+    try {
+      setResendLoading(true);
+      const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(`Server returned status ${res.status} (${res.statusText || 'Error'}). Please check backend connection.`);
+      }
+
+      if (!res.ok) {
+        throw new Error(data?.error || 'Failed to resend verification code.');
+      }
+
+      setResendCooldown(60);
+      setSuccess('A fresh 6-digit verification code has been dispatched to your email.');
+    } catch (err) {
+      setError(err.message || 'Failed to resend verification code.');
+    } finally {
+      setResendLoading(false);
+    }
   };
+
+  const isAnyLoading = requestLoading || resendLoading || resetLoading;
 
   return (
     <main
@@ -143,7 +188,7 @@ export default function ForgotPasswordPage() {
       {/* Grounded Administrative Panel */}
       <div className="w-full max-w-md bg-white shadow-md rounded-lg border border-gray-200 p-8 sm:p-10 relative overflow-hidden">
         {/* Top Animated Progress Bar */}
-        {loading && (
+        {isAnyLoading && (
           <div className="absolute top-0 left-0 right-0 h-1 bg-blue-100 overflow-hidden">
             <div className="h-full bg-gradient-to-r from-blue-500 via-[#0056b3] to-blue-600 animate-pulse w-full"></div>
           </div>
@@ -225,22 +270,26 @@ export default function ForgotPasswordPage() {
             </div>
 
             {/* Loading Indicator Banner */}
-            {loading && (
+            {requestLoading && (
               <div className="p-3 bg-blue-50/90 border border-blue-200 rounded-md flex items-center gap-3 animate-pulse">
                 <div className="w-5 h-5 border-2 border-[#0056b3] border-t-transparent rounded-full animate-spin shrink-0"></div>
                 <div className="text-xs text-blue-900">
                   <p className="font-bold">Dispatching Verification Code...</p>
-                  <p className="text-[11px] text-blue-700">Connecting to secure mail server. Please wait...</p>
+                  <p className="text-[11px] text-blue-700">
+                    {isSlowRequest
+                      ? 'Cloud server is waking up from idle state. Please wait a moment...'
+                      : 'Connecting to secure mail server. Please wait...'}
+                  </p>
                 </div>
               </div>
             )}
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={requestLoading}
               className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-[#0056b3] hover:bg-blue-800 active:bg-blue-900 rounded-md transition-all shadow-sm disabled:opacity-80 disabled:cursor-not-allowed flex items-center justify-center gap-2.5"
             >
-              {loading ? (
+              {requestLoading ? (
                 <>
                   <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -336,23 +385,38 @@ export default function ForgotPasswordPage() {
               </div>
             </div>
 
-            {/* Loading Indicator Banner */}
-            {loading && (
+            {/* Resending Code Banner */}
+            {resendLoading && (
               <div className="p-3 bg-blue-50/90 border border-blue-200 rounded-md flex items-center gap-3 animate-pulse">
                 <div className="w-5 h-5 border-2 border-[#0056b3] border-t-transparent rounded-full animate-spin shrink-0"></div>
                 <div className="text-xs text-blue-900">
-                  <p className="font-bold">Resetting Password...</p>
-                  <p className="text-[11px] text-blue-700">Updating your administrative credentials. Please wait...</p>
+                  <p className="font-bold">Resending Verification Code...</p>
+                  <p className="text-[11px] text-blue-700">
+                    {isSlowRequest
+                      ? 'Cloud server is processing your request. Please wait a moment...'
+                      : 'Dispatching a fresh 6-digit OTP code to your inbox. Please wait...'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Resetting Password Banner */}
+            {resetLoading && (
+              <div className="p-3 bg-blue-50/90 border border-blue-200 rounded-md flex items-center gap-3 animate-pulse">
+                <div className="w-5 h-5 border-2 border-[#0056b3] border-t-transparent rounded-full animate-spin shrink-0"></div>
+                <div className="text-xs text-blue-900">
+                  <p className="font-bold">Updating Password...</p>
+                  <p className="text-[11px] text-blue-700">Encrypting credentials and updating your administrative account. Please wait...</p>
                 </div>
               </div>
             )}
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={resetLoading || resendLoading}
               className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-[#0056b3] hover:bg-blue-800 active:bg-blue-900 rounded-md transition-all shadow-sm disabled:opacity-80 disabled:cursor-not-allowed flex items-center justify-center gap-2.5"
             >
-              {loading ? (
+              {resetLoading ? (
                 <>
                   <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -370,10 +434,19 @@ export default function ForgotPasswordPage() {
               <button
                 type="button"
                 onClick={handleResendCode}
-                disabled={resendCooldown > 0 || loading}
-                className="font-semibold text-blue-700 hover:text-blue-900 hover:underline disabled:text-gray-400 disabled:no-underline"
+                disabled={resendCooldown > 0 || resendLoading || resetLoading}
+                className="font-semibold text-blue-700 hover:text-blue-900 hover:underline disabled:text-gray-400 disabled:no-underline flex items-center gap-1.5"
               >
-                {resendCooldown > 0 ? `Resend code in ${resendCooldown}s` : 'Resend Code'}
+                {resendLoading ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin text-xs"></i>
+                    <span>Resending Code…</span>
+                  </>
+                ) : resendCooldown > 0 ? (
+                  `Resend code in ${resendCooldown}s`
+                ) : (
+                  'Resend Code'
+                )}
               </button>
               <button
                 type="button"
