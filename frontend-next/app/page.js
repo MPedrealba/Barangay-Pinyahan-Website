@@ -24,7 +24,7 @@ const NAV_LINKS = [
   { label: 'NEWS & EVENTS',    href: '/news' },
   { label: 'CITIZENS CHARTER', href: '/citizens-charter' },
   { label: 'SUBMIT COMPLAINT', href: '/complaints' },
-  { label: 'TRACK COMPLAINT',  href: '/complaints/track' },
+  { label: 'TRACK COMPLAINT',  href: '/track-complaint' },
 ];
 
 export default function PublicHomePage() {
