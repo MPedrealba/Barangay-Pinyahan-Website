@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { apiGet } from '@/lib/api';
+import { useRouter } from 'next/navigation';
+import { apiGet, apiPut } from '@/lib/api';
 import {
   ResponsiveContainer,
   PieChart, Pie, Cell,
@@ -106,6 +107,7 @@ function buildAreaData(complaints) {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [stats, setStats] = useState({
     total_complaints: 0,
     pending_complaints: 0,
@@ -114,6 +116,23 @@ export default function DashboardPage() {
   });
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const handleNotificationClick = async (notif) => {
+    if (!notif.is_read) {
+      try {
+        await apiPut(`/api/admin/notifications/${notif.id}/read`);
+        setNotifications((prev) =>
+          prev.map((item) => (item.id === notif.id ? { ...item, is_read: true } : item))
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+      } catch (err) {
+        console.error('Failed to mark notification read:', err);
+      }
+    }
+    if (notif.link) {
+      router.push(notif.link);
+    }
+  };
 
   // ── Chart state ───────────────────────────────────────────────
   const [categoryData, setCategoryData] = useState([]);
@@ -327,19 +346,40 @@ export default function DashboardPage() {
             ) : (
               notifications.slice(0, 5).map((n, idx) => (
                 <div
-                  key={idx}
-                  className={`p-2.5 border-b border-gray-100 flex items-center gap-2.5 ${
-                    !n.is_read ? 'bg-blue-50/50' : ''
-                  }`}
+                  key={n.id || idx}
+                  onClick={() => handleNotificationClick(n)}
+                  className={`group p-3 border-b border-gray-100 flex items-start gap-3 transition-all rounded-lg my-0.5 ${
+                    n.link ? 'cursor-pointer hover:bg-blue-50/70' : 'hover:bg-gray-50'
+                  } ${!n.is_read ? 'bg-blue-50/40' : ''}`}
+                  title={n.link ? 'Click to view details' : undefined}
                 >
-                  <i
-                    className={n.icon_class || 'fas fa-bell'}
-                    style={{ color: '#0056b3' }}
-                  />
-                  <div>
-                    <strong className="text-sm">{n.title}</strong>
-                    <p className="m-0 text-xs text-gray-500">{n.message}</p>
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform">
+                    <i
+                      className={n.icon_class || 'fas fa-bell'}
+                      style={{ color: '#0056b3', fontSize: '13px' }}
+                    />
                   </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <strong className="text-xs font-bold text-gray-800 truncate group-hover:text-blue-700 transition-colors">
+                        {n.title}
+                      </strong>
+                      {!n.is_read && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
+                      )}
+                    </div>
+                    <p className="m-0 text-xs text-gray-500 line-clamp-2 leading-relaxed group-hover:text-gray-700">
+                      {n.message}
+                    </p>
+                    {n.link && (
+                      <span className="text-[10px] font-bold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 mt-1">
+                        View details <i className="fas fa-arrow-right text-[8px]" />
+                      </span>
+                    )}
+                  </div>
+                  {n.link && (
+                    <i className="fas fa-chevron-right text-xs text-gray-300 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all self-center shrink-0" />
+                  )}
                 </div>
               ))
             )}
