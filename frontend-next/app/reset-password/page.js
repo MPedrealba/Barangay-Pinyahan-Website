@@ -21,7 +21,10 @@ function ResetPasswordForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL ||
+    (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')
+      ? 'https://barangay-pinyahan-website-bz6q.onrender.com'
+      : 'http://localhost:5000');
 
   // ── Verify Token on Mount ────────────────────────────────────────────────
   useEffect(() => {
@@ -43,9 +46,15 @@ function ResetPasswordForm() {
           body: JSON.stringify({ token }),
         });
 
-        const data = await res.json();
+        let data;
+        try {
+          data = await res.json();
+        } catch {
+          throw new Error(`Server returned status ${res.status} (${res.statusText || 'Error'}). Please check backend connection.`);
+        }
+
         if (!res.ok) {
-          throw new Error(data.error || 'This recovery link has expired or has already been used.');
+          throw new Error(data?.error || 'This recovery link has expired or has already been used.');
         }
 
         setTokenValid(true);
@@ -88,9 +97,15 @@ function ResetPasswordForm() {
         }),
       });
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(`Server returned status ${res.status} (${res.statusText || 'Error'}). Please check backend connection.`);
+      }
+
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to reset password.');
+        throw new Error(data?.error || 'Failed to reset password.');
       }
 
       // Success: redirect to login with query param
@@ -103,7 +118,13 @@ function ResetPasswordForm() {
   };
 
   return (
-    <div className="w-full max-w-md bg-white shadow-md rounded-lg border border-gray-200 p-8 sm:p-10">
+    <div className="w-full max-w-md bg-white shadow-md rounded-lg border border-gray-200 p-8 sm:p-10 relative overflow-hidden">
+      {/* Top Animated Progress Bar */}
+      {loading && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-blue-100 overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-blue-500 via-[#0056b3] to-blue-600 animate-pulse w-full"></div>
+        </div>
+      )}
       {/* LGU Official Header */}
       <div className="flex items-center gap-3.5 pb-5 mb-5 border-b border-gray-200">
         <img
@@ -230,15 +251,29 @@ function ResetPasswordForm() {
             </div>
           </div>
 
+          {/* Loading Indicator Banner */}
+          {loading && (
+            <div className="p-3 bg-blue-50/90 border border-blue-200 rounded-md flex items-center gap-3 animate-pulse">
+              <div className="w-5 h-5 border-2 border-[#0056b3] border-t-transparent rounded-full animate-spin shrink-0"></div>
+              <div className="text-xs text-blue-900">
+                <p className="font-bold">Updating Password...</p>
+                <p className="text-[11px] text-blue-700">Encrypting credentials and updating your account. Please wait...</p>
+              </div>
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-[#0056b3] hover:bg-blue-800 active:bg-blue-900 rounded-md transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-[#0056b3] hover:bg-blue-800 active:bg-blue-900 rounded-md transition-all shadow-sm disabled:opacity-80 disabled:cursor-not-allowed flex items-center justify-center gap-2.5"
           >
             {loading ? (
               <>
-                <i className="fas fa-spinner fa-spin text-xs"></i>
-                <span>Updating Password…</span>
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span className="tracking-wide">Updating Password…</span>
               </>
             ) : (
               <span>Save New Password & Log In</span>

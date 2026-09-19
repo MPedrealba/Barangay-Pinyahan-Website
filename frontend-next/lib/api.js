@@ -3,7 +3,10 @@
 // Port of frontend/js/api.js for React/Next.js
 // ============================================
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')
+    ? 'https://barangay-pinyahan-website-bz6q.onrender.com'
+    : 'http://localhost:5000');
 
 // ── localStorage helpers ──
 
@@ -48,7 +51,14 @@ export async function apiCall(endpoint, options = {}) {
     headers,
   });
 
-  const data = await response.json();
+  let data = null;
+  try {
+    data = await response.json();
+  } catch {
+    if (!response.ok) {
+      throw new Error(`Server responded with status ${response.status} (${response.statusText}).`);
+    }
+  }
 
   // Handle unauthorized — clear auth and redirect to login
   if (response.status === 401 || response.status === 403) {
@@ -60,7 +70,7 @@ export async function apiCall(endpoint, options = {}) {
   }
 
   if (!response.ok) {
-    throw new Error(data.error || 'Something went wrong');
+    throw new Error(data?.error || `Server responded with status ${response.status}`);
   }
 
   return data;
