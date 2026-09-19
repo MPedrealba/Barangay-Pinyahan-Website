@@ -10,12 +10,14 @@ const nodemailer = require('nodemailer');
 let cachedTransporter = null;
 
 function getTransporter() {
-    const user = process.env.GMAIL_USER;
+    const rawUser = process.env.GMAIL_USER;
     const pass = process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_PASS;
 
-    if (!user || !pass) {
+    if (!rawUser || !pass) {
         return null;
     }
+
+    const user = rawUser.includes('@') ? rawUser : `${rawUser}@gmail.com`;
 
     if (!cachedTransporter) {
         cachedTransporter = nodemailer.createTransport({
@@ -24,9 +26,9 @@ function getTransporter() {
                 user,
                 pass
             },
-            pool: true,
-            maxConnections: 3,
-            maxMessages: 50
+            connectionTimeout: 5000, // 5s timeout to prevent hanging on cloud hosts where SMTP is blocked
+            greetingTimeout: 5000,
+            socketTimeout: 5000
         });
     }
 
@@ -36,6 +38,11 @@ function getTransporter() {
 /**
  * Send password reset email with 6-digit OTP code and direct reset link.
  *
+ * Supports:
+ * 1. Brevo HTTP REST API (Port 443 — works on Render Free Tier)
+ * 2. Resend HTTP REST API (Port 443 — works on Render Free Tier)
+ * 3. Nodemailer Gmail SMTP (Localhost or Paid Cloud with open SMTP ports)
+ *
  * @param {object} params
  * @param {string} params.toEmail - Recipient email address
  * @param {string} params.recipientName - Full name of the admin
@@ -43,8 +50,8 @@ function getTransporter() {
  * @param {string} params.resetUrl - Full one-click reset URL
  */
 async function sendPasswordResetEmail({ toEmail, recipientName, otpCode, resetUrl }) {
-    const transporter = getTransporter();
-    const fromAddress = process.env.GMAIL_USER || 'no-reply@barangaypinyahan.gov.ph';
+    const rawUser = process.env.GMAIL_USER || 'barangaypinyahan1@gmail.com';
+    const fromAddress = rawUser.includes('@') ? rawUser : `${rawUser}@gmail.com`;
 
     const htmlContent = `
     <!DOCTYPE html>
@@ -98,6 +105,68 @@ async function sendPasswordResetEmail({ toEmail, recipientName, otpCode, resetUr
     </html>
     `;
 
+    // ── METHOD 1: Brevo HTTP REST API (Port 443 — Unrestricted on Render Free Tier) ──
+    if (process.env.BREVO_API_KEY) {
+        try {
+            const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+                method: 'POST',
+                headers: {
+                    'api-key': process.env.BREVO_API_KEY.trim(),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    sender: { name: 'Barangay Pinyahan Admin', email: fromAddress },
+                    to: [{ email: toEmail, name: recipientName || 'Administrator' }],
+                    subject: 'Password Reset Verification Code - Barangay Pinyahan',
+                    htmlContent: htmlContent,
+                    textContent: `Your password reset code is: ${otpCode}. You can also reset via this link: ${resetUrl} (expires in 15 minutes).`
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                console.log(`✉️ Password reset email dispatched via Brevo HTTP API to ${toEmail} (Message ID: ${data.messageId})`);
+                return { sent: true };
+            } else {
+                console.error('❌ Brevo HTTP API returned error:', data);
+            }
+        } catch (apiErr) {
+            console.error('❌ Failed to dispatch via Brevo HTTP API:', apiErr.message);
+        }
+    }
+
+    // ── METHOD 2: Resend HTTP REST API (Port 443 — Unrestricted on Render Free Tier) ──
+    if (process.env.RESEND_API_KEY) {
+        try {
+            const res = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${process.env.RESEND_API_KEY.trim()}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    from: process.env.RESEND_FROM || 'Barangay Pinyahan <onboarding@resend.dev>',
+                    to: [toEmail],
+                    subject: 'Password Reset Verification Code - Barangay Pinyahan',
+                    html: htmlContent,
+                    text: `Your password reset code is: ${otpCode}. You can also reset via this link: ${resetUrl} (expires in 15 minutes).`
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                console.log(`✉️ Password reset email dispatched via Resend HTTP API to ${toEmail} (ID: ${data.id})`);
+                return { sent: true };
+            } else {
+                console.error('❌ Resend HTTP API returned error:', data);
+            }
+        } catch (apiErr) {
+            console.error('❌ Failed to dispatch via Resend HTTP API:', apiErr.message);
+        }
+    }
+
+    // ── METHOD 3: Nodemailer SMTP (Works on Localhost or Paid Cloud instances) ──────
+    const transporter = getTransporter();
+
     if (transporter) {
         try {
             const info = await transporter.sendMail({
@@ -107,15 +176,15 @@ async function sendPasswordResetEmail({ toEmail, recipientName, otpCode, resetUr
                 text: `Your password reset code is: ${otpCode}. You can also reset via this link: ${resetUrl} (expires in 15 minutes).`,
                 html: htmlContent
             });
-            console.log(`✉️ Password reset email successfully dispatched to ${toEmail} (Message ID: ${info.messageId})`);
+            console.log(`✉️ Password reset email successfully dispatched via SMTP to ${toEmail} (Message ID: ${info.messageId})`);
             return { sent: true };
         } catch (mailErr) {
-            console.error('❌ Failed to send reset email via Gmail:', mailErr.message);
+            console.error('❌ Failed to send reset email via Gmail SMTP:', mailErr.message);
             return { sent: false, error: mailErr.message };
         }
     } else {
-        console.warn('⚠️ GMAIL_USER or GMAIL_APP_PASSWORD not set in backend/.env. Email not sent.');
-        return { sent: false, error: 'Gmail credentials not configured' };
+        console.warn('⚠️ No email delivery service configured (GMAIL_USER/APP_PASSWORD, BREVO_API_KEY, or RESEND_API_KEY). Email not sent.');
+        return { sent: false, error: 'No email service credentials configured' };
     }
 }
 
