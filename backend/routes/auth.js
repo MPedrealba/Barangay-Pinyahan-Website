@@ -155,12 +155,19 @@ router.post('/forgot-password', async (req, res) => {
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
         const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
 
-        await sendPasswordResetEmail({
+        const mailResult = await sendPasswordResetEmail({
             toEmail: admin.email,
             recipientName: admin.full_name,
             otpCode,
             resetUrl
         });
+
+        if (mailResult && mailResult.sent === false) {
+            console.error('❌ Password reset email dispatch failed:', mailResult.error);
+            return res.status(500).json({ 
+                error: `Unable to dispatch verification code: ${mailResult.error || 'Email delivery service error'}. Please check your Brevo or email settings.` 
+            });
+        }
 
         res.json({
             message: genericMessage

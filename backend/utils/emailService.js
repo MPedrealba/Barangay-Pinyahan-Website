@@ -108,6 +108,44 @@ async function sendPasswordResetEmail({ toEmail, recipientName, otpCode, resetUr
     // ── METHOD 1: Brevo HTTP REST API (Port 443 — Unrestricted on Render Free Tier) ──
     if (process.env.BREVO_API_KEY) {
         try {
+            // Check if a specific sender email was set in env (e.g. BREVO_SENDER_EMAIL)
+            let brevoSenderEmail = process.env.BREVO_SENDER_EMAIL?.trim();
+
+            // If not set, query Brevo senders list to find the verified sender on the account
+            if (!brevoSenderEmail) {
+                try {
+                    const sendersRes = await fetch('https://api.brevo.com/v3/senders', {
+                        method: 'GET',
+                        headers: {
+                            'api-key': process.env.BREVO_API_KEY.trim(),
+                            'Accept': 'application/json'
+                        }
+                    });
+                    if (sendersRes.ok) {
+                        const sendersData = await sendersRes.json();
+                        const sendersList = sendersData.senders || [];
+                        // Check if fromAddress is already verified in Brevo
+                        const matched = sendersList.find(s => s.email?.toLowerCase() === fromAddress.toLowerCase() && s.active !== false);
+                        if (matched) {
+                            brevoSenderEmail = matched.email;
+                        } else if (sendersList.length > 0) {
+                            // Use the primary verified sender on the Brevo account
+                            const activeSender = sendersList.find(s => s.active !== false) || sendersList[0];
+                            brevoSenderEmail = activeSender.email;
+                            console.log(`ℹ️ Brevo using verified account sender: ${brevoSenderEmail} (instead of ${fromAddress})`);
+                        }
+                    }
+                } catch (sendersErr) {
+                    console.warn('⚠️ Could not query Brevo senders:', sendersErr.message);
+                }
+            }
+
+            if (!brevoSenderEmail) {
+                brevoSenderEmail = fromAddress;
+            }
+
+            console.log(`📧 Dispatching password reset OTP to ${toEmail} via Brevo (Sender: ${brevoSenderEmail})...`);
+
             const res = await fetch('https://api.brevo.com/v3/smtp/email', {
                 method: 'POST',
                 headers: {
@@ -116,7 +154,7 @@ async function sendPasswordResetEmail({ toEmail, recipientName, otpCode, resetUr
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
-                    sender: { name: 'Barangay Pinyahan Admin', email: fromAddress },
+                    sender: { name: 'Barangay Pinyahan Admin', email: brevoSenderEmail },
                     to: [{ email: toEmail, name: recipientName || 'Administrator' }],
                     subject: 'Password Reset Verification Code - Barangay Pinyahan',
                     htmlContent: htmlContent,
@@ -126,12 +164,20 @@ async function sendPasswordResetEmail({ toEmail, recipientName, otpCode, resetUr
             const data = await res.json();
             if (res.ok) {
                 console.log(`✉️ Password reset email dispatched via Brevo HTTP API to ${toEmail} (Message ID: ${data.messageId})`);
-                return { sent: true };
+                return { sent: true, messageId: data.messageId };
             } else {
-                console.error('❌ Brevo HTTP API returned error:', data);
+                const errMsg = data?.message || data?.error || JSON.stringify(data);
+                console.error('❌ Brevo HTTP API returned error:', errMsg);
+                // If Brevo failed, return informative error so caller knows
+                if (!process.env.RESEND_API_KEY && !getTransporter()) {
+                    return { sent: false, error: `Brevo error: ${errMsg}` };
+                }
             }
         } catch (apiErr) {
             console.error('❌ Failed to dispatch via Brevo HTTP API:', apiErr.message);
+            if (!process.env.RESEND_API_KEY && !getTransporter()) {
+                return { sent: false, error: `Brevo connection error: ${apiErr.message}` };
+            }
         }
     }
 
