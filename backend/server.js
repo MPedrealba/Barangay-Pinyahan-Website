@@ -225,6 +225,7 @@ app.use('/api/services', serviceRoutes);
 
 // Public citizen service request endpoints (/api/services/request, /api/services/track)
 app.use('/api/services', serviceRequestRoutes.publicRouter || serviceRequestRoutes);
+app.use('/api/service-requests', serviceRequestRoutes.publicRouter || serviceRequestRoutes);
 
 // Admin service requests management (/api/admin/service-requests: GET, PUT, PATCH, DELETE)
 app.use('/api/admin/service-requests', serviceRequestRoutes);

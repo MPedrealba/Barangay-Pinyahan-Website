@@ -120,12 +120,20 @@ export default function ServicesPage() {
                   Submit requests for Barangay Clearance, Certificates, and more — get a tracking number instantly.
                 </p>
               </div>
-              <Link
-                href="/services/request"
-                className="bg-white text-[#1565c0] px-7 py-3 rounded-full font-extrabold text-[0.92rem] no-underline flex items-center gap-2 whitespace-nowrap shadow-lg hover:bg-gray-50 transition-colors shrink-0"
-              >
-                <i className="fas fa-file-alt" /> Request a Service
-              </Link>
+              <div className="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap">
+                <Link
+                  href="/services/request"
+                  className="bg-white text-[#1565c0] px-6 py-3 rounded-full font-extrabold text-[0.92rem] no-underline flex items-center gap-2 whitespace-nowrap shadow-lg hover:bg-gray-50 transition-colors shrink-0"
+                >
+                  <i className="fas fa-file-alt" /> Request a Service
+                </Link>
+                <Link
+                  href="/track-service-request"
+                  className="bg-white/15 hover:bg-white/25 text-white border border-white/40 px-5 py-3 rounded-full font-extrabold text-[0.92rem] no-underline flex items-center gap-2 whitespace-nowrap transition-colors shrink-0 backdrop-blur-sm"
+                >
+                  <i className="fas fa-search" /> Track Request
+                </Link>
+              </div>
             </div>
           </section>
 

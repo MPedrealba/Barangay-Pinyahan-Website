@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { label: 'HOME',             href: '/' },
   { label: 'ABOUT US',         href: '/about' },
   { label: 'SERVICES',         href: '/services' },
+  { label: 'TRACK SERVICE',    href: '/track-service-request' },
   { label: 'NEWS & EVENTS',    href: '/news' },
   { label: 'CITIZENS CHARTER', href: '/citizens-charter' },
   { label: 'SUBMIT COMPLAINT', href: '/complaints' },
@@ -164,7 +165,7 @@ export default function PublicShell({ children, activeHref }) {
                   <Link
                     href={link.href}
                     onClick={() => setMenuOpen(false)}
-                    className={`block px-4 lg:px-[22px] py-[15px] text-[0.82rem] lg:text-[0.88rem] font-bold uppercase no-underline text-white transition-colors duration-300
+                    className={`block px-3.5 lg:px-4 py-[15px] text-[0.80rem] lg:text-[0.84rem] font-bold uppercase no-underline text-white transition-colors duration-300
                       ${isActive ? 'bg-[#004a80]' : 'hover:bg-[#004a80]'}`}
                   >
                     {link.label}

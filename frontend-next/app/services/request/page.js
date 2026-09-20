@@ -170,9 +170,15 @@ export default function ServiceRequestPage() {
             </div>
 
             <div className="flex flex-col gap-3">
+              <Link
+                href={`/track-service-request?tracking_no=${encodeURIComponent(successData.tracking_no)}`}
+                className="w-full bg-[#1565c0] hover:bg-[#0d47a1] text-white px-3.5 py-3.5 rounded-full text-base font-bold cursor-pointer transition-all tracking-wide text-center no-underline shadow-md flex items-center justify-center gap-2"
+              >
+                <i className="fas fa-search" />Track This Request Now
+              </Link>
               <button onClick={reset}
-                className="w-full bg-white hover:bg-[#1565c0] text-[#1565c0] hover:text-white px-3.5 py-3.5 border-2 border-[#1565c0] rounded-full text-base font-bold cursor-pointer transition-all tracking-wide">
-                <i className="fas fa-plus mr-2" />Submit Another Request
+                className="w-full bg-white hover:bg-[#1565c0] text-[#1565c0] hover:text-white px-3.5 py-3 border-2 border-[#1565c0] rounded-full text-sm font-bold cursor-pointer transition-all tracking-wide flex items-center justify-center gap-2">
+                <i className="fas fa-plus" />Submit Another Request
               </button>
               <Link href="/services" className="block text-center text-[#1565c0] font-bold text-[0.9rem] no-underline pt-1 hover:underline">
                 Back to Services
@@ -195,6 +201,15 @@ export default function ServiceRequestPage() {
                 Submit your document or service request online.<br />
                 You will receive a tracking number upon submission.
               </p>
+              <div className="mt-3">
+                <Link
+                  href="/track-service-request"
+                  className="text-xs font-bold text-[#1565c0] hover:underline inline-flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100"
+                >
+                  <i className="fas fa-search text-[11px]" />
+                  <span>Already submitted a request? Track it here</span>
+                </Link>
+              </div>
             </div>
 
             {/* Error */}

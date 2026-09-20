@@ -102,27 +102,48 @@ publicRouter.post('/request', handleServiceRequest);
 // Handler for tracking a service request by tracking_no
 const handleTrackRequest = async (req, res) => {
     try {
-        const { tracking_no } = req.body;
-        if (!tracking_no?.trim()) {
-            return res.status(400).json({ error: 'tracking_no is required.' });
+        const tracking_no = (req.body.tracking_no || req.query.tracking_no || '').trim();
+        const resident_name = (req.body.resident_name || req.body.full_name || req.query.resident_name || req.query.full_name || '').trim();
+
+        if (!tracking_no) {
+            return res.status(400).json({ error: 'Tracking number is required.' });
         }
 
-        const [rows] = await req.db.query(
-            `SELECT tracking_no, resident_name, service_type, purpose, status, created_at, updated_at
-             FROM service_requests WHERE tracking_no = ?`,
-            [tracking_no.trim().toUpperCase()]
-        );
+        let query = `
+            SELECT id, tracking_no, resident_name, service_type, purpose, status, 
+                   address, age, civil_status, birthdate, years_of_residency, requestor, 
+                   processed_by, created_at, updated_at
+            FROM service_requests 
+            WHERE UPPER(TRIM(tracking_no)) = ?
+        `;
+        const params = [tracking_no.toUpperCase()];
 
-        if (rows.length === 0) return res.status(404).json({ error: 'Service request not found.' });
+        if (resident_name) {
+            query += ' AND LOWER(resident_name) LIKE ?';
+            params.push(`%${resident_name.toLowerCase()}%`);
+        }
+
+        const [rows] = await req.db.query(query, params);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ 
+                error: resident_name 
+                    ? 'Service request not found. Please verify your tracking number and resident name.' 
+                    : 'Service request not found. Please check your tracking number.' 
+            });
+        }
+
         res.json({ request: rows[0] });
     } catch (error) {
         console.error('Service request track error:', error);
-        res.status(500).json({ error: 'Server error.' });
+        res.status(500).json({ error: 'Server error while tracking service request.' });
     }
 };
 
 router.post('/track', handleTrackRequest);
+router.get('/track', handleTrackRequest);
 publicRouter.post('/track', handleTrackRequest);
+publicRouter.get('/track', handleTrackRequest);
 
 // ────────────────────────────────────────────────────────────────────────────
 // ADMIN ROUTES (JWT protected)
