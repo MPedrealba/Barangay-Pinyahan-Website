@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiPost } from '@/lib/api';
 
 export default function CreateCitizensCharterPage() {
   const router = useRouter();
@@ -141,29 +142,14 @@ export default function CreateCitizensCharterPage() {
     };
 
     try {
-      const token = localStorage.getItem('token');
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
-      const res = await fetch(`${apiBase}/api/admin/citizens-charter`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        showToast('success', "Citizen's Charter created successfully!");
-        setTimeout(() => {
-          router.push('/admin/citizens-charter');
-        }, 1200);
-      } else {
-        const data = await res.json();
-        showToast('error', data.error || 'Failed to create Citizen\'s Charter.');
-      }
+      await apiPost('/api/admin/citizens-charter', payload);
+      showToast('success', "Citizen's Charter created successfully!");
+      setTimeout(() => {
+        router.push('/admin/citizens-charter');
+      }, 1200);
     } catch (err) {
       console.error('Submit error:', err);
-      showToast('error', 'Network error. Please check your connection.');
+      showToast('error', err.message || "Failed to create Citizen's Charter.");
     } finally {
       setIsSubmitting(false);
     }

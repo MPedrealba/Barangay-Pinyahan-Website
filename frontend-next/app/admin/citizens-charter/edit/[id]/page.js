@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiGet, apiPut } from '@/lib/api';
 
 export default function EditCitizensCharterPage({ params }) {
   const { id } = use(params);
@@ -37,14 +38,8 @@ export default function EditCitizensCharterPage({ params }) {
   useEffect(() => {
     const fetchCharter = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
-        const res = await fetch(`${apiBase}/api/admin/citizens-charter/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (res.ok) {
-          const data = await res.json();
+        const data = await apiGet(`/api/admin/citizens-charter/${id}`);
+        if (data && data.charter) {
           const c = data.charter;
 
           setFormData({
@@ -194,29 +189,14 @@ export default function EditCitizensCharterPage({ params }) {
     };
 
     try {
-      const token = localStorage.getItem('token');
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
-      const res = await fetch(`${apiBase}/api/admin/citizens-charter/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        showToast('success', 'Citizen\'s Charter updated successfully!');
-        setTimeout(() => {
-          router.push('/admin/citizens-charter');
-        }, 1200);
-      } else {
-        const data = await res.json();
-        showToast('error', data.error || 'Failed to update Citizen\'s Charter.');
-      }
+      await apiPut(`/api/admin/citizens-charter/${id}`, payload);
+      showToast('success', 'Citizen\'s Charter updated successfully!');
+      setTimeout(() => {
+        router.push('/admin/citizens-charter');
+      }, 1200);
     } catch (err) {
       console.error('Submit error:', err);
-      showToast('error', 'Network error. Please check your connection.');
+      showToast('error', err.message || 'Failed to update Citizen\'s Charter.');
     } finally {
       setIsSubmitting(false);
     }
