@@ -1,7 +1,8 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiPost } from '@/lib/api';
 
 export default function CreateNewsPage() {
   const router = useRouter();
@@ -9,6 +10,7 @@ export default function CreateNewsPage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [datePublished, setDatePublished] = useState('');
+  const [status, setStatus] = useState('Published');
   const [isFeatured, setIsFeatured] = useState(false);
   const [image, setImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,33 +26,24 @@ export default function CreateNewsPage() {
     setIsSubmitting(true);
 
     try {
-      const token = localStorage.getItem('token');
       const formData = new FormData();
-      formData.append('title', title);
-      formData.append('description', content);
+      formData.append('title', title.trim());
+      formData.append('description', content.trim());
       formData.append('date_published', datePublished);
+      formData.append('status', status);
       formData.append('is_featured', isFeatured);
 
       if (image) {
         formData.append('photo', image);
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
-      });
+      await apiPost('/api/admin/news', formData);
 
-      if (res.ok) {
-        alert('✅ Article created successfully!');
-        router.push('/admin/news');
-      } else {
-        const errorData = await res.json();
-        alert(`Failed to create article: ${errorData.error || 'Unknown error'}`);
-      }
+      alert('✅ Article created successfully!');
+      router.push('/admin/news');
     } catch (err) {
       console.error('Error creating article:', err);
-      alert('Error creating article.');
+      alert(`Error creating article: ${err.message || 'Unknown error'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -91,18 +84,34 @@ export default function CreateNewsPage() {
             />
           </div>
 
-          {/* Date Published */}
-          <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
-              Date Published <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              value={datePublished}
-              onChange={(e) => setDatePublished(e.target.value)}
-              required
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium text-gray-900"
-            />
+          {/* Date Published & Status */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                Date Published <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                value={datePublished}
+                onChange={(e) => setDatePublished(e.target.value)}
+                required
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium text-gray-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                Status <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-semibold text-gray-800 bg-white"
+              >
+                <option value="Published">Published (visible on website)</option>
+                <option value="Draft">Draft (saved internally, hidden from public)</option>
+              </select>
+            </div>
           </div>
 
           {/* Content / Description */}

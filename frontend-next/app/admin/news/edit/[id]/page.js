@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiGet, apiPut, getPhotoUrl } from '@/lib/api';
 
 export default function EditNewsPage({ params }) {
   const unwrappedParams = use(params);
@@ -15,6 +16,7 @@ export default function EditNewsPage({ params }) {
     title: '',
     date_published: '',
     description: '',
+    status: 'Published',
     is_featured: false
   });
   
@@ -26,40 +28,34 @@ export default function EditNewsPage({ params }) {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/${id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (res.ok) {
-          const data = await res.json();
-          const item = data.news;
-          
-          // Format date for <input type="date"> (YYYY-MM-DD)
-          const dateObj = new Date(item.date_published);
-          const formattedDate = !isNaN(dateObj.getTime()) 
-            ? dateObj.toISOString().split('T')[0] 
-            : '';
+        const data = await apiGet(`/api/admin/news/${id}`);
+        const item = data?.news || data;
 
-          setFormData({
-            title: item.title || '',
-            date_published: formattedDate,
-            description: item.description || '',
-            is_featured: !!item.is_featured
-          });
-          
-          if (item.photo_url) {
-            setExistingPhotoUrl(
-              item.photo_url.startsWith('http') 
-                ? item.photo_url 
-                : `${process.env.NEXT_PUBLIC_API_URL}${item.photo_url.startsWith('/') ? '' : '/'}${item.photo_url}`
-            );
-          }
-        } else {
+        if (!item) {
           alert('Failed to load article details.');
+          return;
+        }
+
+        // Format date for <input type="date"> (YYYY-MM-DD)
+        const dateObj = new Date(item.date_published);
+        const formattedDate = !isNaN(dateObj.getTime())
+          ? dateObj.toISOString().split('T')[0]
+          : '';
+
+        setFormData({
+          title: item.title || '',
+          date_published: formattedDate,
+          description: item.description || '',
+          status: item.status || 'Published',
+          is_featured: !!item.is_featured
+        });
+
+        if (item.photo_url) {
+          setExistingPhotoUrl(getPhotoUrl(item.photo_url));
         }
       } catch (err) {
         console.error('Error fetching article:', err);
+        alert('Failed to load article details.');
       } finally {
         setLoading(false);
       }
@@ -96,34 +92,25 @@ export default function EditNewsPage({ params }) {
     setIsSubmitting(true);
 
     try {
-      const token = localStorage.getItem('token');
       const submitData = new FormData();
       
-      submitData.append('title', formData.title);
+      submitData.append('title', formData.title.trim());
       submitData.append('date_published', formData.date_published);
-      submitData.append('description', formData.description);
+      submitData.append('description', formData.description.trim());
+      submitData.append('status', formData.status);
       submitData.append('is_featured', formData.is_featured);
       
       if (photo) {
         submitData.append('photo', photo);
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/${id}`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: submitData
-      });
+      await apiPut(`/api/admin/news/${id}`, submitData);
 
-      if (res.ok) {
-        alert('✅ Article Updated Successfully!');
-        router.push('/admin/news');
-      } else {
-        const errorData = await res.json();
-        alert(`Failed to update article: ${errorData.error || 'Unknown error'}`);
-      }
+      alert('✅ Article Updated Successfully!');
+      router.push('/admin/news');
     } catch (err) {
       console.error('Error updating article:', err);
-      alert('Error updating article.');
+      alert(`Failed to update article: ${err.message || 'Unknown error'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -168,17 +155,36 @@ export default function EditNewsPage({ params }) {
               />
             </div>
 
-            {/* Date Published */}
-            <div>
-              <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Date Published <span className="text-red-500">*</span></label>
-              <input 
-                type="date" 
-                name="date_published"
-                value={formData.date_published}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0056b3] text-sm font-medium text-gray-900"
-              />
+            {/* Date Published & Status */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+                  Date Published <span className="text-red-500">*</span>
+                </label>
+                <input 
+                  type="date" 
+                  name="date_published"
+                  value={formData.date_published}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0056b3] text-sm font-medium text-gray-900"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
+                  Status <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0056b3] text-sm font-semibold text-gray-800 bg-white"
+                >
+                  <option value="Published">Published (visible on website)</option>
+                  <option value="Draft">Draft (saved internally, hidden from public)</option>
+                </select>
+              </div>
             </div>
 
             {/* Content / Description */}
