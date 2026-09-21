@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiPost } from '@/lib/api';
 
 export default function CreateServicePage() {
   const router = useRouter();
@@ -35,32 +36,19 @@ export default function CreateServicePage() {
     setIsSubmitting(true);
 
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/services`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: name.trim(),
-          description: description.trim(),
-          status,
-          requirements: requirements.filter((r) => r.trim()),
-          procedures: procedure.filter((s) => s.trim()),
-        }),
+      await apiPost('/api/admin/services', {
+        name: name.trim(),
+        description: description.trim(),
+        status,
+        requirements: requirements.filter((r) => r.trim()),
+        procedures: procedure.filter((s) => s.trim()),
       });
 
-      if (res.ok) {
-        alert('✅ Service saved successfully!');
-        router.push('/admin/services');
-      } else {
-        const err = await res.json();
-        alert(`Failed to save: ${err.error || 'Unknown error'}`);
-      }
+      alert('✅ Service saved successfully!');
+      router.push('/admin/services');
     } catch (err) {
       console.error(err);
-      alert('Error saving service.');
+      alert(`Error saving service: ${err.message || 'Unknown error'}`);
     } finally {
       setIsSubmitting(false);
     }

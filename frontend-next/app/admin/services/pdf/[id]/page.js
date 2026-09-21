@@ -148,7 +148,10 @@ export default function ServicePDFPage({ params }) {
   const [saveError, setSaveError] = useState('');
   const [formData,  setFormData]  = useState({});
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL ||
+    (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com')
+      ? 'https://barangay-pinyahan-website-bz6q.onrender.com'
+      : 'http://localhost:5000');
 
   // ── Fetch ─────────────────────────────────────────────────────────────────
   useEffect(() => {

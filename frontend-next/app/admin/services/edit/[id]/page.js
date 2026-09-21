@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiGet, apiPut } from '@/lib/api';
 
 // Safe parser for JSON array columns from TiDB/MySQL
 function parseJsonArray(field) {
@@ -58,22 +59,8 @@ export default function EditServicePage() {
       setErrorMessage('');
 
       try {
-        const token = localStorage.getItem('token');
-        const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
-        
-        // Fetch single service by ID
-        const res = await fetch(`${apiBase}/api/services/${id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!res.ok) {
-          throw new Error(`Failed to load service (Status: ${res.status})`);
-        }
-
-        const data = await res.json();
-        const service = data.service || data;
+        const data = await apiGet(`/api/services/${id}`);
+        const service = data?.service || data;
 
         if (!service) {
           throw new Error('Service data is empty.');
@@ -166,9 +153,6 @@ export default function EditServicePage() {
     setIsSubmitting(true);
 
     try {
-      const token = localStorage.getItem('token');
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
-
       const payload = {
         name: formData.name.trim(),
         description: formData.description.trim(),
@@ -179,27 +163,15 @@ export default function EditServicePage() {
         procedures: formData.procedures.filter((p) => p.trim() !== '')
       };
 
-      const res = await fetch(`${apiBase}/api/services/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
+      await apiPut(`/api/services/${id}`, payload);
 
-      if (res.ok) {
-        showToast('success', 'Service updated successfully!');
-        setTimeout(() => {
-          router.push('/admin/services');
-        }, 1200);
-      } else {
-        const err = await res.json();
-        showToast('error', err.error || 'Failed to update service.');
-      }
+      showToast('success', 'Service updated successfully!');
+      setTimeout(() => {
+        router.push('/admin/services');
+      }, 1200);
     } catch (err) {
       console.error('Update error:', err);
-      showToast('error', 'Network error. Please try again.');
+      showToast('error', err.message || 'Failed to update service.');
     } finally {
       setIsSubmitting(false);
     }
