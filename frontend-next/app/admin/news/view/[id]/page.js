@@ -2,6 +2,7 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiGet, getPhotoUrl } from '@/lib/api';
 
 export default function ViewNewsPage({ params }) {
   const unwrappedParams = use(params);
@@ -14,13 +15,8 @@ export default function ViewNewsPage({ params }) {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/news/${id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (res.ok) {
-          const data = await res.json();
+        const data = await apiGet(`/api/admin/news/${id}`);
+        if (data && data.news) {
           setNews(data.news);
         }
       } catch (err) {
@@ -92,9 +88,9 @@ export default function ViewNewsPage({ params }) {
               <span className="flex items-center gap-2">
                 <i className="fas fa-circle text-[8px] text-[#0056b3]"></i> Status: 
                 <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${
-                  (news.status || '').toLowerCase() === 'published' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                  (news.status || '').trim().toLowerCase() === 'published' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
                 }`}>
-                  {news.status || 'Draft'}
+                  {(news.status || '').trim().toLowerCase() === 'published' ? 'Published' : 'Draft'}
                 </span>
               </span>
             </div>
@@ -104,7 +100,7 @@ export default function ViewNewsPage({ params }) {
           {news.photo_url && (
             <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm max-w-2xl">
               <img 
-                src={news.photo_url.startsWith('http') ? news.photo_url : `${process.env.NEXT_PUBLIC_API_URL}${news.photo_url.startsWith('/') ? '' : '/'}${news.photo_url}`} 
+                src={getPhotoUrl(news.photo_url)} 
                 alt={news.title} 
                 className="w-full h-auto object-cover"
               />

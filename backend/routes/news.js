@@ -29,12 +29,12 @@ router.get(['/featured', '/public/featured'], async (req, res) => {
     try {
         let [rows] = await safeQuery(
             req.db,
-            'SELECT * FROM news WHERE is_featured = 1 ORDER BY date_published DESC LIMIT 1'
+            "SELECT * FROM news WHERE is_featured = 1 AND LOWER(TRIM(status)) = 'published' ORDER BY date_published DESC LIMIT 1"
         );
         if (rows.length === 0) {
             [rows] = await safeQuery(
                 req.db,
-                'SELECT * FROM news ORDER BY date_published DESC LIMIT 1'
+                "SELECT * FROM news WHERE LOWER(TRIM(status)) = 'published' ORDER BY date_published DESC LIMIT 1"
             );
         }
         res.status(200).json({ news: rows[0] || null });
@@ -50,7 +50,7 @@ router.get('/public', async (req, res) => {
         const limit = Math.max(1, Math.min(100, parseInt(req.query.limit, 10) || 10));
         const [rows] = await safeQuery(
             req.db,
-            'SELECT * FROM news ORDER BY date_published DESC LIMIT ?', [limit]
+            "SELECT * FROM news WHERE LOWER(TRIM(status)) = 'published' ORDER BY date_published DESC LIMIT ?", [limit]
         );
         res.status(200).json({ news: rows });
     } catch (error) {
@@ -62,7 +62,7 @@ router.get('/public', async (req, res) => {
 // GET /api/admin/news/public/:id OR /api/news/public/:id — Get single news (public)
 router.get('/public/:id', async (req, res) => {
     try {
-        const [rows] = await safeQuery(req.db, 'SELECT * FROM news WHERE id = ?', [req.params.id]);
+        const [rows] = await safeQuery(req.db, "SELECT * FROM news WHERE id = ? AND LOWER(TRIM(status)) = 'published'", [req.params.id]);
         if (rows.length === 0) {
             return res.status(404).json({ error: 'News not found.' });
         }
@@ -106,32 +106,55 @@ router.get('/:id', verifyToken, async (req, res) => {
 // POST /api/admin/news — Create news
 router.post('/', verifyToken, upload.single('photo'), async (req, res) => {
     try {
-        const { title, date_published, description, is_featured } = req.body;
+        const { title, date_published, description, is_featured, status } = req.body;
 
         if (!title || !date_published || !description) {
             return res.status(400).json({ error: 'Title, date, and description are required.' });
         }
+
+        const validStatus = (status || '').trim().toLowerCase() === 'published' ? 'Published' : 'Draft';
 
         // Upload directly to MySQL media_files (returns /api/media/:id or null)
         const photo_url = await uploadToDatabase(req.file, req.db);
 
         const [result] = await safeQuery(
             req.db,
-            'INSERT INTO news (title, date_published, description, photo_url, is_featured) VALUES (?, ?, ?, ?, ?)',
-            [title, date_published, description, photo_url, is_featured === 'true' || is_featured === true ? 1 : 0]
+            'INSERT INTO news (title, date_published, description, photo_url, is_featured, status) VALUES (?, ?, ?, ?, ?, ?)',
+            [title, date_published, description, photo_url, is_featured === 'true' || is_featured === true ? 1 : 0, validStatus]
         );
 
-        res.status(201).json({ message: 'News created successfully.', id: result.insertId });
+        res.status(201).json({ message: 'News created successfully.', id: result.insertId, status: validStatus });
     } catch (error) {
         console.error('Create news error:', error);
         res.status(500).json({ error: 'Server error.' });
     }
 });
 
+// PATCH & PUT /api/admin/news/:id/status — Quick toggle status (admin)
+const handleNewsStatusUpdate = async (req, res) => {
+    try {
+        const { status } = req.body;
+        const validStatus = (status || '').trim().toLowerCase() === 'published' ? 'Published' : 'Draft';
+
+        const [result] = await safeQuery(req.db, 'UPDATE news SET status = ? WHERE id = ?', [validStatus, req.params.id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'News article not found.' });
+        }
+
+        res.json({ message: `Article status updated to "${validStatus}" successfully.`, status: validStatus });
+    } catch (error) {
+        console.error('Update news status error:', error);
+        res.status(500).json({ error: 'Server error updating status.' });
+    }
+};
+
+router.patch('/:id/status', verifyToken, handleNewsStatusUpdate);
+router.put('/:id/status', verifyToken, handleNewsStatusUpdate);
+
 // PUT /api/admin/news/:id — Update news
 router.put('/:id', verifyToken, upload.single('photo'), async (req, res) => {
     try {
-        const { title, date_published, description, is_featured } = req.body;
+        const { title, date_published, description, is_featured, status } = req.body;
 
         const fields = [];
         const values = [];
@@ -139,6 +162,11 @@ router.put('/:id', verifyToken, upload.single('photo'), async (req, res) => {
         if (title) { fields.push('title = ?'); values.push(title); }
         if (date_published) { fields.push('date_published = ?'); values.push(date_published); }
         if (description) { fields.push('description = ?'); values.push(description); }
+        if (status !== undefined) {
+            const validStatus = (status || '').trim().toLowerCase() === 'published' ? 'Published' : 'Draft';
+            fields.push('status = ?');
+            values.push(validStatus);
+        }
         if (is_featured !== undefined) { fields.push('is_featured = ?'); values.push(is_featured === 'true' || is_featured === true ? 1 : 0); }
         if (req.file) {
             // Upload new photo directly to MySQL media_files

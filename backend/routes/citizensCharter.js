@@ -151,15 +151,19 @@ router.post('/', verifyToken, async (req, res) => {
         if (Array.isArray(requirements) && requirements.length > 0) {
             const reqValues = requirements
                 .filter((r) => r && (r.name || r.requirement_name))
-                .map((r) => [
-                    serviceId,
-                    (r.name || r.requirement_name).trim(),
-                    r.where_to_secure ? r.where_to_secure.trim() : null,
-                ]);
+                .map((r) => {
+                    const reqName = (r.name || r.requirement_name).trim();
+                    return [
+                        serviceId,
+                        reqName,
+                        reqName,
+                        r.where_to_secure ? r.where_to_secure.trim() : null,
+                    ];
+                });
 
             if (reqValues.length > 0) {
                 await connection.query(
-                    `INSERT INTO service_requirements (service_id, name, where_to_secure) VALUES ?`,
+                    `INSERT INTO service_requirements (service_id, name, requirement_name, where_to_secure) VALUES ?`,
                     [reqValues]
                 );
             }
@@ -169,20 +173,24 @@ router.post('/', verifyToken, async (req, res) => {
         if (Array.isArray(steps) && steps.length > 0) {
             const stepValues = steps
                 .filter((s) => s && (s.client_step || s.agency_action || s.action_taken))
-                .map((s, index) => [
-                    serviceId,
-                    s.step_number || index + 1,
-                    s.client_step ? s.client_step.trim() : null,
-                    (s.agency_action || s.action_taken) ? (s.agency_action || s.action_taken).trim() : null,
-                    s.fees ? s.fees.trim() : 'None',
-                    s.processing_time ? s.processing_time.trim() : null,
-                    s.person_responsible ? s.person_responsible.trim() : null,
-                ]);
+                .map((s, index) => {
+                    const actionVal = (s.agency_action || s.action_taken) ? (s.agency_action || s.action_taken).trim() : null;
+                    return [
+                        serviceId,
+                        s.step_number || index + 1,
+                        s.client_step ? s.client_step.trim() : null,
+                        actionVal,
+                        actionVal,
+                        s.fees ? s.fees.trim() : 'None',
+                        s.processing_time ? s.processing_time.trim() : null,
+                        s.person_responsible ? s.person_responsible.trim() : null,
+                    ];
+                });
 
             if (stepValues.length > 0) {
                 await connection.query(
                     `INSERT INTO service_steps 
-                        (service_id, step_number, client_step, agency_action, fees, processing_time, person_responsible)
+                        (service_id, step_number, client_step, agency_action, action_taken, fees, processing_time, person_responsible)
                      VALUES ?`,
                     [stepValues]
                 );
@@ -269,15 +277,19 @@ router.put('/:id', verifyToken, async (req, res) => {
         if (Array.isArray(requirements) && requirements.length > 0) {
             const reqValues = requirements
                 .filter((r) => r && (r.name || r.requirement_name))
-                .map((r) => [
-                    id,
-                    (r.name || r.requirement_name).trim(),
-                    r.where_to_secure ? r.where_to_secure.trim() : null,
-                ]);
+                .map((r) => {
+                    const reqName = (r.name || r.requirement_name).trim();
+                    return [
+                        id,
+                        reqName,
+                        reqName,
+                        r.where_to_secure ? r.where_to_secure.trim() : null,
+                    ];
+                });
 
             if (reqValues.length > 0) {
                 await connection.query(
-                    `INSERT INTO service_requirements (service_id, name, where_to_secure) VALUES ?`,
+                    `INSERT INTO service_requirements (service_id, name, requirement_name, where_to_secure) VALUES ?`,
                     [reqValues]
                 );
             }
@@ -290,20 +302,24 @@ router.put('/:id', verifyToken, async (req, res) => {
         if (Array.isArray(steps) && steps.length > 0) {
             const stepValues = steps
                 .filter((s) => s && (s.client_step || s.agency_action || s.action_taken))
-                .map((s, index) => [
-                    id,
-                    s.step_number || index + 1,
-                    s.client_step ? s.client_step.trim() : null,
-                    (s.agency_action || s.action_taken) ? (s.agency_action || s.action_taken).trim() : null,
-                    s.fees ? s.fees.trim() : 'None',
-                    s.processing_time ? s.processing_time.trim() : null,
-                    s.person_responsible ? s.person_responsible.trim() : null,
-                ]);
+                .map((s, index) => {
+                    const actionVal = (s.agency_action || s.action_taken) ? (s.agency_action || s.action_taken).trim() : null;
+                    return [
+                        id,
+                        s.step_number || index + 1,
+                        s.client_step ? s.client_step.trim() : null,
+                        actionVal,
+                        actionVal,
+                        s.fees ? s.fees.trim() : 'None',
+                        s.processing_time ? s.processing_time.trim() : null,
+                        s.person_responsible ? s.person_responsible.trim() : null,
+                    ];
+                });
 
             if (stepValues.length > 0) {
                 await connection.query(
                     `INSERT INTO service_steps 
-                        (service_id, step_number, client_step, agency_action, fees, processing_time, person_responsible)
+                        (service_id, step_number, client_step, agency_action, action_taken, fees, processing_time, person_responsible)
                      VALUES ?`,
                     [stepValues]
                 );
