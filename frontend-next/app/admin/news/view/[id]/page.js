@@ -88,9 +88,9 @@ export default function ViewNewsPage({ params }) {
               <span className="flex items-center gap-2">
                 <i className="fas fa-circle text-[8px] text-[#0056b3]"></i> Status: 
                 <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${
-                  (news.status || '').toLowerCase() === 'published' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                  (news.status || '').trim().toLowerCase() === 'published' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
                 }`}>
-                  {news.status || 'Draft'}
+                  {(news.status || '').trim().toLowerCase() === 'published' ? 'Published' : 'Draft'}
                 </span>
               </span>
             </div>

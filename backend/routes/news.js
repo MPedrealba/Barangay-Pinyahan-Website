@@ -112,7 +112,7 @@ router.post('/', verifyToken, upload.single('photo'), async (req, res) => {
             return res.status(400).json({ error: 'Title, date, and description are required.' });
         }
 
-        const validStatus = status && ['Published', 'Draft'].includes(status) ? status : 'Published';
+        const validStatus = (status || '').trim().toLowerCase() === 'published' ? 'Published' : 'Draft';
 
         // Upload directly to MySQL media_files (returns /api/media/:id or null)
         const photo_url = await uploadToDatabase(req.file, req.db);
@@ -134,16 +134,14 @@ router.post('/', verifyToken, upload.single('photo'), async (req, res) => {
 const handleNewsStatusUpdate = async (req, res) => {
     try {
         const { status } = req.body;
-        if (!status || !['Published', 'Draft'].includes(status)) {
-            return res.status(400).json({ error: 'Status must be either "Published" or "Draft".' });
-        }
+        const validStatus = (status || '').trim().toLowerCase() === 'published' ? 'Published' : 'Draft';
 
-        const [result] = await safeQuery(req.db, 'UPDATE news SET status = ? WHERE id = ?', [status, req.params.id]);
+        const [result] = await safeQuery(req.db, 'UPDATE news SET status = ? WHERE id = ?', [validStatus, req.params.id]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'News article not found.' });
         }
 
-        res.json({ message: `Article status updated to "${status}" successfully.`, status });
+        res.json({ message: `Article status updated to "${validStatus}" successfully.`, status: validStatus });
     } catch (error) {
         console.error('Update news status error:', error);
         res.status(500).json({ error: 'Server error updating status.' });
@@ -164,7 +162,11 @@ router.put('/:id', verifyToken, upload.single('photo'), async (req, res) => {
         if (title) { fields.push('title = ?'); values.push(title); }
         if (date_published) { fields.push('date_published = ?'); values.push(date_published); }
         if (description) { fields.push('description = ?'); values.push(description); }
-        if (status && ['Published', 'Draft'].includes(status)) { fields.push('status = ?'); values.push(status); }
+        if (status !== undefined) {
+            const validStatus = (status || '').trim().toLowerCase() === 'published' ? 'Published' : 'Draft';
+            fields.push('status = ?');
+            values.push(validStatus);
+        }
         if (is_featured !== undefined) { fields.push('is_featured = ?'); values.push(is_featured === 'true' || is_featured === true ? 1 : 0); }
         if (req.file) {
             // Upload new photo directly to MySQL media_files

@@ -10,7 +10,7 @@ export default function CreateNewsPage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [datePublished, setDatePublished] = useState('');
-  const [status, setStatus] = useState('Published');
+  const [status, setStatus] = useState('Draft');
   const [isFeatured, setIsFeatured] = useState(false);
   const [image, setImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);

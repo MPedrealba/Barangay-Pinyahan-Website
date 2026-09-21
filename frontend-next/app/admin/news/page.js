@@ -152,7 +152,8 @@ export default function NewsPage() {
 
                   const photoSrc = getPhotoUrl(item.photo_url);
 
-                  const isPublished = (item.status || 'Published').toLowerCase() === 'published';
+                  const isPublished = (item.status || '').trim().toLowerCase() === 'published';
+                  const currentStatus = isPublished ? 'Published' : 'Draft';
 
                   return (
                     <tr key={item.id} className="hover:bg-gray-50 transition-colors text-sm text-gray-700">
@@ -179,7 +180,7 @@ export default function NewsPage() {
                       <td className="px-6 py-4">
                         <div className="relative inline-flex items-center">
                           <select
-                            value={item.status || 'Published'}
+                            value={currentStatus}
                             disabled={updatingId === item.id}
                             onChange={(e) => handleStatusChange(item.id, e.target.value)}
                             className={`text-xs font-bold rounded-lg pl-3 pr-8 py-1.5 border appearance-none cursor-pointer outline-none transition-all disabled:opacity-50 ${

@@ -16,7 +16,7 @@ export default function EditNewsPage({ params }) {
     title: '',
     date_published: '',
     description: '',
-    status: 'Published',
+    status: 'Draft',
     is_featured: false
   });
   
@@ -46,7 +46,7 @@ export default function EditNewsPage({ params }) {
           title: item.title || '',
           date_published: formattedDate,
           description: item.description || '',
-          status: item.status || 'Published',
+          status: (item.status || '').trim().toLowerCase() === 'published' ? 'Published' : 'Draft',
           is_featured: !!item.is_featured
         });
 
