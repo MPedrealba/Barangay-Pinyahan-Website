@@ -5,74 +5,6 @@ import Link from 'next/link';
 import PublicShell from '@/components/PublicShell';
 import { apiGet } from '@/lib/api';
 
-// Fallback services if API is temporarily unavailable
-const FALLBACK_SERVICES = [
-  {
-    id: 30001,
-    key: 'clearance',
-    title: 'Barangay Clearance and Certifications',
-    icon: 'fas fa-file-invoice',
-    description: 'This service allows citizens to obtain Barangay Clearance and Certification, documents that certify their compliance with barangay regulations and requirements.',
-    requirements: [
-      'Accomplished Information Form',
-      'Photocopy of valid ID address in Barangay Pinyahan (e.g Driver\'s License, UMID, Postal ID, Senior Citizen\'s ID, PWD ID, Voter\'s ID)'
-    ],
-    procedure: [
-      'Obtain an application form and fill out completely',
-      'Submit the accomplished information form and supporting requirements at Cubicle No. 9 for evaluation'
-    ]
-  },
-  {
-    id: 30002,
-    key: 'clearance-no-derogatory',
-    title: 'Barangay Clearance - No Derogatory',
-    icon: 'fas fa-shield-alt',
-    description: 'Certification that the applicant has no derogatory record or pending cases in the barangay, issued for employment and general requirements.',
-    requirements: [
-      'Accomplished Information Form',
-      'Photocopy of valid ID address in Barangay Pinyahan (e.g Driver\'s License, UMID, Postal ID, Senior Citizen\'s ID, PWD ID, Voter\'s ID)'
-    ],
-    procedure: [
-      'Obtain an application form and fill out completely',
-      'Submit the accomplished information form and supporting requirements at Cubicle No. 9 for evaluation'
-    ]
-  },
-  {
-    id: 30003,
-    key: 'indigency',
-    title: 'Barangay Certificate of Indigency',
-    icon: 'fas fa-file-lines',
-    description: 'Issued to residents who require financial assistance for various purposes, such as medical treatment, burial, and other essential needs.',
-    requirements: [
-      'Accomplished Information Form',
-      'Photocopy of valid ID address in Barangay Pinyahan (e.g Driver\'s License, UMID, Postal ID, Senior Citizen\'s ID, PWD ID, Voter\'s ID)'
-    ],
-    procedure: [
-      'Obtain an application form and fill out completely',
-      'Submit the accomplished information form and supporting requirements at Cubicle No. 9 for evaluation',
-      'Wait for the request to be processed',
-      'Receive the requested certificate/clearance'
-    ]
-  },
-  {
-    id: 30004,
-    key: 'residency',
-    title: 'Certificate of Residency',
-    icon: 'fas fa-house-user',
-    description: 'Official proof of residency within the barangay, verifying that the applicant is a bonafide resident of Barangay Pinyahan.',
-    requirements: [
-      'Accomplished Information Form',
-      'Photocopy of valid ID address in Barangay Pinyahan (e.g Driver\'s License, UMID, Postal ID, Senior Citizen\'s ID, PWD ID, Voter\'s ID)'
-    ],
-    procedure: [
-      'Obtain an application form and fill out completely',
-      'Submit the accomplished information form and supporting requirements at Cubicle No. 9 for evaluation',
-      'Wait for the request to be processed',
-      'Receive the requested certificate/clearance'
-    ]
-  }
-];
-
 function parseArray(value) {
   if (Array.isArray(value)) return value;
   if (typeof value === 'string') {
@@ -116,8 +48,12 @@ export default function ServicesPage() {
       try {
         const data = await apiGet('/api/services/public');
         const list = Array.isArray(data) ? data : (data?.services || []);
-        if (list.length > 0 && isMounted) {
-          const mapped = list.map((s) => ({
+        if (isMounted) {
+          // Strictly filter out any service that is not Active
+          const activeOnly = list.filter(
+            (s) => (s.status || '').toLowerCase().trim() === 'active'
+          );
+          const mapped = activeOnly.map((s) => ({
             id: s.id,
             key: s.id,
             title: s.name || s.title || 'Barangay Service',
@@ -128,19 +64,22 @@ export default function ServicesPage() {
             status: s.status || 'Active',
           }));
           setServices(mapped);
-          return;
+
+          // If the currently viewed detail is now inactive, close the detail view
+          setActiveDetail((curr) =>
+            curr && !activeOnly.some((s) => String(s.id) === String(curr.id || curr.key))
+              ? null
+              : curr
+          );
         }
       } catch (err) {
-        console.error('Failed to load services from API, using fallback:', err);
-      }
-      if (isMounted) {
-        setServices(FALLBACK_SERVICES);
+        console.error('Failed to load services from API:', err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
 
-    fetchServices().finally(() => {
-      if (isMounted) setLoading(false);
-    });
+    fetchServices();
 
     return () => {
       isMounted = false;
