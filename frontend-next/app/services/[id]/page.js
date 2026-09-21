@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import PublicShell from '@/components/PublicShell';
+import { apiGet } from '@/lib/api';
 
 // Icon map fallback
 const ICON_MAP = [
@@ -38,11 +39,9 @@ export default function ServiceDetailPage() {
 
   useEffect(() => {
     if (!id) return;
-    // Fetch all active services — no auth needed
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/services/public`)
-      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    apiGet('/api/services/public')
       .then(data => {
-        const raw = Array.isArray(data) ? data : (data.services || []);
+        const raw = Array.isArray(data) ? data : (data?.services || []);
         const active = raw.filter(s => (s.status || '').toLowerCase() === 'active');
         const current = active.find(s => String(s.id) === String(id));
         if (!current) { setNotFound(true); return; }

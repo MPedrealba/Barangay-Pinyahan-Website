@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import PublicShell from '@/components/PublicShell';
+import { apiGet } from '@/lib/api';
 
-// ── Only the 4 services with Word document templates ───────────────────────
-// Requirements & Procedures sourced from the official Barangay Pinyahan
-// Citizen's Charter documents (ARTA-mandated)
-const SERVICES = [
+// Fallback services if API is temporarily unavailable
+const FALLBACK_SERVICES = [
   {
+    id: 30001,
     key: 'clearance',
     title: 'Barangay Clearance and Certifications',
     icon: 'fas fa-file-invoice',
@@ -23,6 +23,7 @@ const SERVICES = [
     ]
   },
   {
+    id: 30002,
     key: 'clearance-no-derogatory',
     title: 'Barangay Clearance - No Derogatory',
     icon: 'fas fa-shield-alt',
@@ -37,6 +38,7 @@ const SERVICES = [
     ]
   },
   {
+    id: 30003,
     key: 'indigency',
     title: 'Barangay Certificate of Indigency',
     icon: 'fas fa-file-lines',
@@ -53,6 +55,7 @@ const SERVICES = [
     ]
   },
   {
+    id: 30004,
     key: 'residency',
     title: 'Certificate of Residency',
     icon: 'fas fa-house-user',
@@ -70,9 +73,98 @@ const SERVICES = [
   }
 ];
 
+function parseArray(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : (value.trim() ? [value] : []);
+    } catch {
+      return value.trim() ? [value] : [];
+    }
+  }
+  return [];
+}
+
+function getServiceIcon(title = '', iconClass = '') {
+  if (iconClass && iconClass !== 'fas fa-file-alt') return iconClass;
+  const lower = title.toLowerCase();
+  if (lower.includes('derogatory')) return 'fas fa-shield-alt';
+  if (lower.includes('indigency')) return 'fas fa-file-lines';
+  if (lower.includes('residency')) return 'fas fa-house-user';
+  if (lower.includes('clearance') || lower.includes('certification')) return 'fas fa-file-invoice';
+  if (lower.includes('business') || lower.includes('permit')) return 'fas fa-store';
+  if (lower.includes('health') || lower.includes('medical')) return 'fas fa-heart-pulse';
+  return 'fas fa-file-alt';
+}
+
+function formatStep(text) {
+  if (!text) return '';
+  return String(text).replace(/^\d+[\.\)\-:]\s*/, '');
+}
+
 export default function ServicesPage() {
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeDetail, setActiveDetail] = useState(null);
   const [lastScroll, setLastScroll] = useState(0);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchServices = async () => {
+      try {
+        const data = await apiGet('/api/services/public');
+        const list = Array.isArray(data) ? data : (data?.services || []);
+        if (list.length > 0 && isMounted) {
+          const mapped = list.map((s) => ({
+            id: s.id,
+            key: s.id,
+            title: s.name || s.title || 'Barangay Service',
+            icon: getServiceIcon(s.name || s.title, s.icon_class),
+            description: s.description || '',
+            requirements: parseArray(s.requirements),
+            procedure: parseArray(s.procedures || s.procedure || s.steps),
+            status: s.status || 'Active',
+          }));
+          setServices(mapped);
+          return;
+        }
+      } catch (err) {
+        console.error('Failed to load services from API, using fallback:', err);
+      }
+      if (isMounted) {
+        setServices(FALLBACK_SERVICES);
+      }
+    };
+
+    fetchServices().finally(() => {
+      if (isMounted) setLoading(false);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Handle URL query parameter linking (e.g. /services?id=30001)
+  useEffect(() => {
+    if (services.length > 0 && !activeDetail && typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const targetId = params.get('id');
+      const targetKey = params.get('service');
+      if (targetId || targetKey) {
+        const match = services.find(
+          (s) =>
+            (targetId && String(s.id) === String(targetId)) ||
+            (targetKey && String(s.key).toLowerCase() === String(targetKey).toLowerCase())
+        );
+        if (match) {
+          showDetail(match);
+        }
+      }
+    }
+  }, [services]);
 
   const showDetail = (card) => {
     setLastScroll(window.scrollY);
@@ -86,7 +178,7 @@ export default function ServicesPage() {
   };
 
   const otherCards = activeDetail
-    ? SERVICES.filter((c) => c.key !== activeDetail.key)
+    ? services.filter((c) => String(c.id || c.key) !== String(activeDetail.id || activeDetail.key))
     : [];
 
   return (
@@ -97,12 +189,17 @@ export default function ServicesPage() {
           {/* Hero */}
           <section
             className="bg-cover bg-center h-[200px] sm:h-[280px] md:h-[350px] flex items-center justify-center relative px-[5%]"
-            style={{ backgroundImage: "url('https://placehold.co/1200x400?text=Community+Park+Image')" }}
+            style={{
+              backgroundImage: "linear-gradient(rgba(0, 40, 85, 0.72), rgba(0, 40, 85, 0.72)), url('/images/barangay-hall-pinyahan.jpg')"
+            }}
           >
-            <div className="bg-[rgba(0,51,102,0.6)] px-6 py-4 md:px-10 md:py-5 rounded-md text-center mx-auto">
-              <h1 className="text-white text-xl sm:text-2xl md:text-[2.5rem] font-extrabold uppercase text-center drop-shadow-lg m-0">
+            <div className="bg-[rgba(0,51,102,0.65)] px-6 py-4 md:px-10 md:py-5 rounded-xl text-center mx-auto backdrop-blur-xs border border-white/20 shadow-2xl">
+              <h1 className="text-white text-xl sm:text-2xl md:text-[2.5rem] font-extrabold uppercase text-center drop-shadow-lg m-0 tracking-wider">
                 BARANGAY COMMUNITY SERVICES
               </h1>
+              <p className="text-blue-100 text-xs sm:text-sm mt-2 font-medium tracking-wide">
+                Official documents, permits, and citizen services of Barangay Pinyahan
+              </p>
             </div>
           </section>
 
@@ -139,15 +236,30 @@ export default function ServicesPage() {
 
           {/* Service Listing */}
           <section className="w-[90%] max-w-[1200px] mx-auto py-8 md:py-12">
-            <h3 className="text-xl md:text-[1.8rem] font-extrabold text-gray-800 uppercase mb-6 text-center">
+            <h3 className="text-xl md:text-[1.8rem] font-extrabold text-gray-800 uppercase mb-6 text-center tracking-wide">
               SERVICE LISTING
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
-              {SERVICES.map((card) => (
-                <ServiceCard key={card.key} card={card} onLearnMore={() => showDetail(card)} />
-              ))}
-            </div>
+            {loading ? (
+              <div className="py-20 flex flex-col items-center justify-center text-gray-400 gap-3">
+                <i className="fas fa-spinner fa-spin text-3xl text-[#006eb3]" />
+                <span className="text-sm font-semibold">Loading barangay services...</span>
+              </div>
+            ) : services.length === 0 ? (
+              <div className="text-center py-16 text-gray-500 font-medium">
+                No active services available at this time.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
+                {services.map((card) => (
+                  <ServiceCard
+                    key={card.id || card.key}
+                    card={card}
+                    onLearnMore={() => showDetail(card)}
+                  />
+                ))}
+              </div>
+            )}
           </section>
         </>
       )}
@@ -157,10 +269,12 @@ export default function ServicesPage() {
         <>
           {/* Title Banner */}
           <div className="w-[90%] max-w-[1200px] mx-auto mt-8">
-            <div className="bg-[#006eb3] text-white px-5 py-4 border-[3px] border-[#003d80] rounded-md w-full flex items-center justify-between shadow-lg">
+            <div className="bg-[#006eb3] text-white px-5 py-4 border-[3px] border-[#003d80] rounded-xl w-full flex items-center justify-between shadow-lg">
               <button
+                type="button"
                 onClick={showListing}
                 className="text-white text-2xl font-bold bg-white/15 hover:bg-white/30 rounded-lg px-4 py-1.5 shrink-0 cursor-pointer border-0 transition-colors flex items-center justify-center"
+                title="Back to services listing"
               >
                 &#8592;
               </button>
@@ -199,7 +313,7 @@ export default function ServicesPage() {
                 {activeDetail.procedure && activeDetail.procedure.length > 0 ? (
                   <ol className="list-decimal pl-5 text-gray-600 space-y-3 text-sm md:text-base leading-relaxed">
                     {activeDetail.procedure.map((p, i) => (
-                      <li key={i}>{p}</li>
+                      <li key={i}>{formatStep(p)}</li>
                     ))}
                   </ol>
                 ) : (
@@ -225,7 +339,12 @@ export default function ServicesPage() {
               <h3 className="text-lg md:text-xl font-extrabold text-gray-800 uppercase mb-6 tracking-wide">OTHER SERVICES:</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                 {otherCards.map((card) => (
-                  <ServiceCard key={card.key} card={card} compact onLearnMore={() => showDetail(card)} />
+                  <ServiceCard
+                    key={card.id || card.key}
+                    card={card}
+                    compact
+                    onLearnMore={() => showDetail(card)}
+                  />
                 ))}
               </div>
             </section>
@@ -246,11 +365,12 @@ function ServiceCard({ card, onLearnMore, compact }) {
       <div className="flex-1 flex flex-col gap-3 md:gap-4 min-w-0">
         <h4 className="text-base md:text-xl font-bold text-gray-800 m-0">{card.title}</h4>
         {card.description && !compact && (
-          <p className="text-[0.88rem] text-gray-500 m-0 leading-snug">{card.description}</p>
+          <p className="text-[0.88rem] text-gray-500 m-0 leading-snug line-clamp-3">{card.description}</p>
         )}
         <button
+          type="button"
           onClick={onLearnMore}
-          className="inline-block bg-[#006eb3] hover:bg-[#004a80] text-white px-5 md:px-6 py-2.5 rounded-md font-bold text-[0.9rem] text-center self-start whitespace-nowrap no-underline transition-colors cursor-pointer border-0"
+          className="inline-block bg-[#006eb3] hover:bg-[#004a80] text-white px-5 md:px-6 py-2.5 rounded-md font-bold text-[0.9rem] text-center self-start whitespace-nowrap no-underline transition-colors cursor-pointer border-0 shadow-sm"
         >
           LEARN MORE
         </button>
