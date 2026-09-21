@@ -13,8 +13,7 @@ const verifyToken = require('../middleware/auth');
 router.get('/public', async (req, res) => {
     try {
         const [rows] = await req.db.query(
-            'SELECT * FROM services WHERE status = ? ORDER BY id ASC',
-            ['Active']
+            "SELECT * FROM services WHERE LOWER(TRIM(status)) = 'active' ORDER BY id ASC"
         );
         res.status(200).json({ services: rows });
     } catch (error) {
