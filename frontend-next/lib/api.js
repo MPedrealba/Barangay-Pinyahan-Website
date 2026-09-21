@@ -96,6 +96,13 @@ export async function apiPut(endpoint, body) {
   return apiCall(endpoint, { method: 'PUT', body: JSON.stringify(body) });
 }
 
+export async function apiPatch(endpoint, body) {
+  if (body instanceof FormData) {
+    return apiCall(endpoint, { method: 'PATCH', body });
+  }
+  return apiCall(endpoint, { method: 'PATCH', body: JSON.stringify(body) });
+}
+
 export async function apiDelete(endpoint) {
   return apiCall(endpoint, { method: 'DELETE' });
 }

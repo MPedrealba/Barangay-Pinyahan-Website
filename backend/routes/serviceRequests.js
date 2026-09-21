@@ -245,8 +245,8 @@ router.put('/:id', verifyToken, async (req, res) => {
     }
 });
 
-// PATCH /api/admin/service-requests/:id/status — Update status (admin)
-router.patch('/:id/status', verifyToken, async (req, res) => {
+// PATCH & PUT /api/admin/service-requests/:id/status — Update status (admin)
+const handleStatusUpdate = async (req, res) => {
     try {
         const { status } = req.body;
         const VALID_STATUSES = ['Pending', 'Processing', 'Ready for Pick-up', 'Completed/Claimed'];
@@ -273,7 +273,10 @@ router.patch('/:id/status', verifyToken, async (req, res) => {
         console.error('Update service request status error:', error);
         res.status(500).json({ error: 'Server error.' });
     }
-});
+};
+
+router.patch('/:id/status', verifyToken, handleStatusUpdate);
+router.put('/:id/status', verifyToken, handleStatusUpdate);
 
 // DELETE /api/admin/service-requests/:id — Delete a service request (admin)
 router.delete('/:id', verifyToken, async (req, res) => {

@@ -1,7 +1,9 @@
 'use client';
+
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { apiGet, apiPatch } from '@/lib/api';
 
 const STATUS_OPTS = ['Pending', 'Processing', 'Ready for Pick-up', 'Completed/Claimed'];
 
@@ -45,104 +47,54 @@ function ServiceRequestsContent() {
     }
   }, [searchParams]);
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
-
-  const fetchRequests = async (signal) => {
+  const fetchRequests = async () => {
     setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.replace('/login');
-        return;
-      }
-      const qs    = filterStatus ? `?status=${encodeURIComponent(filterStatus)}` : '';
-      const res   = await fetch(`${API_BASE}/api/admin/service-requests${qs}`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-        signal,
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setRequests(data.requests || []);
-      } else if (res.status === 401 || res.status === 403) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('admin');
-        localStorage.removeItem('isNewAccount');
-        router.replace('/login?expired=true');
-        return;
-      } else {
-        const errData = await res.json().catch(() => ({}));
-        setError(errData.error || `Server responded with status ${res.status}`);
-      }
+      const data = await apiGet('/api/admin/service-requests');
+      setRequests(data?.requests || []);
     } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.error('Fetch error:', err);
-        setError('Unable to connect to server. Please check your backend connection.');
-      }
+      console.error('Fetch error:', err);
+      setError(err.message || 'Unable to connect to server. Please check your backend connection.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const controller = new AbortController();
-    fetchRequests(controller.signal);
-    return () => {
-      controller.abort();
-    };
-  }, [filterStatus]);
+    fetchRequests();
+  }, []);
 
   const handleStatusChange = async (id, newStatus) => {
     setUpdatingId(id);
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.replace('/login');
-        return;
-      }
-      const res = await fetch(
-        `${API_BASE}/api/admin/service-requests/${id}/status`,
-        {
-          method:  'PATCH',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body:    JSON.stringify({ status: newStatus }),
-        }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setRequests(prev => prev.map(r =>
-          r.id === id
-            ? { ...r, status: newStatus, processed_by: data.processed_by ?? r.processed_by }
-            : r
-        ));
-      } else if (res.status === 401 || res.status === 403) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('admin');
-        localStorage.removeItem('isNewAccount');
-        router.replace('/login?expired=true');
-        return;
-      } else {
-        const errData = await res.json().catch(() => ({}));
-        alert(errData.error || 'Failed to update request status.');
-      }
+      const data = await apiPatch(`/api/admin/service-requests/${id}/status`, {
+        status: newStatus
+      });
+      setRequests(prev => prev.map(r =>
+        r.id === id
+          ? { ...r, status: newStatus, processed_by: data?.processed_by ?? r.processed_by }
+          : r
+      ));
     } catch (err) {
       console.error('Status update error:', err);
-      alert('Network error while updating status.');
+      alert(err.message || 'Network error while updating status.');
     } finally {
       setUpdatingId(null);
     }
   };
 
-  // Client-side filter: history mode shows only Completed/Claimed, active hides it
+  // Filter requests based on selected status, history view mode, and search query
   const filtered = requests.filter(r => {
-    // History toggle
-    if (showHistory && r.status !== 'Completed/Claimed') return false;
-    if (!showHistory && r.status === 'Completed/Claimed') return false;
+    if (filterStatus) {
+      // Direct status filter overrides active/history grouping
+      if (r.status !== filterStatus) return false;
+    } else {
+      // Default view when no single status filter is clicked
+      if (showHistory && r.status !== 'Completed/Claimed') return false;
+      if (!showHistory && r.status === 'Completed/Claimed') return false;
+    }
 
-    // Status dropdown filter (only relevant in active mode)
-    if (!showHistory && filterStatus && r.status !== filterStatus) return false;
-
-    // Text search
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
@@ -154,7 +106,7 @@ function ServiceRequestsContent() {
     return true;
   });
 
-  // Summary counts
+  // Global counts computed across all requests (never wiped out by local table filtering)
   const counts = STATUS_OPTS.reduce((acc, s) => {
     acc[s] = requests.filter(r => r.status === s).length;
     return acc;
@@ -173,8 +125,12 @@ function ServiceRequestsContent() {
         </div>
         {/* History Toggle */}
         <button
-          onClick={() => { setShowHistory(h => !h); setFilterStatus(''); setSearchQuery(''); }}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm transition-all border-2 ${
+          onClick={() => {
+            setShowHistory(h => !h);
+            setFilterStatus('');
+            setSearchQuery('');
+          }}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm transition-all border-2 cursor-pointer ${
             showHistory
               ? 'bg-[#6a1b9a] text-white border-[#6a1b9a] shadow-md'
               : 'bg-white text-[#6a1b9a] border-[#6a1b9a] hover:bg-purple-50'
@@ -185,22 +141,44 @@ function ServiceRequestsContent() {
         </button>
       </div>
 
-      {/* Summary Cards — only in active view */}
-      {!showHistory && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {STATUS_OPTS.map(s => {
-            const style = STATUS_STYLE[s];
-            return (
-              <button key={s} onClick={() => setFilterStatus(filterStatus === s ? '' : s)}
-                className={`rounded-xl p-4 text-left border-2 transition-all ${filterStatus === s ? 'border-[#0056b3] shadow-md' : 'border-transparent'}`}
-                style={{ background: style.bg }}>
-                <p className="text-2xl font-black" style={{ color: style.text }}>{counts[s] || 0}</p>
-                <p className="text-[11px] font-bold mt-1" style={{ color: style.text, opacity: 0.8 }}>{s}</p>
-              </button>
-            );
-          })}
-        </div>
-      )}
+      {/* Summary Stat Cards — always present with real global counts */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        {STATUS_OPTS.map(s => {
+          const style = STATUS_STYLE[s];
+          const isSelected = filterStatus === s;
+          return (
+            <button
+              key={s}
+              type="button"
+              onClick={() => {
+                if (filterStatus === s) {
+                  setFilterStatus('');
+                } else {
+                  setFilterStatus(s);
+                  if (s === 'Completed/Claimed') {
+                    setShowHistory(true);
+                  } else {
+                    setShowHistory(false);
+                  }
+                }
+              }}
+              className={`rounded-xl p-4 text-left border-2 transition-all cursor-pointer ${
+                isSelected
+                  ? 'border-[#0056b3] shadow-md ring-2 ring-blue-400/20'
+                  : 'border-transparent hover:shadow-sm'
+              }`}
+              style={{ background: style.bg }}
+            >
+              <p className="text-2xl font-black" style={{ color: style.text }}>
+                {counts[s] || 0}
+              </p>
+              <p className="text-[11px] font-bold mt-1 uppercase tracking-wider" style={{ color: style.text, opacity: 0.85 }}>
+                {s}
+              </p>
+            </button>
+          );
+        })}
+      </div>
 
       {/* Filters Row */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-5 flex flex-wrap gap-3 items-center">
@@ -214,16 +192,28 @@ function ServiceRequestsContent() {
             className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200"
           />
         </div>
-        {!showHistory && (
-          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 font-semibold text-gray-700">
-            <option value="">All Active Statuses</option>
-            {STATUS_OPTS.filter(s => s !== 'Completed/Claimed').map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-        )}
+        <select
+          value={filterStatus}
+          onChange={e => {
+            const val = e.target.value;
+            setFilterStatus(val);
+            if (val === 'Completed/Claimed') {
+              setShowHistory(true);
+            } else if (val) {
+              setShowHistory(false);
+            }
+          }}
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 font-semibold text-gray-700 cursor-pointer"
+        >
+          <option value="">{showHistory ? 'All Completed / Claimed' : 'All Active Statuses'}</option>
+          {STATUS_OPTS.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
         {(filterStatus || searchQuery) && (
-          <button onClick={() => { setFilterStatus(''); setSearchQuery(''); }}
-            className="text-xs font-bold text-gray-500 hover:text-gray-800 flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => { setFilterStatus(''); setSearchQuery(''); }}
+            className="text-xs font-bold text-gray-500 hover:text-gray-800 flex items-center gap-1 cursor-pointer border-0 bg-transparent"
+          >
             <i className="fas fa-times"></i> Clear
           </button>
         )}
@@ -262,7 +252,7 @@ function ServiceRequestsContent() {
                   <p className="font-semibold">{error}</p>
                   <button
                     onClick={() => fetchRequests()}
-                    className="mt-3 px-4 py-1.5 bg-red-50 text-red-700 text-xs rounded-lg hover:bg-red-100 font-bold border border-red-200 transition-colors"
+                    className="mt-3 px-4 py-1.5 bg-red-50 text-red-700 text-xs rounded-lg hover:bg-red-100 font-bold border border-red-200 transition-colors cursor-pointer"
                   >
                     <i className="fas fa-redo mr-1"></i> Retry
                   </button>
@@ -322,7 +312,7 @@ function ServiceRequestsContent() {
                     <Link
                       href={`/admin/services/pdf/${r.id}`}
                       title="View & Download PDF"
-                      className="flex items-center gap-1.5 bg-[#0056b3] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg hover:bg-blue-800 transition-colors"
+                      className="flex items-center gap-1.5 bg-[#0056b3] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg hover:bg-blue-800 transition-colors no-underline"
                     >
                       <i className="fas fa-file-pdf"></i> PDF
                     </Link>
@@ -331,7 +321,7 @@ function ServiceRequestsContent() {
                         onClick={() => handleStatusChange(r.id, 'Completed/Claimed')}
                         disabled={updatingId === r.id}
                         title="Mark as Completed/Claimed"
-                        className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer border-0"
                       >
                         <i className={`fas ${updatingId === r.id ? 'fa-spinner fa-spin' : 'fa-check-circle'}`}></i>
                         {updatingId === r.id ? '…' : 'Mark Done'}
