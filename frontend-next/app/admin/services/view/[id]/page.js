@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { apiGet, apiPut } from '@/lib/api';
 
 function parseArray(value) {
   if (Array.isArray(value)) return value;
@@ -18,7 +19,7 @@ function parseArray(value) {
 }
 
 function timeAgo(dateStr) {
-  if (!dateStr) return '';
+  if (!dateStr) return 'Updated today';
   const diff = Date.now() - new Date(dateStr).getTime();
   const days = Math.floor(diff / 86400000);
   if (days === 0) return 'Updated today';
@@ -29,52 +30,56 @@ function timeAgo(dateStr) {
 export default function ViewServicePage() {
   const params = useParams();
   const id = params?.id;
-  const router = useRouter();
 
-  const [service, setService] = useState(null);
-  const [status, setStatus] = useState('Active');
-  const [loading, setLoading] = useState(true);
+  const [service, setService]       = useState(null);
+  const [status, setStatus]         = useState('Active');
+  const [loading, setLoading]       = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [toast, setToast]           = useState(null); // { type: 'success' | 'error', message: string }
+
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 3500);
+  };
 
   useEffect(() => {
     if (!id) return;
 
     const fetchService = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
-        const res = await fetch(`${apiBase}/api/services/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
+        const data = await apiGet(`/api/services/${id}`);
+        if (data) {
           const s = data.service || data;
           setService(s);
           setStatus(s.status || 'Active');
         }
       } catch (err) {
         console.error('Failed to fetch service:', err);
+        showToast('error', 'Failed to load service details.');
       } finally {
         setLoading(false);
       }
     };
+
     fetchService();
   }, [id]);
 
   const handleStatusChange = async (newStatus) => {
+    if (newStatus === status || isUpdating) return;
+    const previousStatus = status;
     setStatus(newStatus);
+    setIsUpdating(true);
+
     try {
-      const token = localStorage.getItem('token');
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
-      await fetch(`${apiBase}/api/services/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
+      await apiPut(`/api/services/${id}`, { status: newStatus });
+      setService((prev) => (prev ? { ...prev, status: newStatus, updated_at: new Date().toISOString() } : prev));
+      showToast('success', `Service status updated to ${newStatus}.`);
     } catch (err) {
       console.error('Failed to update status:', err);
+      setStatus(previousStatus);
+      showToast('error', err.message || 'Failed to update service status.');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -99,12 +104,30 @@ export default function ViewServicePage() {
   }
 
   const requirements = parseArray(service.requirements);
-  const procedures = parseArray(service.procedures || service.procedure || service.steps);
-  const name = service.name || service.title || 'Untitled Service';
-  const description = service.description || 'Service Information and Processing Details';
+  const procedures   = parseArray(service.procedures || service.procedure || service.steps);
+  const name         = service.name || service.title || 'Untitled Service';
+  const description  = service.description || 'Service Information and Processing Details';
 
   return (
-    <div className="p-6 md:p-8 max-w-4xl mx-auto pb-20">
+    <div className="p-6 md:p-8 max-w-4xl mx-auto pb-20 relative">
+      {/* Toast Notification */}
+      {toast && (
+        <div
+          className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl shadow-lg border text-sm font-semibold flex items-center gap-2.5 transition-all ${
+            toast.type === 'success'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200 shadow-emerald-900/10'
+              : 'bg-red-50 text-red-800 border-red-200 shadow-red-900/10'
+          }`}
+        >
+          <i
+            className={`fas ${
+              toast.type === 'success' ? 'fa-check-circle text-emerald-600' : 'fa-exclamation-circle text-red-600'
+            }`}
+          />
+          <span>{toast.message}</span>
+        </div>
+      )}
+
       {/* ── Page Header ── */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
@@ -122,7 +145,7 @@ export default function ViewServicePage() {
 
         <Link
           href="/admin/services"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-300 text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-2xs"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-300 text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-2xs no-underline"
         >
           <i className="fas fa-arrow-left text-xs" />
           <span>Back to List</span>
@@ -131,11 +154,29 @@ export default function ViewServicePage() {
 
       {/* ── Main Content Card ── */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8 space-y-6">
-        {/* Title & Icon */}
+        {/* Title, Badge & Icon */}
         <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-100">
-          <div>
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900 leading-tight">{name}</h2>
-            <p className="text-sm text-gray-500 mt-1">{description}</p>
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 leading-tight m-0">
+                {name}
+              </h2>
+              <span
+                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border transition-colors ${
+                  status === 'Active'
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    : 'bg-gray-100 text-gray-600 border-gray-200'
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    status === 'Active' ? 'bg-emerald-500' : 'bg-gray-400'
+                  }`}
+                />
+                <span>{status}</span>
+              </span>
+            </div>
+            <p className="text-sm text-gray-500 m-0 leading-relaxed">{description}</p>
           </div>
           <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#0056b3] flex items-center justify-center text-2xl shrink-0">
             <i className={service.icon_class || 'fas fa-file-alt'} />
@@ -146,7 +187,7 @@ export default function ViewServicePage() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <span className="w-2 h-2 rounded-full bg-[#0056b3]" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 m-0">
               Requirements ({requirements.length})
             </h3>
           </div>
@@ -171,7 +212,7 @@ export default function ViewServicePage() {
         <div className="pt-2 border-t border-gray-100">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-2 h-2 rounded-full bg-indigo-600" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 m-0">
               Procedures ({procedures.length})
             </h3>
           </div>
@@ -194,19 +235,36 @@ export default function ViewServicePage() {
           )}
         </div>
 
-        {/* Card Footer */}
+        {/* Card Footer: Live Status Switcher */}
         <div className="flex flex-wrap items-center justify-between pt-4 border-t border-gray-100 gap-4">
-          <div className="flex items-center gap-2.5">
-            <span className="text-xs text-gray-500 font-bold uppercase">Status:</span>
-            <select
-              value={status}
-              onChange={(e) => handleStatusChange(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-semibold text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#0056b3]/20"
-            >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-            <span className="text-xs text-gray-400 ml-2">
+          <div className="flex items-center gap-3">
+            <label htmlFor="service-status-select" className="text-xs text-gray-500 font-bold uppercase tracking-wider">
+              Status:
+            </label>
+            <div className="relative inline-flex items-center">
+              <select
+                id="service-status-select"
+                value={status}
+                disabled={isUpdating}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                className={`border rounded-lg pl-3 pr-8 py-1.5 text-xs font-bold transition-all appearance-none cursor-pointer outline-none ${
+                  status === 'Active'
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300 focus:ring-2 focus:ring-emerald-400/20'
+                    : 'bg-gray-100 text-gray-700 border-gray-300 focus:ring-2 focus:ring-gray-400/20'
+                } disabled:opacity-60 disabled:cursor-not-allowed`}
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+              <div className="absolute right-2.5 pointer-events-none text-xs text-gray-500">
+                {isUpdating ? (
+                  <i className="fas fa-spinner fa-spin text-blue-600" />
+                ) : (
+                  <i className="fas fa-chevron-down text-[10px]" />
+                )}
+              </div>
+            </div>
+            <span className="text-xs text-gray-400 ml-1">
               {timeAgo(service.updated_at || service.created_at)}
             </span>
           </div>
@@ -214,9 +272,10 @@ export default function ViewServicePage() {
           <div className="flex items-center gap-2">
             <Link
               href={`/admin/services/edit/${id}`}
-              className="bg-[#0056b3] hover:bg-blue-800 text-white px-5 py-2 rounded-xl text-xs font-bold transition-colors shadow-2xs no-underline"
+              className="bg-[#0056b3] hover:bg-blue-800 text-white px-5 py-2 rounded-xl text-xs font-bold transition-colors shadow-2xs no-underline inline-flex items-center gap-1.5"
             >
-              Edit Service
+              <i className="fas fa-edit text-[11px]" />
+              <span>Edit Service</span>
             </Link>
           </div>
         </div>

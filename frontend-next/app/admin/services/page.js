@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { apiGet, apiDelete } from '@/lib/api';
 
 function timeAgo(dateStr) {
   if (!dateStr) return '';
@@ -32,14 +33,9 @@ export default function ServicesPage() {
 
   const fetchServices = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
-      const res = await fetch(`${apiBase}/api/admin/services`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setServices(data.services || []);
+      const data = await apiGet('/api/admin/services');
+      if (data?.services) {
+        setServices(data.services);
       }
     } catch (err) {
       console.error('Failed to fetch services:', err);
@@ -56,36 +52,11 @@ export default function ServicesPage() {
     if (!confirm(`Are you sure you want to delete "${serviceName}"? This action cannot be undone.`)) return;
 
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('You are not logged in. Redirecting to login page...');
-        window.location.href = '/admin';
-        return;
-      }
-
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
-      const res = await fetch(`${apiBase}/api/admin/services/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (res.ok) {
-        setServices((prev) => prev.filter((s) => s.id !== id));
-      } else if (res.status === 401 || res.status === 403) {
-        // Token expired or invalid — clear it and redirect to login
-        localStorage.removeItem('token');
-        alert('Your session has expired. Please log in again.');
-        window.location.href = '/admin';
-      } else {
-        const errData = await res.json().catch(() => ({}));
-        alert(errData.error || errData.message || 'Failed to delete service.');
-      }
+      await apiDelete(`/api/admin/services/${id}`);
+      setServices((prev) => prev.filter((s) => s.id !== id));
     } catch (err) {
       console.error('Delete error:', err);
-      alert('Network error while deleting service.');
+      alert(err.message || 'Network error while deleting service.');
     }
   };
 
