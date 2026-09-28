@@ -212,11 +212,11 @@ export default function AdminLayout({ children }) {
 
   // ── Normal authenticated view ────────────────────────────────────────────
   return (
-    <div className="flex h-screen bg-[#f4f7f6] overflow-hidden">
+    <div className="flex h-screen bg-[#f4f7f6] overflow-hidden print:h-auto print:overflow-visible print:bg-white">
 
       {/* Sidebar — hidden for new accounts (enforced above, this is belt-and-suspenders) */}
       {!isNewAccount && (
-        <aside className="w-[260px] bg-[#0056b3] text-white flex flex-col shadow-xl z-20 shrink-0">
+        <aside className="w-[260px] bg-[#0056b3] text-white flex flex-col shadow-xl z-20 shrink-0 print:hidden">
           <div className="p-5 flex items-center gap-4 border-b border-white/10">
             <img src="/images/brgypinyahanseal.jpg" alt="Seal" className="w-12 h-12 object-contain" />
             <h2 className="text-lg font-bold leading-tight">Barangay<br />Pinyahan</h2>
@@ -289,9 +289,9 @@ export default function AdminLayout({ children }) {
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex-1 flex flex-col min-w-0 print:h-auto print:overflow-visible print:block">
         {/* Top Header */}
-        <header className="h-[70px] bg-white flex justify-between items-center px-8 shadow-sm shrink-0 z-10">
+        <header className="h-[70px] bg-white flex justify-between items-center px-8 shadow-sm shrink-0 z-10 print:hidden">
           <h1 className="text-2xl font-bold text-gray-800 tracking-tight">
             Welcome, {adminName.split(' ')[0]}!
           </h1>
@@ -383,7 +383,7 @@ export default function AdminLayout({ children }) {
         </header>
 
         {/* Dynamic Page Content */}
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto print:overflow-visible print:h-auto print:block">
           {children}
         </div>
       </main>

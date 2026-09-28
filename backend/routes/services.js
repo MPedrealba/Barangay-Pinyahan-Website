@@ -52,6 +52,37 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// Helper to validate and normalize array fields (requirements, procedures)
+function validateArrayField(value, fieldLabel) {
+    let items = value;
+    if (typeof items === 'string') {
+        try {
+            items = JSON.parse(items);
+        } catch {
+            if (items.trim()) {
+                items = [items.trim()];
+            } else {
+                items = [];
+            }
+        }
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+        return { valid: false, error: `At least one ${fieldLabel} is required and cannot be blank.` };
+    }
+
+    const trimmedItems = [];
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (typeof item !== 'string' || !item.trim()) {
+            return { valid: false, error: `${fieldLabel.charAt(0).toUpperCase() + fieldLabel.slice(1)} entries cannot be blank.` };
+        }
+        trimmedItems.push(item.trim());
+    }
+
+    return { valid: true, data: trimmedItems };
+}
+
 // ------------------------------------------
 // PROTECTED / WRITE ROUTES (Admin)
 // ------------------------------------------
@@ -65,13 +96,18 @@ router.post('/', verifyToken, async (req, res) => {
             return res.status(400).json({ error: 'Service name is required.' });
         }
 
-        const reqJson = Array.isArray(requirements)
-            ? JSON.stringify(requirements)
-            : (typeof requirements === 'string' ? requirements : '[]');
+        const reqValidation = validateArrayField(requirements, 'requirement');
+        if (!reqValidation.valid) {
+            return res.status(400).json({ error: reqValidation.error });
+        }
 
-        const procJson = Array.isArray(procedures)
-            ? JSON.stringify(procedures)
-            : (typeof procedures === 'string' ? procedures : '[]');
+        const procValidation = validateArrayField(procedures, 'procedure step');
+        if (!procValidation.valid) {
+            return res.status(400).json({ error: procValidation.error });
+        }
+
+        const reqJson = JSON.stringify(reqValidation.data);
+        const procJson = JSON.stringify(procValidation.data);
 
         const [result] = await req.db.query(
             `INSERT INTO services (name, description, icon_class, icon_color, requirements, procedures, status)
@@ -113,6 +149,9 @@ router.put('/:id', verifyToken, async (req, res) => {
         const values = [];
 
         if (name !== undefined) {
+            if (!name || !name.trim()) {
+                return res.status(400).json({ error: 'Service name cannot be blank.' });
+            }
             fields.push('name = ?');
             values.push(name.trim());
         }
@@ -129,12 +168,20 @@ router.put('/:id', verifyToken, async (req, res) => {
             values.push(icon_color);
         }
         if (requirements !== undefined) {
+            const reqValidation = validateArrayField(requirements, 'requirement');
+            if (!reqValidation.valid) {
+                return res.status(400).json({ error: reqValidation.error });
+            }
             fields.push('requirements = ?');
-            values.push(Array.isArray(requirements) ? JSON.stringify(requirements) : requirements);
+            values.push(JSON.stringify(reqValidation.data));
         }
         if (procedures !== undefined) {
+            const procValidation = validateArrayField(procedures, 'procedure step');
+            if (!procValidation.valid) {
+                return res.status(400).json({ error: procValidation.error });
+            }
             fields.push('procedures = ?');
-            values.push(Array.isArray(procedures) ? JSON.stringify(procedures) : procedures);
+            values.push(JSON.stringify(procValidation.data));
         }
         if (status !== undefined) {
             fields.push('status = ?');
