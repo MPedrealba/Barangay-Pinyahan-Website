@@ -22,6 +22,9 @@ desktop.ini
 # Cloudflare tunnel binary
 cloudflared.exe
 
+# Office / Word lock files
+~$*
+
 # Logs
 *.log
 npm-debug.log*

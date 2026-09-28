@@ -42,6 +42,7 @@ export default function EditServicePage() {
   // 5. Loading and submitting states to prevent blank form rendering
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [toast, setToast] = useState(null); // { type, message }
 
@@ -144,9 +145,30 @@ export default function EditServicePage() {
   // ── Save/Submit Handler ──────────────────────────────────────────────
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
+    setSubmitted(true);
 
     if (!formData.name.trim()) {
       showToast('error', 'Service name is required.');
+      return;
+    }
+
+    if (formData.requirements.length === 0 || formData.requirements.every((r) => !r.trim())) {
+      showToast('error', 'At least one requirement is required and cannot be blank.');
+      return;
+    }
+
+    if (formData.requirements.some((r) => !r.trim())) {
+      showToast('error', 'Requirement fields cannot be blank. Please enter the requirement or remove the empty row.');
+      return;
+    }
+
+    if (formData.procedures.length === 0 || formData.procedures.every((p) => !p.trim())) {
+      showToast('error', 'At least one procedure step is required and cannot be blank.');
+      return;
+    }
+
+    if (formData.procedures.some((p) => !p.trim())) {
+      showToast('error', 'Procedure fields cannot be blank. Please enter the step details or remove the empty row.');
       return;
     }
 
@@ -159,8 +181,8 @@ export default function EditServicePage() {
         icon_class: formData.icon_class,
         icon_color: formData.icon_color,
         status: formData.status,
-        requirements: formData.requirements.filter((r) => r.trim() !== ''),
-        procedures: formData.procedures.filter((p) => p.trim() !== '')
+        requirements: formData.requirements.map((r) => r.trim()),
+        procedures: formData.procedures.map((p) => p.trim())
       };
 
       await apiPut(`/api/services/${id}`, payload);
@@ -276,7 +298,7 @@ export default function EditServicePage() {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="e.g. Barangay Clearance"
-              className={inputClass}
+              className={`${inputClass} ${submitted && !formData.name.trim() ? 'border-red-400 focus:ring-red-200 bg-red-50/20' : ''}`}
               required
             />
           </div>
@@ -332,8 +354,9 @@ export default function EditServicePage() {
           <div className="flex items-center justify-between pb-3 border-b border-gray-100">
             <div className="flex items-center gap-2.5">
               <span className="w-2.5 h-2.5 rounded-full bg-[#0056b3]" />
-              <h2 className="text-sm font-bold uppercase tracking-wider text-gray-800">
-                Checklist of Requirements
+              <h2 className="text-sm font-bold uppercase tracking-wider text-gray-800 flex items-center gap-1.5">
+                <span>Checklist of Requirements</span>
+                <span className="text-red-500">*</span>
               </h2>
             </div>
             <button
@@ -356,14 +379,14 @@ export default function EditServicePage() {
                   type="text"
                   value={req}
                   onChange={(e) => handleRequirementChange(idx, e.target.value)}
-                  placeholder={`Requirement #${idx + 1} (e.g. Valid Government ID)`}
-                  className={inputClass}
+                  placeholder={`Requirement #${idx + 1} (required)`}
+                  className={`${inputClass} ${submitted && !req.trim() ? 'border-red-400 focus:ring-red-200 bg-red-50/20' : ''}`}
                 />
                 <button
                   type="button"
                   onClick={() => removeRequirement(idx)}
                   className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0"
-                  title="Remove requirement"
+                  title={formData.requirements.length > 1 ? "Remove requirement" : "Clear requirement"}
                 >
                   <i className="fas fa-times text-sm" />
                 </button>
@@ -377,8 +400,9 @@ export default function EditServicePage() {
           <div className="flex items-center justify-between pb-3 border-b border-gray-100">
             <div className="flex items-center gap-2.5">
               <span className="w-2.5 h-2.5 rounded-full bg-[#006eb3]" />
-              <h2 className="text-sm font-bold uppercase tracking-wider text-gray-800">
-                Step-by-Step Procedures
+              <h2 className="text-sm font-bold uppercase tracking-wider text-gray-800 flex items-center gap-1.5">
+                <span>Step-by-Step Procedures</span>
+                <span className="text-red-500">*</span>
               </h2>
             </div>
             <button
@@ -401,14 +425,14 @@ export default function EditServicePage() {
                   type="text"
                   value={step}
                   onChange={(e) => handleProcedureChange(idx, e.target.value)}
-                  placeholder={`Step #${idx + 1} (e.g. Submit application form at the counter)`}
-                  className={inputClass}
+                  placeholder={`Step #${idx + 1} (required)`}
+                  className={`${inputClass} ${submitted && !step.trim() ? 'border-red-400 focus:ring-red-200 bg-red-50/20' : ''}`}
                 />
                 <button
                   type="button"
                   onClick={() => removeProcedure(idx)}
                   className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0"
-                  title="Remove step"
+                  title={formData.procedures.length > 1 ? "Remove step" : "Clear step"}
                 >
                   <i className="fas fa-times text-sm" />
                 </button>

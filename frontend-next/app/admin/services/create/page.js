@@ -13,26 +13,67 @@ export default function CreateServicePage() {
   const [procedure, setProcedure] = useState(['']);
   const [status, setStatus] = useState('Active');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [toast, setToast] = useState(null); // { type, message }
+
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 3500);
+  };
 
   // Requirements handlers
   const handleRequirementChange = (index, value) => {
     setRequirements((prev) => prev.map((r, i) => (i === index ? value : r)));
   };
   const addRequirement = () => setRequirements((prev) => [...prev, '']);
-  const removeRequirement = (index) => setRequirements((prev) => prev.filter((_, i) => i !== index));
+  const removeRequirement = (index) => {
+    setRequirements((prev) => {
+      const filtered = prev.filter((_, i) => i !== index);
+      return filtered.length > 0 ? filtered : [''];
+    });
+  };
 
   // Procedure handlers
   const handleStepChange = (index, value) => {
     setProcedure((prev) => prev.map((s, i) => (i === index ? value : s)));
   };
   const addStep = () => setProcedure((prev) => [...prev, '']);
-  const removeStep = (index) => setProcedure((prev) => prev.filter((_, i) => i !== index));
+  const removeStep = (index) => {
+    setProcedure((prev) => {
+      const filtered = prev.filter((_, i) => i !== index);
+      return filtered.length > 0 ? filtered : [''];
+    });
+  };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    if (e) e.preventDefault();
+    setSubmitted(true);
+
     if (!name.trim()) {
-      alert('Please enter a service name.');
+      showToast('error', 'Please enter a service name.');
       return;
     }
+
+    if (requirements.length === 0 || requirements.every((r) => !r.trim())) {
+      showToast('error', 'At least one requirement is required and cannot be blank.');
+      return;
+    }
+
+    if (requirements.some((r) => !r.trim())) {
+      showToast('error', 'Requirement fields cannot be blank. Please enter the requirement or remove the empty row.');
+      return;
+    }
+
+    if (procedure.length === 0 || procedure.every((s) => !s.trim())) {
+      showToast('error', 'At least one procedure step is required and cannot be blank.');
+      return;
+    }
+
+    if (procedure.some((s) => !s.trim())) {
+      showToast('error', 'Procedure fields cannot be blank. Please enter the step details or remove the empty row.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -40,15 +81,17 @@ export default function CreateServicePage() {
         name: name.trim(),
         description: description.trim(),
         status,
-        requirements: requirements.filter((r) => r.trim()),
-        procedures: procedure.filter((s) => s.trim()),
+        requirements: requirements.map((r) => r.trim()),
+        procedures: procedure.map((s) => s.trim()),
       });
 
-      alert('✅ Service saved successfully!');
-      router.push('/admin/services');
+      showToast('success', 'Service created successfully!');
+      setTimeout(() => {
+        router.push('/admin/services');
+      }, 1200);
     } catch (err) {
       console.error(err);
-      alert(`Error saving service: ${err.message || 'Unknown error'}`);
+      showToast('error', err.message || 'Error saving service.');
     } finally {
       setIsSubmitting(false);
     }
@@ -56,6 +99,18 @@ export default function CreateServicePage() {
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
+      {/* Toast Notification */}
+      {toast && (
+        <div
+          className={`fixed top-6 right-6 z-50 flex items-center gap-3 rounded-xl px-5 py-3.5 shadow-xl text-sm font-semibold transition-all animate-bounce ${
+            toast.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+          }`}
+        >
+          <i className={`fas ${toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} text-lg`} />
+          <span>{toast.message}</span>
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -79,8 +134,10 @@ export default function CreateServicePage() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Enter service name"
-            className="flex-1 text-xl font-bold text-gray-800 placeholder-gray-300 border-none outline-none bg-transparent"
+            placeholder="Enter service name *"
+            className={`flex-1 text-xl font-bold text-gray-800 placeholder-gray-300 rounded-lg px-2 py-1 outline-none transition-all ${
+              submitted && !name.trim() ? 'border border-red-400 bg-red-50/20' : 'border border-transparent focus:border-blue-300'
+            }`}
           />
           <div className="bg-blue-50 text-[#0056b3] p-2 rounded-md flex-shrink-0">
             <i className="fas fa-file-alt text-lg"></i>
@@ -100,22 +157,34 @@ export default function CreateServicePage() {
 
             {/* Requirements */}
             <div>
-              <h3 className="font-bold text-gray-800 mb-3 text-sm">Requirements</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-gray-800 text-sm flex items-center gap-1">
+                  <span>Requirements</span>
+                  <span className="text-red-500">*</span>
+                </h3>
+                <span className="text-[11px] text-gray-400">At least 1 required</span>
+              </div>
               <div className="flex flex-col gap-2">
                 {requirements.map((req, idx) => (
-                  <div key={idx} className="bg-white border border-gray-200 rounded-md px-3 py-2 flex items-center gap-2">
+                  <div
+                    key={idx}
+                    className={`bg-white border rounded-md px-3 py-2 flex items-center gap-2 transition-all ${
+                      submitted && !req.trim() ? 'border-red-400 bg-red-50/20' : 'border-gray-200'
+                    }`}
+                  >
                     <span className="w-2 h-2 rounded-full bg-[#0056b3] flex-shrink-0"></span>
                     <input
                       type="text"
                       value={req}
                       onChange={(e) => handleRequirementChange(idx, e.target.value)}
-                      placeholder="Enter requirement"
+                      placeholder={`Requirement #${idx + 1} (required)`}
                       className="flex-1 text-sm text-gray-700 border-none outline-none bg-transparent"
                     />
                     <button
                       type="button"
                       onClick={() => removeRequirement(idx)}
                       className="text-red-400 hover:text-red-600 transition-colors text-xs flex-shrink-0"
+                      title={requirements.length > 1 ? "Remove requirement" : "Clear requirement"}
                     >
                       <i className="fas fa-times"></i>
                     </button>
@@ -133,10 +202,21 @@ export default function CreateServicePage() {
 
             {/* Procedure */}
             <div>
-              <h3 className="font-bold text-gray-800 mb-3 text-sm">Procedure</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-gray-800 text-sm flex items-center gap-1">
+                  <span>Procedure</span>
+                  <span className="text-red-500">*</span>
+                </h3>
+                <span className="text-[11px] text-gray-400">At least 1 step required</span>
+              </div>
               <div className="flex flex-col gap-2">
                 {procedure.map((step, idx) => (
-                  <div key={idx} className="bg-white border border-gray-200 rounded-md px-3 py-2 flex items-center gap-2">
+                  <div
+                    key={idx}
+                    className={`bg-white border rounded-md px-3 py-2 flex items-center gap-2 transition-all ${
+                      submitted && !step.trim() ? 'border-red-400 bg-red-50/20' : 'border-gray-200'
+                    }`}
+                  >
                     <span className="w-5 h-5 rounded-full bg-[#0056b3] text-white text-xs flex items-center justify-center font-bold flex-shrink-0">
                       {idx + 1}
                     </span>
@@ -144,13 +224,14 @@ export default function CreateServicePage() {
                       type="text"
                       value={step}
                       onChange={(e) => handleStepChange(idx, e.target.value)}
-                      placeholder="Enter step"
+                      placeholder={`Step #${idx + 1} (required)`}
                       className="flex-1 text-sm text-gray-700 border-none outline-none bg-transparent"
                     />
                     <button
                       type="button"
                       onClick={() => removeStep(idx)}
                       className="text-red-400 hover:text-red-600 transition-colors text-xs flex-shrink-0"
+                      title={procedure.length > 1 ? "Remove step" : "Clear step"}
                     >
                       <i className="fas fa-times"></i>
                     </button>
