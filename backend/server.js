@@ -155,10 +155,24 @@ async function testConnection() {
         await seedCitizensCharter();
       }
     } catch (charterErr) {
-      console.warn("⚠️ Citizen's Charter verification note:", charterErr.message);
+      console.warn("⚠️ Charter table check note:", charterErr.message);
     }
+      // Ensure services pricing columns exist
+      try {
+        await connection.query('ALTER TABLE services ADD COLUMN IF NOT EXISTS is_first_time_free TINYINT(1) DEFAULT 0');
+        await connection.query('ALTER TABLE services ADD COLUMN IF NOT EXISTS fee DECIMAL(10,2) DEFAULT 0.00');
+      } catch (svcColErr) {
+        console.warn("⚠️ Services pricing column verification note:", svcColErr.message);
+      }
 
-    connection.release(); // Return connection back to the pool
+      // Ensure events status column exists
+      try {
+        await connection.query("ALTER TABLE events ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'Published'");
+      } catch (eventColErr) {
+        console.warn("⚠️ Events status column verification note:", eventColErr.message);
+      }
+
+      connection.release(); // Return connection back to the pool
   } catch (error) {
     console.error("❌ Database connection failed:", error.message);
     console.error(

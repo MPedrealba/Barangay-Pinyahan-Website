@@ -90,7 +90,7 @@ function validateArrayField(value, fieldLabel) {
 // POST /api/admin/services (or /api/services) — Create new service
 router.post('/', verifyToken, async (req, res) => {
     try {
-        const { name, description, icon_class, icon_color, requirements, procedures, status } = req.body;
+        const { name, description, icon_class, icon_color, requirements, procedures, status, is_first_time_free, fee } = req.body;
 
         if (!name || !name.trim()) {
             return res.status(400).json({ error: 'Service name is required.' });
@@ -108,10 +108,12 @@ router.post('/', verifyToken, async (req, res) => {
 
         const reqJson = JSON.stringify(reqValidation.data);
         const procJson = JSON.stringify(procValidation.data);
+        const parsedFee = fee !== undefined && fee !== '' && !isNaN(fee) ? parseFloat(fee) : 0.00;
+        const parsedFirstTimeFree = is_first_time_free === 1 || is_first_time_free === true || is_first_time_free === '1' ? 1 : 0;
 
         const [result] = await req.db.query(
-            `INSERT INTO services (name, description, icon_class, icon_color, requirements, procedures, status)
-             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO services (name, description, icon_class, icon_color, requirements, procedures, status, is_first_time_free, fee)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 name.trim(),
                 description ? description.trim() : null,
@@ -119,7 +121,9 @@ router.post('/', verifyToken, async (req, res) => {
                 icon_color || 'blue',
                 reqJson,
                 procJson,
-                status || 'Active'
+                status || 'Active',
+                parsedFirstTimeFree,
+                parsedFee
             ]
         );
 
@@ -137,7 +141,7 @@ router.post('/', verifyToken, async (req, res) => {
 router.put('/:id', verifyToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, icon_class, icon_color, requirements, procedures, status } = req.body;
+        const { name, description, icon_class, icon_color, requirements, procedures, status, is_first_time_free, fee } = req.body;
 
         // Check existence
         const [existing] = await req.db.query('SELECT id FROM services WHERE id = ?', [id]);
@@ -186,6 +190,15 @@ router.put('/:id', verifyToken, async (req, res) => {
         if (status !== undefined) {
             fields.push('status = ?');
             values.push(status);
+        }
+        if (is_first_time_free !== undefined) {
+            fields.push('is_first_time_free = ?');
+            values.push(is_first_time_free === 1 || is_first_time_free === true || is_first_time_free === '1' ? 1 : 0);
+        }
+        if (fee !== undefined) {
+            const parsedFee = fee !== '' && !isNaN(fee) ? parseFloat(fee) : 0.00;
+            fields.push('fee = ?');
+            values.push(parsedFee);
         }
 
         if (fields.length === 0) {

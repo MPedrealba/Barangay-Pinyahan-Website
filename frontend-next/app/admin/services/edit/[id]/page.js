@@ -35,6 +35,8 @@ export default function EditServicePage() {
     icon_class: 'fas fa-file-alt',
     icon_color: 'blue',
     status: 'Active',
+    fee: '0.00',
+    is_first_time_free: false,
     requirements: [''],
     procedures: ['']
   });
@@ -77,6 +79,8 @@ export default function EditServicePage() {
           icon_class: service.icon_class || 'fas fa-file-alt',
           icon_color: service.icon_color || 'blue',
           status: service.status || 'Active',
+          fee: service.fee !== undefined && service.fee !== null ? parseFloat(service.fee).toFixed(2) : '0.00',
+          is_first_time_free: Boolean(service.is_first_time_free),
           requirements: parsedRequirements,
           procedures: parsedProcedures
         });
@@ -181,6 +185,8 @@ export default function EditServicePage() {
         icon_class: formData.icon_class,
         icon_color: formData.icon_color,
         status: formData.status,
+        fee: parseFloat(formData.fee) || 0,
+        is_first_time_free: Boolean(formData.is_first_time_free),
         requirements: formData.requirements.map((r) => r.trim()),
         procedures: formData.procedures.map((p) => p.trim())
       };
@@ -345,6 +351,44 @@ export default function EditServicePage() {
                   <option value="fas fa-heartbeat">🩺 Health &amp; Medical</option>
                 </select>
               </div>
+            </div>
+          </div>
+
+          {/* Pricing & First-Time Free Privilege */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-gray-100">
+            <div>
+              <label className={labelClass}>Standard Processing Fee (₱)</label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">₱</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.fee}
+                  onChange={(e) => setFormData({ ...formData, fee: e.target.value })}
+                  placeholder="0.00"
+                  className={`${inputClass} pl-8 font-semibold`}
+                />
+              </div>
+              <p className="text-[11px] text-gray-400 mt-1">Default processing fee for document release.</p>
+            </div>
+
+            <div className="flex flex-col justify-center">
+              <label className={labelClass}>First-Time Free Privilege</label>
+              <label className="flex items-start gap-2.5 p-3 bg-purple-50/60 border border-purple-200 rounded-xl cursor-pointer hover:bg-purple-50 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={formData.is_first_time_free}
+                  onChange={(e) => setFormData({ ...formData, is_first_time_free: e.target.checked })}
+                  className="mt-0.5 w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-400 cursor-pointer"
+                />
+                <div>
+                  <span className="text-xs font-bold text-purple-900 block">First-Time Free (RA 11261)</span>
+                  <span className="text-[11px] text-purple-700 block leading-tight">
+                    1st claim by a resident is 100% FREE; subsequent claims require regular fee.
+                  </span>
+                </div>
+              </label>
             </div>
           </div>
         </div>

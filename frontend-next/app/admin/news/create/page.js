@@ -15,10 +15,10 @@ export default function CreateNewsPage() {
   const [image, setImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSave = async (targetStatus) => {
+    const finalStatus = targetStatus || status;
 
-    if (!title || !content || !datePublished) {
+    if (!title.trim() || !content.trim() || !datePublished) {
       alert('Please fill in the Title, Date, and Content fields.');
       return;
     }
@@ -30,7 +30,7 @@ export default function CreateNewsPage() {
       formData.append('title', title.trim());
       formData.append('description', content.trim());
       formData.append('date_published', datePublished);
-      formData.append('status', status);
+      formData.append('status', finalStatus);
       formData.append('is_featured', isFeatured);
 
       if (image) {
@@ -39,7 +39,11 @@ export default function CreateNewsPage() {
 
       await apiPost('/api/admin/news', formData);
 
-      alert('✅ Article created successfully!');
+      if (finalStatus === 'Published') {
+        alert('🎉 Article published successfully! It is now live on the public website.');
+      } else {
+        alert('📝 Article saved as Draft. It remains hidden from the public website.');
+      }
       router.push('/admin/news');
     } catch (err) {
       console.error('Error creating article:', err);
@@ -157,22 +161,32 @@ export default function CreateNewsPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-6 border-t border-gray-100 flex justify-end gap-3">
+          <div className="pt-6 border-t border-gray-100 flex flex-wrap justify-end items-center gap-3">
             <Link
               href="/admin/news"
-              className="bg-gray-500 text-white px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-gray-600 transition-colors no-underline"
+              className="bg-gray-100 text-gray-700 px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-gray-200 transition-colors no-underline"
             >
               Cancel
             </Link>
             <button
-              type="submit"
+              type="button"
+              onClick={() => handleSave('Draft')}
               disabled={isSubmitting}
-              className="bg-green-600 text-white px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 disabled:opacity-70 cursor-pointer shadow-2xs"
+            >
+              <i className="fas fa-file-alt text-gray-500"></i>
+              <span>Save as Draft</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSave('Published')}
+              disabled={isSubmitting}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-all flex items-center gap-2 disabled:opacity-70 cursor-pointer"
             >
               {isSubmitting ? (
-                <><i className="fas fa-spinner fa-spin"></i> Saving...</>
+                <><i className="fas fa-spinner fa-spin"></i> Processing...</>
               ) : (
-                <><i className="fas fa-save"></i> Save Article</>
+                <><i className="fas fa-paper-plane"></i> Publish Article</>
               )}
             </button>
           </div>
