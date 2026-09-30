@@ -4,32 +4,12 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import PublicShell from '@/components/PublicShell';
 
-// ── Built-in document types & their conditional fields ────────────────────────
-const DEFAULT_DOCUMENT_TYPES = [
-  {
-    value:  'Barangay Clearance',
-    icon:   'fa-file-invoice',
-    desc:   'Standard clearance for employment and general requirements.',
-    fields: ['yearsOfResidency'],
-  },
-  {
-    value:  'Barangay Clearance - No Derogatory',
-    icon:   'fa-shield-alt',
-    desc:   'Certification of no derogatory record or pending cases.',
-    fields: ['yearsOfResidency'],
-  },
-  {
-    value:  'Certificate of Indigency',
-    icon:   'fa-file-lines',
-    desc:   'Certification for financial, medical, or educational assistance.',
-    fields: ['age', 'birthdate', 'requestor'],
-  },
-  {
-    value:  'Certificate of Residency',
-    icon:   'fa-house-user',
-    desc:   'Official proof of residency within the barangay.',
-    fields: ['civilStatus', 'birthdate', 'yearsOfResidency'],
-  },
+// ── Preset field configs for mapping dynamic services by keyword ───────────────
+const PRESET_FIELD_CONFIGS = [
+  { match: (name) => /no derogatory/i.test(name), fields: ['yearsOfResidency'], icon: 'fa-shield-alt' },
+  { match: (name) => /indigency/i.test(name), fields: ['age', 'birthdate', 'requestor'], icon: 'fa-file-lines' },
+  { match: (name) => /residency/i.test(name), fields: ['civilStatus', 'birthdate', 'yearsOfResidency'], icon: 'fa-house-user' },
+  { match: (name) => /clearance/i.test(name), fields: ['yearsOfResidency'], icon: 'fa-file-invoice' },
 ];
 
 const PURPOSE_OPTIONS = [
@@ -51,13 +31,15 @@ const STATUS_COLORS = {
 
 // ── CSS classes ───────────────────────────────────────────────────────────────
 const inputCls  = 'w-full px-5 py-3.5 border-[1.5px] border-gray-200 rounded-full text-base outline-none text-[#1a237e] transition-all focus:ring-2 focus:ring-[#1565c0] focus:border-[#1565c0]';
-const selectCls = 'w-full px-5 py-3.5 border-[1.5px] border-gray-200 rounded-full text-base outline-none appearance-none bg-white cursor-pointer text-[#1a237e] focus:ring-2 focus:ring-[#1565c0] focus:border-[#1565c0] transition-all';
+const selectCls = 'w-full px-5 py-3.5 border-[1.5px] border-gray-200 rounded-full text-base outline-none appearance-none bg-white cursor-pointer text-[#1a237e] focus:ring-2 focus:ring-[#1565c0] focus:border-[#1565c0] transition-all disabled:bg-gray-100 disabled:cursor-not-allowed';
 const labelCls  = 'block text-[0.82rem] font-bold text-gray-500 mb-1.5 uppercase tracking-wider';
 
 // ── Form Inner Component ──────────────────────────────────────────────────────
 function ServiceRequestForm() {
   const searchParams = useSearchParams();
-  const [docTypes,      setDocTypes]      = useState(DEFAULT_DOCUMENT_TYPES);
+  const [docTypes,         setDocTypes]         = useState([]);
+  const [loadingServices,  setLoadingServices]  = useState(true);
+
   // Always-visible fields
   const [residentName,  setResidentName]  = useState('');
   const [address,       setAddress]       = useState('');
@@ -80,55 +62,72 @@ function ServiceRequestForm() {
   const [error,       setError]       = useState('');
   const [successData, setSuccessData] = useState(null);
 
-  // Fetch dynamic active services from backend to merge with presets
+  // Fetch dynamic active services strictly from backend
   useEffect(() => {
     let isMounted = true;
     async function loadActiveServices() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/services/public`);
-        if (!res.ok) return;
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const res = await fetch(`${apiUrl}/api/services/public`);
+        if (!res.ok) throw new Error('Failed to load services.');
         const data = await res.json();
         const activeList = Array.isArray(data) ? data : (data?.services || []);
         if (!isMounted) return;
 
-        const merged = [...DEFAULT_DOCUMENT_TYPES];
-        activeList.forEach((s) => {
-          const serviceName = (s.name || s.title || '').trim();
-          if (!serviceName) return;
-
-          const existingIdx = merged.findIndex(
-            (d) => d.value.toLowerCase().trim() === serviceName.toLowerCase().trim()
-          );
-
-          if (existingIdx >= 0) {
-            if (s.description) merged[existingIdx].desc = s.description;
-          } else {
-            let iconClass = s.icon_class ? s.icon_class.replace(/^fa[srb]?\s+/, '') : 'fa-file-alt';
-            merged.push({
+        // Build list strictly from active services
+        const built = activeList
+          .filter(s => (s.status || 'Active').trim().toLowerCase() === 'active')
+          .map(s => {
+            const serviceName = (s.name || s.title || '').trim();
+            const preset = PRESET_FIELD_CONFIGS.find(cfg => cfg.match(serviceName));
+            let iconClass = s.icon_class ? s.icon_class.replace(/^fa[srb]?\s+/, '') : '';
+            if (!iconClass) {
+              iconClass = preset ? preset.icon : 'fa-file-alt';
+            }
+            return {
               value: serviceName,
               icon: iconClass,
               desc: s.description || 'Official Barangay Pinyahan community service.',
-              fields: [],
-            });
-          }
-        });
+              fields: preset ? preset.fields : [],
+              fee: s.fee,
+              is_first_time_free: s.is_first_time_free,
+            };
+          })
+          .filter(d => Boolean(d.value));
 
-        setDocTypes(merged);
+        setDocTypes(built);
       } catch (err) {
-        console.error('Failed to load dynamic services:', err);
+        console.error('Failed to load dynamic active services:', err);
+        if (isMounted) {
+          setError('Unable to load available services. Please try again later.');
+        }
+      } finally {
+        if (isMounted) setLoadingServices(false);
       }
     }
     loadActiveServices();
     return () => { isMounted = false; };
   }, []);
 
-  // Pre-select service from URL query param if present
+  // Pre-select service from URL query param only if it exists among active services
   useEffect(() => {
+    if (loadingServices || docTypes.length === 0) return;
     const preselected = searchParams.get('service') || searchParams.get('type');
     if (preselected) {
-      setSelectedDoc(decodeURIComponent(preselected));
+      const decoded = decodeURIComponent(preselected).trim().toLowerCase();
+      const matched = docTypes.find(d => 
+        d.value.toLowerCase().trim() === decoded ||
+        d.value.toLowerCase().includes(decoded) ||
+        decoded.includes(d.value.toLowerCase())
+      );
+      if (matched) {
+        setSelectedDoc(matched.value);
+      } else {
+        setSelectedDoc('');
+        setError(`The requested service "${decodeURIComponent(preselected)}" is currently deactivated or unavailable.`);
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, docTypes, loadingServices]);
 
   const docType = docTypes.find(d => d.value.toLowerCase().trim() === (selectedDoc || '').toLowerCase().trim());
   const showField = (f) => Boolean(docType?.fields?.includes(f));
@@ -148,11 +147,17 @@ function ServiceRequestForm() {
       return;
     }
 
+    const activeDoc = docTypes.find(d => d.value.toLowerCase().trim() === selectedDoc.toLowerCase().trim());
+    if (!activeDoc) {
+      setError('The selected service is currently deactivated or unavailable. Please choose an active service from the list.');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const body = {
         resident_name: residentName.trim(),
-        service_type:  selectedDoc,
+        service_type:  activeDoc.value,
         address:       address.trim(),
         purpose,
         // Conditional fields — only send if relevant to this document type
@@ -163,7 +168,8 @@ function ServiceRequestForm() {
         ...(showField('civilStatus') && civilStatus ? { civil_status: civilStatus } : {}),
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/services/request`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const res = await fetch(`${apiUrl}/api/services/request`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(body),
@@ -300,8 +306,20 @@ function ServiceRequestForm() {
                   <i className="fas fa-concierge-bell mr-1.5 text-[#1565c0]" />Document / Service Type <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <select value={selectedDoc} onChange={e => setSelectedDoc(e.target.value)} required className={selectCls}>
-                    <option value="" disabled>— Select a document —</option>
+                  <select 
+                    value={selectedDoc} 
+                    onChange={e => { setSelectedDoc(e.target.value); setError(''); }} 
+                    required 
+                    disabled={loadingServices || docTypes.length === 0}
+                    className={selectCls}
+                  >
+                    <option value="" disabled>
+                      {loadingServices 
+                        ? '— Loading available services... —' 
+                        : docTypes.length === 0 
+                          ? '— No active services available —' 
+                          : '— Select a document —'}
+                    </option>
                     {docTypes.map(d => (
                       <option key={d.value} value={d.value}>{d.value}</option>
                     ))}
