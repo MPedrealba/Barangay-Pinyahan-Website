@@ -457,28 +457,41 @@ export default function ReportsPage() {
                   <i className="fas fa-tag text-[#0056b3]"></i> Complaints by Category
                 </h2>
                 {categoryData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={230}>
-                    <BarChart data={categoryData} margin={{ top: 0, right: 10, left: -20, bottom: 0 }} barSize={28}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                      <XAxis
-                        dataKey="category"
-                        tick={{ fontSize: 11, fill: '#6b7280', fontWeight: 600 }}
+                  <ResponsiveContainer width="100%" height={Math.max(260, categoryData.length * 36)}>
+                    <BarChart
+                      layout="vertical"
+                      data={categoryData}
+                      margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
+                      <XAxis 
+                        type="number" 
+                        tick={{ fontSize: 11, fill: '#6b7280' }} 
+                        allowDecimals={false} 
                         axisLine={false}
                         tickLine={false}
                       />
                       <YAxis
-                        tick={{ fontSize: 11, fill: '#6b7280' }}
+                        type="category"
+                        dataKey="category"
+                        width={150}
+                        interval={0}
+                        tick={{ fontSize: 11, fill: '#374151', fontWeight: 600 }}
                         axisLine={false}
                         tickLine={false}
                       />
                       <Tooltip
                         cursor={{ fill: '#f0f6ff' }}
-                        contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', backgroundColor: '#ffffff', color: '#111827' }}
-                        itemStyle={{ color: '#111827' }}
-                        labelStyle={{ color: '#111827' }}
+                        contentStyle={{ 
+                          fontSize: 12, 
+                          borderRadius: 8, 
+                          border: '1px solid #e5e7eb', 
+                          backgroundColor: '#ffffff', 
+                          color: '#111827' 
+                        }}
                         formatter={(val) => [`${val} complaints`, 'Count']}
                       />
-                      <Bar dataKey="count" fill="#0056b3" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="count" fill="#0056b3" radius={[0, 6, 6, 0]} barSize={18} />
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (

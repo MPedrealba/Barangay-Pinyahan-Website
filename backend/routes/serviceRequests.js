@@ -6,30 +6,56 @@ const router  = express.Router();
 const publicRouter = express.Router();
 const verifyToken = require('../middleware/auth');
 
-// ── Allowed service types ────────────────────────────────────────────────────
-const VALID_SERVICE_TYPES = [
-    'Barangay Clearance',
-    'Barangay Clearance - No Derogatory',
-    'Certificate of Indigency',
-    'Certificate of Residency',
-];
-
-// Helper to validate service type against presets or active database services
+// Helper to validate service type against active database services
 async function isValidServiceType(db, serviceType) {
-    if (!serviceType || !serviceType.trim()) return false;
-    const trimmed = serviceType.trim();
-    if (VALID_SERVICE_TYPES.some(t => t.toLowerCase() === trimmed.toLowerCase())) {
-        return true;
+    if (!serviceType || !serviceType.trim()) {
+        return { valid: false, error: 'Service type is required.' };
     }
+    const trimmed = serviceType.trim();
+
     try {
-        const [rows] = await db.query(
-            "SELECT id FROM services WHERE LOWER(TRIM(name)) = LOWER(TRIM(?)) AND LOWER(TRIM(status)) = 'active'",
+        // 1. Exact match check against services table
+        const [exactRows] = await db.query(
+            "SELECT id, name, status FROM services WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))",
             [trimmed]
         );
-        return rows.length > 0;
+
+        if (exactRows.length > 0) {
+            const service = exactRows[0];
+            const isActive = (service.status || '').trim().toLowerCase() === 'active';
+            if (!isActive) {
+                return {
+                    valid: false,
+                    error: `The service "${service.name}" is currently deactivated and cannot be requested.`
+                };
+            }
+            return { valid: true, serviceName: service.name };
+        }
+
+        // 2. Fallback partial/substring match check against services table
+        const [matchingRows] = await db.query(
+            "SELECT id, name, status FROM services WHERE LOWER(TRIM(name)) LIKE ? OR ? LIKE CONCAT('%', LOWER(TRIM(name)), '%')",
+            [`%${trimmed.toLowerCase()}%`, trimmed.toLowerCase()]
+        );
+
+        if (matchingRows.length > 0) {
+            const activeMatch = matchingRows.find(s => (s.status || '').trim().toLowerCase() === 'active');
+            if (activeMatch) {
+                return { valid: true, serviceName: activeMatch.name };
+            }
+            return {
+                valid: false,
+                error: `The requested service "${matchingRows[0].name}" is currently deactivated and cannot be requested.`
+            };
+        }
+
+        return {
+            valid: false,
+            error: 'The requested service does not exist or is no longer available.'
+        };
     } catch (err) {
         console.error('Error verifying service type in DB:', err);
-        return false;
+        return { valid: false, error: 'Database error verifying service type.' };
     }
 }
 
@@ -60,10 +86,11 @@ const handleServiceRequest = async (req, res) => {
             return res.status(400).json({ error: 'age must be a valid number between 1 and 120.' });
         }
 
-        const isAllowedType = await isValidServiceType(req.db, service_type);
-        if (!isAllowedType) {
-            return res.status(400).json({ error: 'Invalid service type.' });
+        const serviceCheck = await isValidServiceType(req.db, service_type);
+        if (!serviceCheck.valid) {
+            return res.status(400).json({ error: serviceCheck.error || 'Invalid or deactivated service type.' });
         }
+        const validatedServiceName = serviceCheck.serviceName || service_type.trim();
 
         // Generate unique tracking number
         let tracking_no;
@@ -83,7 +110,7 @@ const handleServiceRequest = async (req, res) => {
             [
                 tracking_no,
                 resident_name.trim(),
-                service_type.trim(),
+                validatedServiceName,
                 purpose.trim(),
                 address?.trim()    || null,
                 age ? parseInt(age) : null,
@@ -98,7 +125,7 @@ const handleServiceRequest = async (req, res) => {
             `INSERT INTO notifications (admin_id, title, message, icon_class, link) VALUES (NULL, ?, ?, ?, ?)`,
             [
                 'New Service Request',
-                `New ${service_type} request (${tracking_no}) from ${resident_name.trim()}.`,
+                `New ${validatedServiceName} request (${tracking_no}) from ${resident_name.trim()}.`,
                 'fas fa-file-alt',
                 `/admin/service-requests?search=${encodeURIComponent(tracking_no)}`
             ]
@@ -107,7 +134,7 @@ const handleServiceRequest = async (req, res) => {
         res.status(201).json({
             message: 'Service request submitted successfully!',
             tracking_no,
-            service_type,
+            service_type: validatedServiceName,
             status: 'Pending',
         });
     } catch (error) {
