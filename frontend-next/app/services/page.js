@@ -264,7 +264,7 @@ export default function ServicesPage() {
             {/* Request CTA inside detail */}
             <div className="mt-8 flex justify-center">
               <Link
-                href="/services/request"
+                href={`/services/request?service=${encodeURIComponent(activeDetail.title || '')}`}
                 className="bg-[#1565c0] hover:bg-[#0d47a1] text-white px-8 py-3.5 rounded-full font-extrabold text-[0.95rem] no-underline flex items-center gap-2.5 shadow-md transition-colors"
               >
                 <i className="fas fa-paper-plane" /> Request This Document Online

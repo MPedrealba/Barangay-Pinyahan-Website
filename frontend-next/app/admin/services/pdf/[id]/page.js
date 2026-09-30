@@ -472,6 +472,9 @@ export default function ServicePDFPage({ params }) {
                     <div className="relative">
                       <select value={formData.service_type} onChange={e => handleFormChange('service_type', e.target.value)} className={selectCls}>
                         {SERVICE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                        {formData.service_type && !SERVICE_TYPES.includes(formData.service_type) && (
+                          <option value={formData.service_type}>{formData.service_type}</option>
+                        )}
                       </select>
                       <i className="fas fa-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xs" />
                     </div>

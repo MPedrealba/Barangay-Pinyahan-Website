@@ -87,8 +87,14 @@ export default function EditNewsPage({ params }) {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSave = async (targetStatus) => {
+    const finalStatus = targetStatus || formData.status;
+
+    if (!formData.title.trim() || !formData.description.trim() || !formData.date_published) {
+      alert('Please fill in the Title, Date, and Content fields.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -97,7 +103,7 @@ export default function EditNewsPage({ params }) {
       submitData.append('title', formData.title.trim());
       submitData.append('date_published', formData.date_published);
       submitData.append('description', formData.description.trim());
-      submitData.append('status', formData.status);
+      submitData.append('status', finalStatus);
       submitData.append('is_featured', formData.is_featured);
       
       if (photo) {
@@ -106,7 +112,11 @@ export default function EditNewsPage({ params }) {
 
       await apiPut(`/api/admin/news/${id}`, submitData);
 
-      alert('✅ Article Updated Successfully!');
+      if (finalStatus === 'Published') {
+        alert('🎉 Article published and updated successfully! It is live on the public website.');
+      } else {
+        alert('📝 Article saved as Draft. It remains hidden from the public website.');
+      }
       router.push('/admin/news');
     } catch (err) {
       console.error('Error updating article:', err);
@@ -266,22 +276,32 @@ export default function EditNewsPage({ params }) {
           </div>
 
           {/* Action Buttons */}
-          <div className="mt-8 pt-6 border-t border-gray-100 flex justify-end items-center gap-4">
+          <div className="mt-8 pt-6 border-t border-gray-100 flex flex-wrap justify-end items-center gap-3">
             <Link 
               href="/admin/news" 
-              className="text-gray-500 font-bold text-sm hover:text-gray-800 transition-colors"
+              className="bg-gray-100 text-gray-700 px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-gray-200 transition-colors no-underline"
             >
               Cancel
             </Link>
             <button 
-              type="submit" 
+              type="button" 
+              onClick={() => handleSave('Draft')}
               disabled={isSubmitting}
-              className="bg-[#0056b3] text-white px-8 py-3 rounded-lg text-sm font-bold hover:bg-[#004494] active:scale-[0.98] transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 disabled:opacity-70 cursor-pointer shadow-2xs"
+            >
+              <i className="fas fa-file-alt text-gray-500"></i>
+              <span>Save as Draft</span>
+            </button>
+            <button 
+              type="button" 
+              onClick={() => handleSave('Published')}
+              disabled={isSubmitting}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-all flex items-center gap-2 disabled:opacity-70 cursor-pointer"
             >
               {isSubmitting ? (
-                <><i className="fas fa-spinner fa-spin"></i> Saving...</>
+                <><i className="fas fa-spinner fa-spin"></i> Processing...</>
               ) : (
-                <><i className="fas fa-check"></i> Save Changes</>
+                <><i className="fas fa-paper-plane"></i> Publish Article</>
               )}
             </button>
           </div>

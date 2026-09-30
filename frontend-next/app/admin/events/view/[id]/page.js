@@ -2,6 +2,7 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiGet, getPhotoUrl } from '@/lib/api';
 
 export default function ViewEventPage({ params }) {
   const unwrappedParams = use(params);
@@ -14,15 +15,8 @@ export default function ViewEventPage({ params }) {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (res.ok) {
-          const data = await res.json();
-          setEvent(data.event);
-        }
+        const data = await apiGet(`/api/admin/events/${id}`);
+        setEvent(data?.event || null);
       } catch (err) {
         console.error('Error fetching event:', err);
       } finally {
@@ -44,15 +38,30 @@ export default function ViewEventPage({ params }) {
     weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
   });
 
+  const photoSrc = getPhotoUrl(event.photo_url);
+  const isDraft = (event.status || '').trim().toLowerCase() === 'draft';
+
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         
         {/* Header */}
         <div className="px-8 py-5 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-          <h2 className="text-[15px] font-black text-[#002B5B] flex items-center gap-2 uppercase tracking-wide">
-            <i className="fas fa-eye text-[#0056b3]"></i> EVENT DETAILS
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-[15px] font-black text-[#002B5B] flex items-center gap-2 uppercase tracking-wide">
+              <i className="fas fa-eye text-[#0056b3]"></i> EVENT DETAILS
+            </h2>
+            <span
+              className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1 ${
+                isDraft
+                  ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                  : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+              }`}
+            >
+              <i className={`fas ${isDraft ? 'fa-file-alt text-amber-600' : 'fa-check-circle text-emerald-600'} text-[11px]`}></i>
+              {event.status || 'Published'}
+            </span>
+          </div>
           <div className="flex gap-4 items-center">
             <Link
               href={`/admin/events/edit/${event.id}`}
@@ -78,8 +87,10 @@ export default function ViewEventPage({ params }) {
               <span className="text-xs font-bold text-gray-500 uppercase">{new Date(event.date).toLocaleDateString('en-US', { month: 'short' })}</span>
               <span className="text-xl font-black text-[#0056b3]">{new Date(event.date).getDate()}</span>
             </div>
-            <div>
-              <h3 className="text-2xl font-black text-gray-900 mb-2">{event.name}</h3>
+            <div className="flex-1">
+              <div className="flex flex-wrap items-center gap-3 mb-2">
+                <h3 className="text-2xl font-black text-gray-900 m-0">{event.name}</h3>
+              </div>
               <div className="flex flex-col gap-2 text-sm font-medium text-gray-600">
                 <span className="flex items-center gap-2">
                   <i className="fas fa-calendar w-4 text-center text-[#0056b3]"></i> {dateStr}
@@ -105,11 +116,11 @@ export default function ViewEventPage({ params }) {
           )}
 
           {/* Photo */}
-          {event.photo_url && (
+          {photoSrc && (
             <div>
               <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Event Photo</h4>
               <img 
-                src={`${process.env.NEXT_PUBLIC_API_URL}${event.photo_url.startsWith('/') ? '' : '/'}${event.photo_url}`} 
+                src={photoSrc} 
                 alt={event.name} 
                 className="max-w-2xl w-full rounded-xl border border-gray-200 shadow-sm"
               />

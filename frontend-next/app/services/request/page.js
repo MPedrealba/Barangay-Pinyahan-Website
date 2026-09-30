@@ -1,10 +1,11 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import PublicShell from '@/components/PublicShell';
 
-// ── Document types & their conditional fields ────────────────────────────────
-const DOCUMENT_TYPES = [
+// ── Built-in document types & their conditional fields ────────────────────────
+const DEFAULT_DOCUMENT_TYPES = [
   {
     value:  'Barangay Clearance',
     icon:   'fa-file-invoice',
@@ -53,8 +54,10 @@ const inputCls  = 'w-full px-5 py-3.5 border-[1.5px] border-gray-200 rounded-ful
 const selectCls = 'w-full px-5 py-3.5 border-[1.5px] border-gray-200 rounded-full text-base outline-none appearance-none bg-white cursor-pointer text-[#1a237e] focus:ring-2 focus:ring-[#1565c0] focus:border-[#1565c0] transition-all';
 const labelCls  = 'block text-[0.82rem] font-bold text-gray-500 mb-1.5 uppercase tracking-wider';
 
-// ── Main Component ────────────────────────────────────────────────────────────
-export default function ServiceRequestPage() {
+// ── Form Inner Component ──────────────────────────────────────────────────────
+function ServiceRequestForm() {
+  const searchParams = useSearchParams();
+  const [docTypes,      setDocTypes]      = useState(DEFAULT_DOCUMENT_TYPES);
   // Always-visible fields
   const [residentName,  setResidentName]  = useState('');
   const [address,       setAddress]       = useState('');
@@ -77,8 +80,58 @@ export default function ServiceRequestPage() {
   const [error,       setError]       = useState('');
   const [successData, setSuccessData] = useState(null);
 
-  const docType = DOCUMENT_TYPES.find(d => d.value === selectedDoc);
-  const showField = (f) => docType?.fields.includes(f);
+  // Fetch dynamic active services from backend to merge with presets
+  useEffect(() => {
+    let isMounted = true;
+    async function loadActiveServices() {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/services/public`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const activeList = Array.isArray(data) ? data : (data?.services || []);
+        if (!isMounted) return;
+
+        const merged = [...DEFAULT_DOCUMENT_TYPES];
+        activeList.forEach((s) => {
+          const serviceName = (s.name || s.title || '').trim();
+          if (!serviceName) return;
+
+          const existingIdx = merged.findIndex(
+            (d) => d.value.toLowerCase().trim() === serviceName.toLowerCase().trim()
+          );
+
+          if (existingIdx >= 0) {
+            if (s.description) merged[existingIdx].desc = s.description;
+          } else {
+            let iconClass = s.icon_class ? s.icon_class.replace(/^fa[srb]?\s+/, '') : 'fa-file-alt';
+            merged.push({
+              value: serviceName,
+              icon: iconClass,
+              desc: s.description || 'Official Barangay Pinyahan community service.',
+              fields: [],
+            });
+          }
+        });
+
+        setDocTypes(merged);
+      } catch (err) {
+        console.error('Failed to load dynamic services:', err);
+      }
+    }
+    loadActiveServices();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Pre-select service from URL query param if present
+  useEffect(() => {
+    const preselected = searchParams.get('service') || searchParams.get('type');
+    if (preselected) {
+      setSelectedDoc(decodeURIComponent(preselected));
+    }
+  }, [searchParams]);
+
+  const docType = docTypes.find(d => d.value.toLowerCase().trim() === (selectedDoc || '').toLowerCase().trim());
+  const showField = (f) => Boolean(docType?.fields?.includes(f));
 
   const reset = () => {
     setResidentName(''); setAddress(''); setSelectedDoc(''); setPurpose('');
@@ -249,7 +302,7 @@ export default function ServiceRequestPage() {
                 <div className="relative">
                   <select value={selectedDoc} onChange={e => setSelectedDoc(e.target.value)} required className={selectCls}>
                     <option value="" disabled>— Select a document —</option>
-                    {DOCUMENT_TYPES.map(d => (
+                    {docTypes.map(d => (
                       <option key={d.value} value={d.value}>{d.value}</option>
                     ))}
                   </select>
@@ -382,5 +435,22 @@ export default function ServiceRequestPage() {
         )}
       </div>
     </PublicShell>
+  );
+}
+
+export default function ServiceRequestPage() {
+  return (
+    <Suspense fallback={
+      <PublicShell activeHref="/services">
+        <div className="min-h-screen bg-[#f0f2f5] flex items-center justify-center">
+          <div className="text-center">
+            <i className="fas fa-spinner fa-spin text-3xl text-[#1565c0] mb-3"></i>
+            <p className="text-sm font-semibold text-gray-500">Loading service request form...</p>
+          </div>
+        </div>
+      </PublicShell>
+    }>
+      <ServiceRequestForm />
+    </Suspense>
   );
 }

@@ -1,7 +1,8 @@
-﻿'use client';
+'use client';
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiPost } from '@/lib/api';
 
 export default function AddEventPage() {
   const router = useRouter();
@@ -12,7 +13,8 @@ export default function AddEventPage() {
     date: '',
     time: '',
     location: '',
-    description: ''
+    description: '',
+    status: 'Published'
   });
   const [photo, setPhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
@@ -39,43 +41,48 @@ export default function AddEventPage() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSave = async (targetStatus) => {
+    const finalStatus = targetStatus || formData.status || 'Published';
+
+    if (!formData.name.trim() || !formData.date || !formData.time || !formData.location.trim() || !formData.description.trim()) {
+      alert('Please fill in all required fields (Name, Date, Time, Location, and Description).');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const token = localStorage.getItem('token');
       const submitData = new FormData();
-      
-      submitData.append('name', formData.name);
+      submitData.append('name', formData.name.trim());
       submitData.append('date', formData.date);
       submitData.append('time', formData.time);
-      submitData.append('location', formData.location);
-      submitData.append('description', formData.description);
+      submitData.append('location', formData.location.trim());
+      submitData.append('description', formData.description.trim());
+      submitData.append('status', finalStatus);
       
       if (photo) {
         submitData.append('photo', photo);
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/events`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: submitData
-      });
+      await apiPost('/api/admin/events', submitData);
 
-      if (res.ok) {
-        alert('✅ Event Added Successfully!');
-        router.push('/admin/events');
+      if (finalStatus === 'Published') {
+        alert('🎉 Event published successfully! It is now live on the public website.');
       } else {
-        const errorData = await res.json();
-        alert(`Failed to add event: ${errorData.error || 'Unknown error'}`);
+        alert('📝 Event saved as Draft. It remains hidden from the public website.');
       }
+      router.push('/admin/events');
     } catch (err) {
       console.error('Error adding event:', err);
-      alert('Error adding event.');
+      alert(`Failed to add event: ${err.message || 'Unknown error'}`);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleSave(formData.status);
   };
 
   return (
@@ -114,8 +121,8 @@ export default function AddEventPage() {
               />
             </div>
 
-            {/* Date & Time Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Date, Time & Status Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Date <span className="text-red-500">*</span></label>
                 <input 
@@ -137,6 +144,18 @@ export default function AddEventPage() {
                   required
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0056b3] text-sm font-medium text-gray-900"
                 />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Status <span className="text-red-500">*</span></label>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0056b3] text-sm font-semibold text-gray-800 bg-white"
+                >
+                  <option value="Published">Published (visible on website)</option>
+                  <option value="Draft">Draft (saved internally, hidden)</option>
+                </select>
               </div>
             </div>
 
@@ -190,11 +209,12 @@ export default function AddEventPage() {
 
             {/* Description */}
             <div>
-              <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Description</label>
+              <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Description <span className="text-red-500">*</span></label>
               <textarea 
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
+                required
                 placeholder="Enter event description"
                 className="w-full min-h-[150px] px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0056b3] text-sm font-medium text-gray-900 resize-y"
               ></textarea>
@@ -203,22 +223,32 @@ export default function AddEventPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="mt-8 pt-6 border-t border-gray-100 flex justify-end items-center gap-4">
+          <div className="mt-8 pt-6 border-t border-gray-100 flex flex-wrap justify-end items-center gap-3">
             <Link 
               href="/admin/events" 
-              className="text-gray-500 font-bold text-sm hover:text-gray-800 transition-colors"
+              className="bg-gray-100 text-gray-700 px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-gray-200 transition-colors no-underline"
             >
               Cancel
             </Link>
             <button 
-              type="submit" 
+              type="button" 
+              onClick={() => handleSave('Draft')}
               disabled={isSubmitting}
-              className="bg-[#0056b3] text-white px-8 py-3 rounded-lg text-sm font-bold hover:bg-[#004494] active:scale-[0.98] transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 px-5 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 disabled:opacity-70 cursor-pointer shadow-2xs"
+            >
+              <i className="fas fa-file-alt text-gray-500"></i>
+              <span>Save as Draft</span>
+            </button>
+            <button 
+              type="button" 
+              onClick={() => handleSave('Published')}
+              disabled={isSubmitting}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-all flex items-center gap-2 disabled:opacity-70 cursor-pointer"
             >
               {isSubmitting ? (
-                <><i className="fas fa-spinner fa-spin"></i> Saving...</>
+                <><i className="fas fa-spinner fa-spin"></i> Processing...</>
               ) : (
-                <><i className="fas fa-save"></i> Save Event</>
+                <><i className="fas fa-paper-plane"></i> Publish Event</>
               )}
             </button>
           </div>

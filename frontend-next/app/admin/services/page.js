@@ -147,15 +147,26 @@ export default function ServicesPage() {
                     </div>
                   </div>
 
-                  <span
-                    className={`shrink-0 text-xs font-bold px-3 py-1 rounded-full border ${
-                      isActive
-                        ? 'bg-green-50 text-green-700 border-green-200'
-                        : 'bg-gray-100 text-gray-500 border-gray-200'
-                    }`}
-                  >
-                    {statusLabel}
-                  </span>
+                  <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 shrink-0">
+                    {service.is_first_time_free ? (
+                      <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1 shadow-2xs">
+                        <i className="fas fa-gift text-purple-500 text-[10px]" />
+                        <span>First-Time Free</span>
+                      </span>
+                    ) : null}
+                    <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-blue-50 text-[#0056b3] border border-blue-200">
+                      {parseFloat(service.fee || 0) > 0 ? `₱${parseFloat(service.fee).toFixed(2)}` : 'Free'}
+                    </span>
+                    <span
+                      className={`text-xs font-bold px-3 py-1 rounded-full border ${
+                        isActive
+                          ? 'bg-green-50 text-green-700 border-green-200'
+                          : 'bg-gray-100 text-gray-500 border-gray-200'
+                      }`}
+                    >
+                      {statusLabel}
+                    </span>
+                  </div>
                 </div>
 
                 {/* ── Requirements & Procedures SIDE BY SIDE ── */}

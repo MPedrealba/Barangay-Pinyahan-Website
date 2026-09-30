@@ -9,6 +9,8 @@ export default function CreateServicePage() {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [fee, setFee] = useState('0.00');
+  const [isFirstTimeFree, setIsFirstTimeFree] = useState(false);
   const [requirements, setRequirements] = useState(['']);
   const [procedure, setProcedure] = useState(['']);
   const [status, setStatus] = useState('Active');
@@ -80,6 +82,8 @@ export default function CreateServicePage() {
       await apiPost('/api/admin/services', {
         name: name.trim(),
         description: description.trim(),
+        fee: parseFloat(fee) || 0,
+        is_first_time_free: isFirstTimeFree,
         status,
         requirements: requirements.map((r) => r.trim()),
         procedures: procedure.map((s) => s.trim()),
@@ -247,6 +251,50 @@ export default function CreateServicePage() {
               </button>
             </div>
 
+          </div>
+        </div>
+
+        {/* Pricing & First-Time Free Privilege */}
+        <div className="bg-white rounded-lg border border-gray-200 p-4 mb-5">
+          <h3 className="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2">
+            <i className="fas fa-tag text-purple-600"></i>
+            <span>Pricing &amp; Resident Privileges</span>
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Standard Fee (₱)</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">₱</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={fee}
+                  onChange={(e) => setFee(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full text-sm font-semibold border border-gray-200 rounded-lg pl-7 pr-3 py-2 outline-none focus:border-blue-400"
+                />
+              </div>
+              <p className="text-[11px] text-gray-400 mt-1">Default processing fee for document release.</p>
+            </div>
+
+            <div className="flex flex-col justify-center">
+              <label className="block text-xs font-semibold text-gray-600 mb-1">First-Time Free Privilege</label>
+              <label className="flex items-start gap-2.5 p-2.5 bg-purple-50/60 border border-purple-200 rounded-lg cursor-pointer hover:bg-purple-50 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={isFirstTimeFree}
+                  onChange={(e) => setIsFirstTimeFree(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-400 cursor-pointer"
+                />
+                <div>
+                  <span className="text-xs font-bold text-purple-900 block">First-Time Free (RA 11261)</span>
+                  <span className="text-[11px] text-purple-700 block leading-snug">
+                    1st claim is 100% FREE; subsequent claims require standard fee.
+                  </span>
+                </div>
+              </label>
+            </div>
           </div>
         </div>
 
