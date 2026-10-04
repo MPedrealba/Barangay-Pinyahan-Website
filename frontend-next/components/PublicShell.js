@@ -38,7 +38,7 @@ export function PublicFooter() {
             </h4>
             <ul className="space-y-1">
               {[
-                { icon: 'fab fa-facebook-square', content: <><span>Facebook:</span> <a href="https://facebook.com" target="_blank" rel="noopener" className="text-[#0056b3] underline hover:text-blue-800">Barangay Pinyahan</a></> },
+                { icon: 'fab fa-facebook-square', content: <><span>Facebook:</span> <a href="https://www.facebook.com/barangay.pinyahan.2025" target="_blank" rel="noopener noreferrer" className="text-[#0056b3] underline hover:text-blue-800">Barangay Pinyahan</a></> },
                 { icon: 'fas fa-envelope',        content: <><span>Email:</span> <a href="mailto:brgypinyahan@gmail.com" className="text-[#0056b3] underline hover:text-blue-800">brgypinyahan@gmail.com</a></> },
                 { icon: 'fas fa-phone-alt',       content: 'Tel: (02) 1234-5678' },
                 { icon: 'fas fa-map-marker-alt',  content: 'Malakas St, Diliman, Quezon City' },

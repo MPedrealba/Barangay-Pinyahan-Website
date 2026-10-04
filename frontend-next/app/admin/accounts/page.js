@@ -109,10 +109,18 @@ const backBtnStyle     = { padding: '10px 28px', borderRadius: '5px', fontSize: 
 // ─────────────────────────────────────────────────────────────────────────────
 // ① SUPER ADMIN VIEW  — full management dashboard
 // ─────────────────────────────────────────────────────────────────────────────
-function SuperAdminUI() {
+function SuperAdminUI({ currentUser }) {
   const [admins,    setAdmins]    = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [successMsg, setSuccessMsg] = useState('');
+
+  const loggedInId = currentUser?.id || (() => {
+    try {
+      return JSON.parse(localStorage.getItem('admin') || '{}').id;
+    } catch {
+      return null;
+    }
+  })();
 
   // Derived stats — no extra API call
   const totalAdmins  = admins.length;
@@ -134,6 +142,11 @@ function SuperAdminUI() {
   // View modal
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewData,    setViewData]    = useState({});
+
+  // Delete / Remove modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteTarget,      setDeleteTarget]      = useState(null);
+  const [deleteLoading,     setDeleteLoading]     = useState(false);
 
   function showSuccess(msg = 'Saved Successfully!') {
     setSuccessMsg(msg);
@@ -195,6 +208,33 @@ function SuperAdminUI() {
   function openView(admin) {
     setViewData({ id: admin.id, username: admin.username || '—', full_name: admin.full_name || '—', email: admin.email || '—', role: admin.role || 'Admin', status: admin.status || 'offline', date_created: fmtDate(admin.created_at) });
     setIsViewModalOpen(true);
+  }
+
+  function openDelete(admin) {
+    if (admin.id === loggedInId) {
+      alert('You cannot delete your own account.');
+      return;
+    }
+    setDeleteTarget(admin);
+    setIsDeleteModalOpen(true);
+  }
+
+  async function handleDeleteConfirm() {
+    if (!deleteTarget) return;
+    setDeleteLoading(true);
+    try {
+      await apiFetch(`/api/admin/accounts/${deleteTarget.id}`, {
+        method: 'DELETE',
+      });
+      setIsDeleteModalOpen(false);
+      setDeleteTarget(null);
+      showSuccess('Account removed successfully!');
+      await fetchAdmins();
+    } catch (e) {
+      alert('Failed to remove account: ' + e.message);
+    } finally {
+      setDeleteLoading(false);
+    }
   }
 
   return (
@@ -287,9 +327,28 @@ function SuperAdminUI() {
                   <td style={{ padding: '16px 20px', textAlign: 'center', fontSize: '0.92rem', color: '#444' }}>{admin.email}</td>
                   <td style={{ padding: '16px 20px', textAlign: 'center' }}><StatusBadge status={admin.status} /></td>
                   <td style={{ padding: '16px 20px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                      <button onClick={() => openEdit(admin)} style={{ padding: '7px 20px', borderRadius: '5px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', border: 'none', background: '#0056b3', color: 'white', transition: 'background 0.3s' }} onMouseEnter={(e) => (e.currentTarget.style.background = '#003d80')} onMouseLeave={(e) => (e.currentTarget.style.background = '#0056b3')}>Edit</button>
-                      <button onClick={() => openView(admin)} style={{ padding: '7px 20px', borderRadius: '5px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', border: 'none', background: '#e0e0e0', color: '#444', transition: 'background 0.3s' }} onMouseEnter={(e) => (e.currentTarget.style.background = '#bdbdbd')} onMouseLeave={(e) => (e.currentTarget.style.background = '#e0e0e0')}>View</button>
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', alignItems: 'center' }}>
+                      <button onClick={() => openEdit(admin)} style={{ padding: '7px 18px', borderRadius: '5px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', border: 'none', background: '#0056b3', color: 'white', transition: 'background 0.3s' }} onMouseEnter={(e) => (e.currentTarget.style.background = '#003d80')} onMouseLeave={(e) => (e.currentTarget.style.background = '#0056b3')}>Edit</button>
+                      <button onClick={() => openView(admin)} style={{ padding: '7px 18px', borderRadius: '5px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', border: 'none', background: '#e0e0e0', color: '#444', transition: 'background 0.3s' }} onMouseEnter={(e) => (e.currentTarget.style.background = '#bdbdbd')} onMouseLeave={(e) => (e.currentTarget.style.background = '#e0e0e0')}>View</button>
+                      {admin.id === loggedInId ? (
+                        <button
+                          disabled
+                          title="You cannot remove your own account"
+                          style={{ padding: '7px 16px', borderRadius: '5px', fontSize: '0.80rem', fontWeight: 700, border: '1px solid #e0e0e0', background: '#f5f5f5', color: '#aaa', cursor: 'not-allowed' }}
+                        >
+                          You
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => openDelete(admin)}
+                          title="Remove this admin account"
+                          style={{ padding: '7px 16px', borderRadius: '5px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', border: 'none', background: '#e53935', color: 'white', transition: 'background 0.3s' }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = '#c62828')}
+                          onMouseLeave={(e) => (e.currentTarget.style.background = '#e53935')}
+                        >
+                          Remove
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -349,6 +408,118 @@ function SuperAdminUI() {
         </div>
         <div style={modalActionsStyle}>
           <button onClick={() => setIsViewModalOpen(false)} style={backBtnStyle}>Back</button>
+        </div>
+      </ModalOverlay>
+
+      {/* ── REMOVE / DELETE CONFIRMATION MODAL ── */}
+      <ModalOverlay open={isDeleteModalOpen} onClose={() => { if (!deleteLoading) setIsDeleteModalOpen(false); }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            background: '#ffebee',
+            border: '2px solid #ffcdd2',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 16px',
+            color: '#d32f2f',
+            fontSize: '1.6rem',
+          }}>
+            <i className="fas fa-trash-alt" />
+          </div>
+
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1a2b45', margin: '0 0 10px' }}>
+            Remove Admin Account?
+          </h2>
+
+          <p style={{ fontSize: '0.92rem', color: '#555', margin: '0 0 18px', lineHeight: 1.6 }}>
+            Are you sure you want to permanently remove the account for{' '}
+            <strong style={{ color: '#1a2b45' }}>{deleteTarget?.full_name || deleteTarget?.username}</strong>?
+          </p>
+
+          {/* Details summary */}
+          {deleteTarget && (
+            <div style={{
+              background: '#f8f9fa',
+              borderRadius: '8px',
+              border: '1px solid #e9ecef',
+              padding: '12px 18px',
+              textAlign: 'left',
+              fontSize: '0.85rem',
+              color: '#495057',
+              marginBottom: '20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px',
+            }}>
+              <div><strong>Admin ID:</strong> #{deleteTarget.id}</div>
+              <div><strong>Username:</strong> {deleteTarget.username}</div>
+              <div><strong>Email:</strong> {deleteTarget.email}</div>
+              <div><strong>Role:</strong> {deleteTarget.role}</div>
+            </div>
+          )}
+
+          <p style={{ fontSize: '0.82rem', color: '#dc3545', fontWeight: 600, margin: '0 0 24px' }}>
+            ⚠️ This action is permanent and cannot be undone.
+          </p>
+
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '14px' }}>
+            <button
+              onClick={handleDeleteConfirm}
+              disabled={deleteLoading}
+              style={{
+                padding: '10px 24px',
+                borderRadius: '6px',
+                fontSize: '0.88rem',
+                fontWeight: 700,
+                cursor: deleteLoading ? 'not-allowed' : 'pointer',
+                border: 'none',
+                background: '#d32f2f',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                opacity: deleteLoading ? 0.7 : 1,
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={(e) => { if (!deleteLoading) e.currentTarget.style.background = '#b71c1c'; }}
+              onMouseLeave={(e) => { if (!deleteLoading) e.currentTarget.style.background = '#d32f2f'; }}
+            >
+              {deleteLoading ? (
+                <>
+                  <i className="fas fa-spinner fa-spin" />
+                  <span>Removing...</span>
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-trash-alt" />
+                  <span>Confirm Remove</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={() => setIsDeleteModalOpen(false)}
+              disabled={deleteLoading}
+              style={{
+                padding: '10px 22px',
+                borderRadius: '6px',
+                fontSize: '0.88rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                border: '1px solid #ced4da',
+                background: '#f8f9fa',
+                color: '#495057',
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#e2e6ea')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = '#f8f9fa')}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       </ModalOverlay>
     </div>
@@ -644,7 +815,7 @@ export default function AccountsPage() {
     <>
       {/* Super Admin sees the full admin management dashboard */}
       {currentUserRole === 'Super Admin' && (
-        <SuperAdminUI />
+        <SuperAdminUI currentUser={currentUser} />
       )}
 
       {/* Regular Admin sees their personal profile dashboard */}

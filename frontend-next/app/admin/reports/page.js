@@ -591,15 +591,8 @@ export default function ReportsPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className="px-6 py-3.5 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500 shrink-0">
+            <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 text-xs text-gray-500 shrink-0">
               <span>Paper Size: Standard A4 • Document includes official Quezon City &amp; Barangay seals</span>
-              <button
-                type="button"
-                onClick={() => setShowPreviewModal(false)}
-                className="px-4 py-1.5 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100 transition-colors"
-              >
-                Close Preview
-              </button>
             </div>
           </div>
         </div>
