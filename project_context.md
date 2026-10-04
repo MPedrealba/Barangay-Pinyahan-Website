@@ -28,7 +28,7 @@
 | **Frontend** | Vanilla HTML/CSS/JS (no framework, no build step) |
 | **i18n** | Custom client-side English/Tagalog translation system (`data-i18n` attributes) |
 | **Icons** | Font Awesome 6.4.0 (CDN) |
-| **Deployment** | **Render** (backend as Node web service + static frontend) with Vercel config also present |
+| **Deployment** | **Render** (Node web service) |
 
 ---
 
@@ -137,7 +137,6 @@ Barangay Pinyahan Website/
 │   ├── barangay_pinyahan.sql         # Full schema + seed data (MySQL/MariaDB)
 │   └── tidb_import.sql              # Same schema adapted for TiDB (no CREATE DATABASE)
 ├── package.json
-├── vercel.json                       # Vercel deployment config (rewrites for API + static)
 ├── .gitignore
 └── cloudflared.exe                   # Cloudflare tunnel binary (for local dev tunneling)
 ```
@@ -495,20 +494,6 @@ SUPABASE_SERVICE_KEY=<service_key>
 - CORS configured to allow the Render frontend origin
 - Root `/` redirects to `/html/homepage/about.html`
 
-### 9.2 Vercel (Alternative Config Present)
-```json
-{
-  "builds": [
-    { "src": "backend/server.js", "use": "@vercel/node" },
-    { "src": "frontend/**", "use": "@vercel/static" }
-  ],
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/backend/server.js" },
-    { "source": "/", "destination": "/frontend/index.html" },
-    { "source": "/(.*)", "destination": "/frontend/$1" }
-  ]
-}
-```
 
 ### 9.3 Local Development
 ```bash
